@@ -22,9 +22,12 @@ import static com.ezylang.evalex.parser.Token.TokenType.FUNCTION;
 import static com.ezylang.evalex.parser.Token.TokenType.STRUCTURE_SEPARATOR;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
+import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.FunctionIfc;
 import com.ezylang.evalex.operators.OperatorIfc;
 import com.ezylang.evalex.parser.Token.TokenType;
+
+import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -66,9 +69,13 @@ public class ShuntingYardConverter {
     for (Token currentToken : expressionTokens) {
       switch (currentToken.getType()) {
         case VARIABLE_OR_CONSTANT:
-        case NUMBER_LITERAL:
-        case STRING_LITERAL:
           operandStack.push(new ASTNode(currentToken));
+          break;
+        case NUMBER_LITERAL:
+          operandStack.push(new InlinedASTNode(currentToken, EvaluationValue.numberValue(new BigDecimal(currentToken.getValue()))));
+          break;
+        case STRING_LITERAL:
+          operandStack.push(new InlinedASTNode(currentToken, EvaluationValue.stringValue(currentToken.getValue())));
           break;
         case FUNCTION:
           operatorStack.push(currentToken);

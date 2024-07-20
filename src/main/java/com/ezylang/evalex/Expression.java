@@ -112,6 +112,10 @@ public class Expression {
    * @throws EvaluationException If there were problems while evaluating the expression.
    */
   public EvaluationValue evaluateSubtree(ASTNode startNode) throws EvaluationException {
+    if (startNode instanceof InlinedASTNode) {
+      return ((InlinedASTNode) startNode).getValue(); // All primitives go here.
+    }
+
     Token token = startNode.getToken();
     EvaluationValue result;
     switch (token.getType()) {

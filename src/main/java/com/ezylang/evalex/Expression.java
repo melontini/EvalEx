@@ -113,7 +113,7 @@ public class Expression {
    */
   public EvaluationValue evaluateSubtree(ASTNode startNode) throws EvaluationException {
     if (startNode instanceof InlinedASTNode) {
-      return ((InlinedASTNode) startNode).getValue(); // All primitives go here.
+      return tryRoundValue(((InlinedASTNode) startNode).getValue()); // All primitives go here.
     }
 
     Token token = startNode.getToken();
@@ -153,14 +153,17 @@ public class Expression {
       default:
         throw new EvaluationException(token, "Unexpected evaluation token: " + token);
     }
-    if (result.isNumberValue()
-        && configuration.getDecimalPlacesRounding()
+    return tryRoundValue(result);
+  }
+
+  private EvaluationValue tryRoundValue(EvaluationValue value) {
+    if (value.isNumberValue()
+            && configuration.getDecimalPlacesRounding()
             != ExpressionConfiguration.DECIMAL_PLACES_ROUNDING_UNLIMITED) {
       return EvaluationValue.numberValue(
-          roundValue(result.getNumberValue(), configuration.getDecimalPlacesRounding()));
+              roundValue(value.getNumberValue(), configuration.getDecimalPlacesRounding()));
     }
-
-    return result;
+    return value;
   }
 
   private EvaluationValue getVariableOrConstant(Token token) throws EvaluationException {

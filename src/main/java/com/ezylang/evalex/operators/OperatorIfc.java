@@ -21,7 +21,6 @@ import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.parser.InlinedASTNode;
-import com.ezylang.evalex.parser.ParseException;
 import com.ezylang.evalex.parser.Token;
 import java.util.List;
 import org.jetbrains.annotations.Nullable;
@@ -137,7 +136,7 @@ public interface OperatorIfc {
 
   default @Nullable EvaluationValue inlineOperator(
       Expression expression, Token token, List<InlinedASTNode> parameters)
-      throws EvaluationException, ParseException {
+      throws EvaluationException {
     if (isPostfix() || isPrefix()) {
       EvaluationValue operand = parameters.get(0).getValue();
       return this.evaluate(EvaluationContext.builder(expression).build(), token, operand);

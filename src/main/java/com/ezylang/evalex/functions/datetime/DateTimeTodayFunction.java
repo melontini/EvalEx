@@ -23,7 +23,6 @@ import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.InlinedASTNode;
-import com.ezylang.evalex.parser.ParseException;
 import com.ezylang.evalex.parser.Token;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -70,8 +69,7 @@ public class DateTimeTodayFunction extends AbstractFunction {
 
   @Override
   public @Nullable EvaluationValue inlineFunction(
-      Expression expression, Token token, List<InlinedASTNode> parameters)
-      throws EvaluationException, ParseException {
+      Expression expression, Token token, List<InlinedASTNode> parameters) {
     return null;
   }
 }

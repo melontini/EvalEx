@@ -20,7 +20,6 @@ import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.parser.InlinedASTNode;
-import com.ezylang.evalex.parser.ParseException;
 import com.ezylang.evalex.parser.Token;
 import java.util.List;
 import org.jetbrains.annotations.Nullable;
@@ -95,7 +94,7 @@ public interface FunctionIfc {
 
   default @Nullable EvaluationValue inlineFunction(
       Expression expression, Token token, List<InlinedASTNode> parameters)
-      throws EvaluationException, ParseException {
+      throws EvaluationException {
     EvaluationValue[] parsed =
         parameters.stream().map(InlinedASTNode::getValue).toArray(EvaluationValue[]::new);
     this.validatePreEvaluation(token, parsed);

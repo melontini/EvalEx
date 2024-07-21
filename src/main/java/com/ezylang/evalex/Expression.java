@@ -310,21 +310,21 @@ public class Expression {
     this.abstractSyntaxTree = this.inlineASTNode(this.getAbstractSyntaxTree());
   }
 
-  private @NotNull ASTNode inlineASTNode(ASTNode node) throws EvaluationException, ParseException {
+  private @NotNull ASTNode inlineASTNode(ASTNode node) throws EvaluationException {
     if (node instanceof InlinedASTNode) return node;
 
     if (node.getParameters().isEmpty()) {
       if (node.getToken().getType() == Token.TokenType.VARIABLE_OR_CONSTANT) {
         if (!configuration.isAllowOverwriteConstants()) {
           EvaluationValue constant = configuration.getConstants().get(node.getToken().getValue());
-          if (constant != null) return new InlinedASTNode(node.getToken(), constant);
+          if (constant != null) return new InlinedASTNode(node.getToken(), tryRoundValue(constant));
         }
       } else if (node.getToken().getType() == Token.TokenType.FUNCTION) {
         EvaluationValue function =
             node.getToken()
                 .getFunctionDefinition()
                 .inlineFunction(this, node.getToken(), Collections.emptyList());
-        if (function != null) return new InlinedASTNode(node.getToken(), function);
+        if (function != null) return new InlinedASTNode(node.getToken(), tryRoundValue(function));
       }
       return node;
     }
@@ -346,14 +346,16 @@ public class Expression {
                 .getOperatorDefinition()
                 .inlineOperator(this, node.getToken(), parameters);
         if (operator != null)
-          return new InlinedASTNode(node.getToken(), operator, parameters.toArray(ASTNode[]::new));
+          return new InlinedASTNode(
+              node.getToken(), tryRoundValue(operator), parameters.toArray(ASTNode[]::new));
       case FUNCTION:
         EvaluationValue function =
             node.getToken()
                 .getFunctionDefinition()
                 .inlineFunction(this, node.getToken(), parameters);
         if (function != null)
-          return new InlinedASTNode(node.getToken(), function, parameters.toArray(ASTNode[]::new));
+          return new InlinedASTNode(
+              node.getToken(), tryRoundValue(function), parameters.toArray(ASTNode[]::new));
     }
     return node;
   }

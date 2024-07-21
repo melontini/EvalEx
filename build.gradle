@@ -14,7 +14,7 @@ def local = !System.getenv().containsKey("GITHUB_RUN_NUMBER")
 group = 'me.melontini'
 version = "${project.version}-${local ? 'local' : "build.${System.getenv("GITHUB_RUN_NUMBER")}"}"
 description = 'EvalEx'
-java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
     mavenCentral()

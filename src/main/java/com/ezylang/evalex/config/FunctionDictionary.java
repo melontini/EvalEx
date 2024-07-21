@@ -18,6 +18,7 @@ package com.ezylang.evalex.config;
 import com.ezylang.evalex.functions.FunctionIfc;
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,10 @@ public class FunctionDictionary {
 
   public boolean hasFunction(String functionName) {
     return this.functions.containsKey(functionName);
+  }
+
+  public void forEach(BiConsumer<String, FunctionIfc> consumer) {
+    this.functions.forEach(consumer);
   }
 
   public Builder toBuilder(Supplier<Map<String, FunctionIfc>> supplier) {

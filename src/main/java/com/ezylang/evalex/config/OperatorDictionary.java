@@ -15,9 +15,11 @@
 */
 package com.ezylang.evalex.config;
 
+import com.ezylang.evalex.functions.FunctionIfc;
 import com.ezylang.evalex.operators.OperatorIfc;
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +57,12 @@ public class OperatorDictionary {
 
   public boolean hasInfixOperator(String operator) {
     return infixOperators.containsKey(operator);
+  }
+
+  public void forEach(BiConsumer<String, OperatorIfc> consumer) {
+    this.prefixOperators.forEach(consumer);
+    this.postfixOperators.forEach(consumer);
+    this.infixOperators.forEach(consumer);
   }
 
   public Builder toBuilder(Supplier<Map<String, OperatorIfc>> supplier) {

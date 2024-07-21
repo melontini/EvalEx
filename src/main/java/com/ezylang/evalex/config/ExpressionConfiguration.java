@@ -54,7 +54,7 @@ public class ExpressionConfiguration {
 
   /** The standard set constants for EvalEx. */
   public static final Map<String, EvaluationValue> StandardConstants =
-          getStandardConstants(() -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
+      getStandardConstants(() -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
 
   /** Setting the decimal places to unlimited, will disable intermediate rounding. */
   public static final int DECIMAL_PLACES_ROUNDING_UNLIMITED = -1;

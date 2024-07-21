@@ -17,6 +17,7 @@ package com.ezylang.evalex.data;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.ezylang.evalex.EvaluationException;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +27,7 @@ import org.junit.jupiter.api.Test;
 class MapBasedDataAccessorTest {
 
   @Test
-  void testSetGetData() {
+  void testSetGetData() throws EvaluationException {
     Map<String, EvaluationValue> variables = new HashMap<>();
     DataAccessorIfc dataAccessor = (variable, context) -> variables.get(variable);
 
@@ -44,7 +45,7 @@ class MapBasedDataAccessorTest {
   }
 
   @Test
-  void testCaseInsensitivity() {
+  void testCaseInsensitivity() throws EvaluationException {
     Map<String, EvaluationValue> variables = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     DataAccessorIfc dataAccessor = (variable, context) -> variables.get(variable);
 

@@ -55,6 +55,7 @@ spotless {
 publishing {
     publications {
         maven(MavenPublication) {
+            artifactId "evalex"
             from(components.java)
         }
     }

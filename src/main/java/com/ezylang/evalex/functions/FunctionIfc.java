@@ -41,18 +41,13 @@ public interface FunctionIfc {
   /**
    * Performs the function logic and returns an evaluation result.
    *
-   * @param expression The expression, where this function is executed. Can be used to access the
-   *     expression configuration.
    * @param functionToken The function token from the parsed expression.
    * @param parameterValues The parameter values.
    * @return The evaluation result in form of a {@link EvaluationValue}.
    * @throws EvaluationException In case there were problems during evaluation.
    */
   EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues)
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues)
       throws EvaluationException;
 
   /**
@@ -104,6 +99,6 @@ public interface FunctionIfc {
     EvaluationValue[] parsed =
         parameters.stream().map(InlinedASTNode::getValue).toArray(EvaluationValue[]::new);
     this.validatePreEvaluation(token, parsed);
-    return this.evaluate(expression, token, EvaluationContext.builder().build(), parsed);
+    return this.evaluate(EvaluationContext.builder(expression).build(), token, parsed);
   }
 }

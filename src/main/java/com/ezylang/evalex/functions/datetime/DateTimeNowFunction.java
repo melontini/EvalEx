@@ -45,11 +45,8 @@ import org.jetbrains.annotations.Nullable;
 public class DateTimeNowFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues) {
-    return expression.convertValue(Instant.now());
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
+    return context.expression().convertValue(Instant.now());
   }
 
   @Override

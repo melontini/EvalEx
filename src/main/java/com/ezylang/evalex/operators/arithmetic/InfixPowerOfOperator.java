@@ -19,7 +19,6 @@ import static com.ezylang.evalex.operators.OperatorIfc.OPERATOR_PRECEDENCE_POWER
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.operators.AbstractOperator;
@@ -40,10 +39,7 @@ public class InfixPowerOfOperator extends AbstractOperator {
 
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token operatorToken,
-      EvaluationContext context,
-      EvaluationValue... operands)
+      EvaluationContext context, Token operatorToken, EvaluationValue... operands)
       throws EvaluationException {
     EvaluationValue leftOperand = operands[0];
     EvaluationValue rightOperand = operands[1];
@@ -54,7 +50,7 @@ public class InfixPowerOfOperator extends AbstractOperator {
        * http://stackoverflow.com/questions/3579779/how-to-do-a-fractional-power-on-bigdecimal-in-java
        */
 
-      MathContext mathContext = expression.getConfiguration().getMathContext();
+      MathContext mathContext = context.expression().getConfiguration().getMathContext();
       BigDecimal v1 = leftOperand.getNumberValue();
       BigDecimal v2 = rightOperand.getNumberValue();
 
@@ -70,7 +66,7 @@ public class InfixPowerOfOperator extends AbstractOperator {
       if (signOf2 == -1) {
         result = BigDecimal.ONE.divide(result, mathContext.getPrecision(), RoundingMode.HALF_UP);
       }
-      return expression.convertValue(result);
+      return context.expression().convertValue(result);
     } else {
       throw EvaluationException.ofUnsupportedDataTypeInOperation(operatorToken);
     }

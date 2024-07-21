@@ -19,7 +19,6 @@ import static com.ezylang.evalex.operators.OperatorIfc.OPERATOR_PRECEDENCE_OR;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.operators.AbstractOperator;
 import com.ezylang.evalex.operators.InfixOperator;
@@ -31,15 +30,18 @@ public class InfixOrOperator extends AbstractOperator {
 
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token operatorToken,
-      EvaluationContext context,
-      EvaluationValue... operands)
+      EvaluationContext context, Token operatorToken, EvaluationValue... operands)
       throws EvaluationException {
-    return expression.convertValue(
-        expression.evaluateSubtree(operands[0].getExpressionNode(), context).getBooleanValue()
-            || expression
-                .evaluateSubtree(operands[1].getExpressionNode(), context)
-                .getBooleanValue());
+    return context
+        .expression()
+        .convertValue(
+            context
+                    .expression()
+                    .evaluateSubtree(operands[0].getExpressionNode(), context)
+                    .getBooleanValue()
+                || context
+                    .expression()
+                    .evaluateSubtree(operands[1].getExpressionNode(), context)
+                    .getBooleanValue());
   }
 }

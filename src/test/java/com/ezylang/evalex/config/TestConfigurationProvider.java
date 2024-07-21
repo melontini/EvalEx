@@ -16,7 +16,6 @@
 package com.ezylang.evalex.config;
 
 import com.ezylang.evalex.EvaluationContext;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
@@ -64,12 +63,9 @@ public class TestConfigurationProvider {
   public static class DummyFunction extends AbstractFunction {
     @Override
     public EvaluationValue evaluate(
-        Expression expression,
-        Token functionToken,
-        EvaluationContext context,
-        EvaluationValue... parameterValues) {
+        EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
       // dummy implementation
-      return expression.convertValue("OK");
+      return context.expression().convertValue("OK");
     }
   }
 
@@ -77,10 +73,7 @@ public class TestConfigurationProvider {
   public static class PrefixPlusPlusOperator extends AbstractOperator {
     @Override
     public EvaluationValue evaluate(
-        Expression expression,
-        Token operatorToken,
-        EvaluationContext context,
-        EvaluationValue... operands) {
+        EvaluationContext context, Token operatorToken, EvaluationValue... operands) {
       // dummy implementation
       EvaluationValue operand = operands[0];
       return EvaluationValue.numberValue(operand.getNumberValue().add(BigDecimal.ONE));
@@ -91,10 +84,7 @@ public class TestConfigurationProvider {
   public static class PostfixPlusPlusOperator extends AbstractOperator {
     @Override
     public EvaluationValue evaluate(
-        Expression expression,
-        Token operatorToken,
-        EvaluationContext context,
-        EvaluationValue... operands) {
+        EvaluationContext context, Token operatorToken, EvaluationValue... operands) {
       // dummy implementation
       EvaluationValue operand = operands[0];
       return EvaluationValue.numberValue(operand.getNumberValue().add(BigDecimal.ONE));
@@ -105,10 +95,7 @@ public class TestConfigurationProvider {
   public static class PostfixQuestionOperator extends AbstractOperator {
     @Override
     public EvaluationValue evaluate(
-        Expression expression,
-        Token operatorToken,
-        EvaluationContext context,
-        EvaluationValue... operands) {
+        EvaluationContext context, Token operatorToken, EvaluationValue... operands) {
       // dummy implementation
       return EvaluationValue.stringValue("?");
     }

@@ -52,14 +52,11 @@ import org.jetbrains.annotations.Nullable;
 public class DateTimeTodayFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues)
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues)
       throws EvaluationException {
-    ZoneId zoneId = parseZoneId(expression, functionToken, parameterValues);
+    ZoneId zoneId = parseZoneId(context.expression(), functionToken, parameterValues);
     Instant today = LocalDate.now().atStartOfDay(zoneId).toInstant();
-    return expression.convertValue(today);
+    return context.expression().convertValue(today);
   }
 
   private ZoneId parseZoneId(

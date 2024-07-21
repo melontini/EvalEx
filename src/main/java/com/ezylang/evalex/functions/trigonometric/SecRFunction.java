@@ -16,7 +16,6 @@
 package com.ezylang.evalex.functions.trigonometric;
 
 import com.ezylang.evalex.EvaluationContext;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
@@ -27,13 +26,11 @@ import com.ezylang.evalex.parser.Token;
 public class SecRFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues) {
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
 
     /* Formula: sec(x) = 1 / cos(x) */
-    return expression.convertDoubleValue(
-        1 / Math.cos(parameterValues[0].getNumberValue().doubleValue()));
+    return context
+        .expression()
+        .convertDoubleValue(1 / Math.cos(parameterValues[0].getNumberValue().doubleValue()));
   }
 }

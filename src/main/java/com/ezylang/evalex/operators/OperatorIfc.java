@@ -126,18 +126,13 @@ public interface OperatorIfc {
   /**
    * Performs the operator logic and returns an evaluation result.
    *
-   * @param expression The expression, where this function is executed. Can be used to access the
-   *     expression configuration.
    * @param operatorToken The operator token from the parsed expression.
    * @param operands The operands, one for prefix and postfix operators, two for infix operators.
    * @return The evaluation result in form of a {@link EvaluationValue}.
    * @throws EvaluationException In case there were problems during evaluation.
    */
   EvaluationValue evaluate(
-      Expression expression,
-      Token operatorToken,
-      EvaluationContext context,
-      EvaluationValue... operands)
+      EvaluationContext context, Token operatorToken, EvaluationValue... operands)
       throws EvaluationException;
 
   default @Nullable EvaluationValue inlineOperator(
@@ -145,11 +140,11 @@ public interface OperatorIfc {
       throws EvaluationException, ParseException {
     if (isPostfix() || isPrefix()) {
       EvaluationValue operand = parameters.get(0).getValue();
-      return this.evaluate(expression, token, EvaluationContext.builder().build(), operand);
+      return this.evaluate(EvaluationContext.builder(expression).build(), token, operand);
     } else {
       EvaluationValue left = parameters.get(0).getValue();
       EvaluationValue right = parameters.get(1).getValue();
-      return this.evaluate(expression, token, EvaluationContext.builder().build(), left, right);
+      return this.evaluate(EvaluationContext.builder(expression).build(), token, left, right);
     }
   }
 }

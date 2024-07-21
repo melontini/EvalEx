@@ -17,7 +17,6 @@ package com.ezylang.evalex.functions.datetime;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
@@ -41,20 +40,17 @@ import java.util.TimeZone;
 public class DateTimeNewFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues)
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues)
       throws EvaluationException {
 
     int parameterLength = parameterValues.length;
 
     if (parameterLength == 1) {
       BigDecimal millis = parameterValues[0].getNumberValue();
-      return expression.convertValue(Instant.ofEpochMilli(millis.longValue()));
+      return context.expression().convertValue(Instant.ofEpochMilli(millis.longValue()));
     }
 
-    ZoneId zoneId = expression.getConfiguration().getZoneId();
+    ZoneId zoneId = context.expression().getConfiguration().getZoneId();
     if (parameterValues[parameterLength - 1].isStringValue()) {
       zoneId =
           ZoneIdConverter.convert(
@@ -70,10 +66,12 @@ public class DateTimeNewFunction extends AbstractFunction {
     int second = parameterLength >= 6 ? parameterValues[5].getNumberValue().intValue() : 0;
     int nanoOfs = parameterLength == 7 ? parameterValues[6].getNumberValue().intValue() : 0;
 
-    return expression.convertValue(
-        LocalDateTime.of(year, month, day, hour, minute, second, nanoOfs)
-            .atZone(zoneId)
-            .toInstant());
+    return context
+        .expression()
+        .convertValue(
+            LocalDateTime.of(year, month, day, hour, minute, second, nanoOfs)
+                .atZone(zoneId)
+                .toInstant());
   }
 
   @Override

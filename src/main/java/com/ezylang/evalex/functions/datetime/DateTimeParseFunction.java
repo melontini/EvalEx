@@ -17,7 +17,6 @@ package com.ezylang.evalex.functions.datetime;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.data.conversion.DateTimeConverter;
@@ -45,15 +44,12 @@ public class DateTimeParseFunction extends AbstractFunction {
 
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues)
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues)
       throws EvaluationException {
 
     String value = parameterValues[0].getStringValue();
 
-    ZoneId zoneId = expression.getConfiguration().getZoneId();
+    ZoneId zoneId = context.expression().getConfiguration().getZoneId();
     if (parameterValues.length > 1 && !parameterValues[1].isNullValue()) {
       zoneId = ZoneIdConverter.convert(functionToken, parameterValues[1].getStringValue());
     }
@@ -74,7 +70,7 @@ public class DateTimeParseFunction extends AbstractFunction {
         }
       }
     } else {
-      formatters = expression.getConfiguration().getDateTimeFormatters();
+      formatters = context.expression().getConfiguration().getDateTimeFormatters();
     }
     DateTimeConverter converter = new DateTimeConverter();
     Instant instant = converter.parseDateTime(value, zoneId, formatters);

@@ -16,7 +16,6 @@
 package com.ezylang.evalex.functions.datetime;
 
 import com.ezylang.evalex.EvaluationContext;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
@@ -33,10 +32,7 @@ import java.time.Duration;
 public class DurationNewFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues) {
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
 
     int parameterLength = parameterValues.length;
 
@@ -55,6 +51,6 @@ public class DurationNewFunction extends AbstractFunction {
             .plusMillis(millis)
             .plusNanos(nanos);
 
-    return expression.convertValue(duration);
+    return context.expression().convertValue(duration);
   }
 }

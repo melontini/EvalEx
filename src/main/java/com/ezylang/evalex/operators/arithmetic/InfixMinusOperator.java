@@ -19,7 +19,6 @@ import static com.ezylang.evalex.operators.OperatorIfc.OPERATOR_PRECEDENCE_ADDIT
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.operators.AbstractOperator;
 import com.ezylang.evalex.operators.InfixOperator;
@@ -32,38 +31,44 @@ public class InfixMinusOperator extends AbstractOperator {
 
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token operatorToken,
-      EvaluationContext context,
-      EvaluationValue... operands)
+      EvaluationContext context, Token operatorToken, EvaluationValue... operands)
       throws EvaluationException {
     EvaluationValue leftOperand = operands[0];
     EvaluationValue rightOperand = operands[1];
 
     if (leftOperand.isNumberValue() && rightOperand.isNumberValue()) {
-      return expression.convertValue(
-          leftOperand
-              .getNumberValue()
-              .subtract(
-                  rightOperand.getNumberValue(), expression.getConfiguration().getMathContext()));
+      return context
+          .expression()
+          .convertValue(
+              leftOperand
+                  .getNumberValue()
+                  .subtract(
+                      rightOperand.getNumberValue(),
+                      context.expression().getConfiguration().getMathContext()));
 
     } else if (leftOperand.isDateTimeValue() && rightOperand.isDateTimeValue()) {
-      return expression.convertValue(
-          Duration.ofMillis(
-              leftOperand.getDateTimeValue().toEpochMilli()
-                  - rightOperand.getDateTimeValue().toEpochMilli()));
+      return context
+          .expression()
+          .convertValue(
+              Duration.ofMillis(
+                  leftOperand.getDateTimeValue().toEpochMilli()
+                      - rightOperand.getDateTimeValue().toEpochMilli()));
 
     } else if (leftOperand.isDateTimeValue() && rightOperand.isDurationValue()) {
-      return expression.convertValue(
-          leftOperand.getDateTimeValue().minus(rightOperand.getDurationValue()));
+      return context
+          .expression()
+          .convertValue(leftOperand.getDateTimeValue().minus(rightOperand.getDurationValue()));
     } else if (leftOperand.isDurationValue() && rightOperand.isDurationValue()) {
-      return expression.convertValue(
-          leftOperand.getDurationValue().minus(rightOperand.getDurationValue()));
+      return context
+          .expression()
+          .convertValue(leftOperand.getDurationValue().minus(rightOperand.getDurationValue()));
     } else if (leftOperand.isDateTimeValue() && rightOperand.isNumberValue()) {
-      return expression.convertValue(
-          leftOperand
-              .getDateTimeValue()
-              .minus(Duration.ofMillis(rightOperand.getNumberValue().longValue())));
+      return context
+          .expression()
+          .convertValue(
+              leftOperand
+                  .getDateTimeValue()
+                  .minus(Duration.ofMillis(rightOperand.getNumberValue().longValue())));
     } else {
       throw EvaluationException.ofUnsupportedDataTypeInOperation(operatorToken);
     }

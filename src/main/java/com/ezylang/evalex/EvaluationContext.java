@@ -15,7 +15,6 @@
 */
 package com.ezylang.evalex;
 
-import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
 import java.util.Map;
 import lombok.Value;
@@ -27,42 +26,32 @@ import org.jetbrains.annotations.Nullable;
 @With
 @Accessors(fluent = true)
 public class EvaluationContext {
-  ExpressionConfiguration configuration;
+  Expression expression;
   Map<String, EvaluationValue> parameters;
   Object @Nullable [] context;
 
-  public static EvaluationContextBuilder builder() {
-    return new EvaluationContextBuilder(ExpressionConfiguration.defaultConfiguration());
-  }
-
-  public static EvaluationContextBuilder builder(ExpressionConfiguration configuration) {
-    return new EvaluationContextBuilder(configuration);
-  }
-
   public static EvaluationContextBuilder builder(Expression expression) {
-    return new EvaluationContextBuilder(expression.getConfiguration());
+    return new EvaluationContextBuilder(expression);
   }
 
   public static final class EvaluationContextBuilder {
 
-    private final ExpressionConfiguration configuration;
-    Map<String, EvaluationValue> parameters;
-    Object[] context;
+    private final Expression expression;
+    private final Map<String, EvaluationValue> parameters;
+    private Object[] context;
 
-    private EvaluationContextBuilder(ExpressionConfiguration configuration) {
-      this.configuration = configuration;
-      this.parameters = configuration.getParameterMapSupplier().get();
+    private EvaluationContextBuilder(Expression expression) {
+      this.expression = expression;
+      this.parameters = expression.getConfiguration().getParameterMapSupplier().get();
     }
 
     public EvaluationContextBuilder parameter(String parameter, Object value) {
-      if (!configuration.isAllowOverwriteConstants()) {
-        if (configuration.getConstants().containsKey(parameter))
+      if (!expression.getConfiguration().isAllowOverwriteConstants()) {
+        if (expression.getConfiguration().getConstants().containsKey(parameter))
           throw new UnsupportedOperationException(
               String.format("Can't set value for constant '%s'", parameter));
       }
-      this.parameters.put(
-          parameter,
-          configuration.getEvaluationValueConverter().convertObject(value, configuration));
+      this.parameters.put(parameter, expression.convertValue(value));
       return this;
     }
 
@@ -85,7 +74,7 @@ public class EvaluationContext {
     }
 
     public EvaluationContext build() {
-      return new EvaluationContext(this.configuration, this.parameters, this.context);
+      return new EvaluationContext(this.expression, this.parameters, this.context);
     }
   }
 }

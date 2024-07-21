@@ -16,7 +16,6 @@
 package com.ezylang.evalex.functions.datetime;
 
 import com.ezylang.evalex.EvaluationContext;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
@@ -31,11 +30,8 @@ import java.time.Duration;
 public class DurationParseFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues) {
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
     String text = parameterValues[0].getStringValue();
-    return expression.convertValue(Duration.parse(text));
+    return context.expression().convertValue(Duration.parse(text));
   }
 }

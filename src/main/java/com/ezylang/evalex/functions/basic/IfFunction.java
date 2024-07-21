@@ -17,7 +17,6 @@ package com.ezylang.evalex.functions.basic;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
@@ -35,15 +34,12 @@ import com.ezylang.evalex.parser.Token;
 public class IfFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues)
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues)
       throws EvaluationException {
     if (Boolean.TRUE.equals(parameterValues[0].getBooleanValue())) {
-      return expression.evaluateSubtree(parameterValues[1].getExpressionNode(), context);
+      return context.expression().evaluateSubtree(parameterValues[1].getExpressionNode(), context);
     } else {
-      return expression.evaluateSubtree(parameterValues[2].getExpressionNode(), context);
+      return context.expression().evaluateSubtree(parameterValues[2].getExpressionNode(), context);
     }
   }
 }

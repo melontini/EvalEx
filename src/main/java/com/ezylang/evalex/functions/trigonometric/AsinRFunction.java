@@ -20,7 +20,6 @@ import static java.math.BigDecimal.valueOf;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
@@ -35,10 +34,7 @@ public class AsinRFunction extends AbstractFunction {
 
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues)
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues)
       throws EvaluationException {
 
     BigDecimal parameterValue = parameterValues[0].getNumberValue();
@@ -51,7 +47,8 @@ public class AsinRFunction extends AbstractFunction {
       throw new EvaluationException(
           functionToken, "Illegal asinr(x) for x < -1: x = " + parameterValue);
     }
-    return expression.convertDoubleValue(
-        Math.asin(parameterValues[0].getNumberValue().doubleValue()));
+    return context
+        .expression()
+        .convertDoubleValue(Math.asin(parameterValues[0].getNumberValue().doubleValue()));
   }
 }

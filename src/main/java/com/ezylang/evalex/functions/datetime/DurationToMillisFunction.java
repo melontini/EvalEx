@@ -16,7 +16,6 @@
 package com.ezylang.evalex.functions.datetime;
 
 import com.ezylang.evalex.EvaluationContext;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
@@ -27,10 +26,7 @@ import com.ezylang.evalex.parser.Token;
 public class DurationToMillisFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues) {
-    return expression.convertValue(parameterValues[0].getDurationValue().toMillis());
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
+    return context.expression().convertValue(parameterValues[0].getDurationValue().toMillis());
   }
 }

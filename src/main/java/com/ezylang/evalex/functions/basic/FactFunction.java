@@ -16,7 +16,6 @@
 package com.ezylang.evalex.functions.basic;
 
 import com.ezylang.evalex.EvaluationContext;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
@@ -29,18 +28,15 @@ public class FactFunction extends AbstractFunction {
 
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues) {
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
     int number = parameterValues[0].getNumberValue().intValue();
     BigDecimal factorial = BigDecimal.ONE;
     for (int i = 1; i <= number; i++) {
       factorial =
           factorial.multiply(
-              new BigDecimal(i, expression.getConfiguration().getMathContext()),
-              expression.getConfiguration().getMathContext());
+              new BigDecimal(i, context.expression().getConfiguration().getMathContext()),
+              context.expression().getConfiguration().getMathContext());
     }
-    return expression.convertValue(factorial);
+    return context.expression().convertValue(factorial);
   }
 }

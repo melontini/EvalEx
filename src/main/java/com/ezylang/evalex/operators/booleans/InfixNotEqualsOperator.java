@@ -18,7 +18,6 @@ package com.ezylang.evalex.operators.booleans;
 import static com.ezylang.evalex.operators.OperatorIfc.OPERATOR_PRECEDENCE_EQUALITY;
 
 import com.ezylang.evalex.EvaluationContext;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.operators.AbstractOperator;
 import com.ezylang.evalex.operators.InfixOperator;
@@ -30,16 +29,13 @@ public class InfixNotEqualsOperator extends AbstractOperator {
 
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token operatorToken,
-      EvaluationContext context,
-      EvaluationValue... operands) {
+      EvaluationContext context, Token operatorToken, EvaluationValue... operands) {
     if (operands[0].getDataType() != operands[1].getDataType()) {
       return EvaluationValue.TRUE;
     }
     if (operands[0].isNullValue() && operands[1].isNullValue()) {
       return EvaluationValue.FALSE;
     }
-    return expression.convertValue(operands[0].compareTo(operands[1]) != 0);
+    return context.expression().convertValue(operands[0].compareTo(operands[1]) != 0);
   }
 }

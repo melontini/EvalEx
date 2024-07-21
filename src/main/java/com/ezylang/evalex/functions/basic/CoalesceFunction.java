@@ -16,7 +16,6 @@
 package com.ezylang.evalex.functions.basic;
 
 import com.ezylang.evalex.EvaluationContext;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
@@ -30,10 +29,7 @@ import com.ezylang.evalex.parser.Token;
 public class CoalesceFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues) {
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
     for (EvaluationValue parameter : parameterValues) {
       if (!parameter.isNullValue()) {
         return parameter;

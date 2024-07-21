@@ -16,7 +16,6 @@
 package com.ezylang.evalex.functions.basic;
 
 import com.ezylang.evalex.EvaluationContext;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
@@ -28,14 +27,11 @@ import java.math.BigDecimal;
 public class MaxFunction extends AbstractMinMaxFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues) {
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
     BigDecimal min = null;
     for (EvaluationValue parameter : parameterValues) {
       min = findMinOrMax(min, parameter, false);
     }
-    return expression.convertValue(min);
+    return context.expression().convertValue(min);
   }
 }

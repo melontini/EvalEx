@@ -16,7 +16,6 @@
 package com.ezylang.evalex.functions.basic;
 
 import com.ezylang.evalex.EvaluationContext;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
@@ -28,13 +27,12 @@ import java.math.RoundingMode;
 public class CeilingFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues) {
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
 
     EvaluationValue value = parameterValues[0];
 
-    return expression.convertValue(value.getNumberValue().setScale(0, RoundingMode.CEILING));
+    return context
+        .expression()
+        .convertValue(value.getNumberValue().setScale(0, RoundingMode.CEILING));
   }
 }

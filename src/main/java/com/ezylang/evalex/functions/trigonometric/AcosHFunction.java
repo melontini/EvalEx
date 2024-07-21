@@ -17,7 +17,6 @@ package com.ezylang.evalex.functions.trigonometric;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
@@ -28,10 +27,7 @@ import com.ezylang.evalex.parser.Token;
 public class AcosHFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues)
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues)
       throws EvaluationException {
 
     /* Formula: acosh(x) = ln(x + sqrt(x^2 - 1)) */
@@ -39,6 +35,8 @@ public class AcosHFunction extends AbstractFunction {
     if (Double.compare(value, 1) < 0) {
       throw new EvaluationException(functionToken, "Value must be greater or equal to one");
     }
-    return expression.convertDoubleValue(Math.log(value + (Math.sqrt(Math.pow(value, 2) - 1))));
+    return context
+        .expression()
+        .convertDoubleValue(Math.log(value + (Math.sqrt(Math.pow(value, 2) - 1))));
   }
 }

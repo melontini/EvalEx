@@ -16,7 +16,6 @@
 package com.ezylang.evalex.functions.basic;
 
 import com.ezylang.evalex.EvaluationContext;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
@@ -34,17 +33,14 @@ import java.util.Arrays;
 public class AverageFunction extends AbstractMinMaxFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues) {
-    MathContext mathContext = expression.getConfiguration().getMathContext();
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
+    MathContext mathContext = context.expression().getConfiguration().getMathContext();
     BigDecimal sum =
         Arrays.stream(parameterValues)
             .map(EvaluationValue::getNumberValue)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
     BigDecimal count = BigDecimal.valueOf(parameterValues.length);
     BigDecimal average = sum.divide(count, mathContext);
-    return expression.convertValue(average);
+    return context.expression().convertValue(average);
   }
 }

@@ -16,7 +16,6 @@
 package com.ezylang.evalex.functions.basic;
 
 import com.ezylang.evalex.EvaluationContext;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
@@ -31,20 +30,17 @@ public class SqrtFunction extends AbstractFunction {
 
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues) {
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
 
     /*
      * From The Java Programmers Guide To numerical Computing
      * (Ronald Mak, 2003)
      */
     BigDecimal x = parameterValues[0].getNumberValue();
-    MathContext mathContext = expression.getConfiguration().getMathContext();
+    MathContext mathContext = context.expression().getConfiguration().getMathContext();
 
     if (x.compareTo(BigDecimal.ZERO) == 0) {
-      return expression.convertValue(BigDecimal.ZERO);
+      return context.expression().convertValue(BigDecimal.ZERO);
     }
     BigInteger n = x.movePointRight(mathContext.getPrecision() << 1).toBigInteger();
 
@@ -60,6 +56,6 @@ public class SqrtFunction extends AbstractFunction {
       test = ix.subtract(ixPrev).abs();
     } while (test.compareTo(BigInteger.ZERO) != 0 && test.compareTo(BigInteger.ONE) != 0);
 
-    return expression.convertValue(new BigDecimal(ix, mathContext.getPrecision()));
+    return context.expression().convertValue(new BigDecimal(ix, mathContext.getPrecision()));
   }
 }

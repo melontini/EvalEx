@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ezylang.evalex.EvaluationContext;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.parser.Token;
 import org.junit.jupiter.api.Test;
@@ -67,10 +66,7 @@ class FunctionTest {
   private static class CorrectFunctionDefinitionFunction extends AbstractFunction {
     @Override
     public EvaluationValue evaluate(
-        Expression expression,
-        Token functionToken,
-        EvaluationContext context,
-        EvaluationValue... parameterValues) {
+        EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
       return EvaluationValue.stringValue("OK");
     }
   }
@@ -81,10 +77,7 @@ class FunctionTest {
   private static class WrongVarargFunctionDefinitionFunction extends AbstractFunction {
     @Override
     public EvaluationValue evaluate(
-        Expression expression,
-        Token functionToken,
-        EvaluationContext context,
-        EvaluationValue... parameterValues) {
+        EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
       return EvaluationValue.stringValue("OK");
     }
   }

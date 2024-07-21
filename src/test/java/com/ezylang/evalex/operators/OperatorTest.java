@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ezylang.evalex.EvaluationContext;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.parser.Token;
 import org.junit.jupiter.api.Test;
@@ -87,10 +86,7 @@ class OperatorTest {
   private static class DummyAnnotationOperator extends AbstractOperator {
     @Override
     public EvaluationValue evaluate(
-        Expression expression,
-        Token operatorToken,
-        EvaluationContext context,
-        EvaluationValue... operands) {
+        EvaluationContext context, Token operatorToken, EvaluationValue... operands) {
       return EvaluationValue.stringValue("OK");
     }
   }

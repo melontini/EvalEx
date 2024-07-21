@@ -17,7 +17,6 @@ package com.ezylang.evalex.functions.datetime;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
@@ -36,26 +35,25 @@ import java.time.format.DateTimeFormatter;
 public class DateTimeFormatFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues)
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues)
       throws EvaluationException {
 
-    DateTimeFormatter formatter = expression.getConfiguration().getDateTimeFormatters().get(0);
+    DateTimeFormatter formatter =
+        context.expression().getConfiguration().getDateTimeFormatters().get(0);
     if (parameterValues.length > 1) {
       formatter =
           DateTimeFormatter.ofPattern(parameterValues[1].getStringValue())
-              .withLocale(expression.getConfiguration().getLocale());
+              .withLocale(context.expression().getConfiguration().getLocale());
     }
 
-    ZoneId zoneId = expression.getConfiguration().getZoneId();
+    ZoneId zoneId = context.expression().getConfiguration().getZoneId();
     if (parameterValues.length == 3) {
       zoneId = ZoneIdConverter.convert(functionToken, parameterValues[2].getStringValue());
     }
 
-    return expression.convertValue(
-        parameterValues[0].getDateTimeValue().atZone(zoneId).format(formatter));
+    return context
+        .expression()
+        .convertValue(parameterValues[0].getDateTimeValue().atZone(zoneId).format(formatter));
   }
 
   @Override

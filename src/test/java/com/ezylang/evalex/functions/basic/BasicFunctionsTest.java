@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ezylang.evalex.BaseEvaluationTest;
+import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.config.ExpressionConfiguration;
@@ -228,6 +229,8 @@ class BasicFunctionsTest extends BaseEvaluationTest {
     // somehow, code coverage for the NotFunction traditional tests does not work on Google build
     NotFunction notFunction = new NotFunction();
     Expression expressionMock = Mockito.mock(Expression.class);
+    Mockito.when(expressionMock.getConfiguration())
+        .thenReturn(ExpressionConfiguration.defaultConfiguration());
     Mockito.when(expressionMock.convertValue(true)).thenReturn(EvaluationValue.booleanValue(true));
     Mockito.when(expressionMock.convertValue(false))
         .thenReturn(EvaluationValue.booleanValue(false));
@@ -235,12 +238,18 @@ class BasicFunctionsTest extends BaseEvaluationTest {
 
     assertThat(
             notFunction
-                .evaluate(expressionMock, token, null, EvaluationValue.booleanValue(true))
+                .evaluate(
+                    EvaluationContext.builder(expressionMock).build(),
+                    token,
+                    EvaluationValue.booleanValue(true))
                 .getBooleanValue())
         .isFalse();
     assertThat(
             notFunction
-                .evaluate(expressionMock, token, null, EvaluationValue.booleanValue(false))
+                .evaluate(
+                    EvaluationContext.builder(expressionMock).build(),
+                    token,
+                    EvaluationValue.booleanValue(false))
                 .getBooleanValue())
         .isTrue();
   }

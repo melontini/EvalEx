@@ -19,7 +19,6 @@ import static java.math.BigDecimal.ONE;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
@@ -31,10 +30,7 @@ import java.math.BigDecimal;
 public class AcosRFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues)
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues)
       throws EvaluationException {
 
     BigDecimal parameterValue = parameterValues[0].getNumberValue();
@@ -48,6 +44,6 @@ public class AcosRFunction extends AbstractFunction {
           functionToken, "Illegal acosr(x) for x < -1: x = " + parameterValue);
     }
 
-    return expression.convertDoubleValue(Math.acos(parameterValue.doubleValue()));
+    return context.expression().convertDoubleValue(Math.acos(parameterValue.doubleValue()));
   }
 }

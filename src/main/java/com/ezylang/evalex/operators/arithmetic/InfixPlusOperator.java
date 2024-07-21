@@ -18,7 +18,6 @@ package com.ezylang.evalex.operators.arithmetic;
 import static com.ezylang.evalex.operators.OperatorIfc.OPERATOR_PRECEDENCE_ADDITIVE;
 
 import com.ezylang.evalex.EvaluationContext;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.operators.AbstractOperator;
 import com.ezylang.evalex.operators.InfixOperator;
@@ -33,31 +32,38 @@ public class InfixPlusOperator extends AbstractOperator {
 
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token operatorToken,
-      EvaluationContext context,
-      EvaluationValue... operands) {
+      EvaluationContext context, Token operatorToken, EvaluationValue... operands) {
     EvaluationValue leftOperand = operands[0];
     EvaluationValue rightOperand = operands[1];
 
     if (leftOperand.isNumberValue() && rightOperand.isNumberValue()) {
-      return expression.convertValue(
-          leftOperand
-              .getNumberValue()
-              .add(rightOperand.getNumberValue(), expression.getConfiguration().getMathContext()));
+      return context
+          .expression()
+          .convertValue(
+              leftOperand
+                  .getNumberValue()
+                  .add(
+                      rightOperand.getNumberValue(),
+                      context.expression().getConfiguration().getMathContext()));
     } else if (leftOperand.isDateTimeValue() && rightOperand.isDurationValue()) {
-      return expression.convertValue(
-          leftOperand.getDateTimeValue().plus(rightOperand.getDurationValue()));
+      return context
+          .expression()
+          .convertValue(leftOperand.getDateTimeValue().plus(rightOperand.getDurationValue()));
     } else if (leftOperand.isDurationValue() && rightOperand.isDurationValue()) {
-      return expression.convertValue(
-          leftOperand.getDurationValue().plus(rightOperand.getDurationValue()));
+      return context
+          .expression()
+          .convertValue(leftOperand.getDurationValue().plus(rightOperand.getDurationValue()));
     } else if (leftOperand.isDateTimeValue() && rightOperand.isNumberValue()) {
-      return expression.convertValue(
-          leftOperand
-              .getDateTimeValue()
-              .plus(Duration.ofMillis(rightOperand.getNumberValue().longValue())));
+      return context
+          .expression()
+          .convertValue(
+              leftOperand
+                  .getDateTimeValue()
+                  .plus(Duration.ofMillis(rightOperand.getNumberValue().longValue())));
     } else {
-      return expression.convertValue(leftOperand.getStringValue() + rightOperand.getStringValue());
+      return context
+          .expression()
+          .convertValue(leftOperand.getStringValue() + rightOperand.getStringValue());
     }
   }
 }

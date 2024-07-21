@@ -28,17 +28,15 @@ import java.math.BigDecimal;
 public class SumFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues) {
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
     BigDecimal sum = BigDecimal.ZERO;
     for (EvaluationValue parameter : parameterValues) {
       sum =
           sum.add(
-              recursiveSum(parameter, expression), expression.getConfiguration().getMathContext());
+              recursiveSum(parameter, context.expression()),
+              context.expression().getConfiguration().getMathContext());
     }
-    return expression.convertValue(sum);
+    return context.expression().convertValue(sum);
   }
 
   private BigDecimal recursiveSum(EvaluationValue parameter, Expression expression) {

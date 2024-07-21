@@ -78,7 +78,7 @@ public class Expression {
 
   public EvaluationValue evaluate(UnaryOperator<EvaluationContext.EvaluationContextBuilder> builder)
       throws EvaluationException, ParseException {
-    return this.evaluate(builder.apply(EvaluationContext.builder(getConfiguration())).build());
+    return this.evaluate(builder.apply(EvaluationContext.builder(this)).build());
   }
 
   /**
@@ -111,8 +111,7 @@ public class Expression {
   public EvaluationValue evaluateSubtree(
       ASTNode startNode, UnaryOperator<EvaluationContext.EvaluationContextBuilder> builder)
       throws EvaluationException {
-    return this.evaluateSubtree(
-        startNode, builder.apply(EvaluationContext.builder(getConfiguration())).build());
+    return this.evaluateSubtree(startNode, builder.apply(EvaluationContext.builder(this)).build());
   }
 
   /**
@@ -124,7 +123,8 @@ public class Expression {
    */
   public EvaluationValue evaluateSubtree(ASTNode startNode, EvaluationContext context)
       throws EvaluationException {
-    if (startNode instanceof InlinedASTNode) return tryRoundValue(((InlinedASTNode) startNode).getValue()); // All primitives go here.
+    if (startNode instanceof InlinedASTNode)
+      return tryRoundValue(((InlinedASTNode) startNode).getValue()); // All primitives go here.
 
     Token token = startNode.getToken();
     EvaluationValue result;
@@ -147,10 +147,7 @@ public class Expression {
             token
                 .getOperatorDefinition()
                 .evaluate(
-                    this,
-                    token,
-                    context,
-                    evaluateSubtree(startNode.getParameters().get(0), context));
+                    context, token, evaluateSubtree(startNode.getParameters().get(0), context));
         break;
       case INFIX_OPERATOR:
         result = evaluateInfixOperator(startNode, token, context);
@@ -213,7 +210,7 @@ public class Expression {
 
     function.validatePreEvaluation(token, parameters);
 
-    return function.evaluate(this, token, context, parameters);
+    return function.evaluate(context, token, parameters);
   }
 
   private EvaluationValue evaluateArrayIndex(ASTNode startNode, EvaluationContext context)
@@ -266,7 +263,7 @@ public class Expression {
       left = evaluateSubtree(startNode.getParameters().get(0), context);
       right = evaluateSubtree(startNode.getParameters().get(1), context);
     }
-    return op.evaluate(this, token, context, left, right);
+    return op.evaluate(context, token, left, right);
   }
 
   /**

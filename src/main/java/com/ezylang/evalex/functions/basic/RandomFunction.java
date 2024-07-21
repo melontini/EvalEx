@@ -32,14 +32,11 @@ public class RandomFunction extends AbstractFunction {
 
   @Override
   public EvaluationValue evaluate(
-      Expression expression,
-      Token functionToken,
-      EvaluationContext context,
-      EvaluationValue... parameterValues) {
+      EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
 
     SecureRandom secureRandom = new SecureRandom();
 
-    return expression.convertDoubleValue(secureRandom.nextDouble());
+    return context.expression().convertDoubleValue(secureRandom.nextDouble());
   }
 
   @Override

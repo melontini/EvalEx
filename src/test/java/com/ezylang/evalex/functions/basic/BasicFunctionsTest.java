@@ -108,7 +108,11 @@ class BasicFunctionsTest extends BaseEvaluationTest {
 
   @Test
   void testMaxThrowsException() {
-    assertThatThrownBy(() -> new Expression("MAX()").evaluate(UnaryOperator.identity()))
+    assertThatThrownBy(
+            () ->
+                ExpressionConfiguration.defaultExpressionParser()
+                    .parse("MAX()")
+                    .evaluate(UnaryOperator.identity()))
         .isInstanceOf(ParseException.class)
         .hasMessage("Not enough parameters for function");
   }
@@ -129,7 +133,11 @@ class BasicFunctionsTest extends BaseEvaluationTest {
 
   @Test
   void testMinThrowsException() {
-    assertThatThrownBy(() -> new Expression("MIN()").evaluate(UnaryOperator.identity()))
+    assertThatThrownBy(
+            () ->
+                ExpressionConfiguration.defaultExpressionParser()
+                    .parse("MIN()")
+                    .evaluate(UnaryOperator.identity()))
         .isInstanceOf(ParseException.class)
         .hasMessage("Not enough parameters for function");
   }
@@ -203,7 +211,11 @@ class BasicFunctionsTest extends BaseEvaluationTest {
 
   @Test
   void testSqrtNegative() {
-    assertThatThrownBy(() -> new Expression("SQRT(-1)").evaluate(UnaryOperator.identity()))
+    assertThatThrownBy(
+            () ->
+                ExpressionConfiguration.defaultExpressionParser()
+                    .parse("SQRT(-1)")
+                    .evaluate(UnaryOperator.identity()))
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Parameter must not be negative");
   }
@@ -256,8 +268,14 @@ class BasicFunctionsTest extends BaseEvaluationTest {
 
   @Test
   void testRandom() throws EvaluationException, ParseException {
-    EvaluationValue r1 = new Expression("RANDOM()").evaluate(UnaryOperator.identity());
-    EvaluationValue r2 = new Expression("RANDOM()").evaluate(UnaryOperator.identity());
+    EvaluationValue r1 =
+        ExpressionConfiguration.defaultExpressionParser()
+            .parse("RANDOM()")
+            .evaluate(UnaryOperator.identity());
+    EvaluationValue r2 =
+        ExpressionConfiguration.defaultExpressionParser()
+            .parse("RANDOM()")
+            .evaluate(UnaryOperator.identity());
 
     assertThat(r1).isNotEqualByComparingTo(r2);
   }
@@ -331,14 +349,22 @@ class BasicFunctionsTest extends BaseEvaluationTest {
 
   @Test
   void testLogNegative() {
-    assertThatThrownBy(() -> new Expression("LOG(-1)").evaluate(UnaryOperator.identity()))
+    assertThatThrownBy(
+            () ->
+                ExpressionConfiguration.defaultExpressionParser()
+                    .parse("LOG(-1)")
+                    .evaluate(UnaryOperator.identity()))
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Parameter must not be negative");
   }
 
   @Test
   void testLogZero() {
-    assertThatThrownBy(() -> new Expression("LOG(0)").evaluate(UnaryOperator.identity()))
+    assertThatThrownBy(
+            () ->
+                ExpressionConfiguration.defaultExpressionParser()
+                    .parse("LOG(0)")
+                    .evaluate(UnaryOperator.identity()))
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Parameter must not be zero");
   }
@@ -359,14 +385,22 @@ class BasicFunctionsTest extends BaseEvaluationTest {
 
   @Test
   void testLog10Negative() {
-    assertThatThrownBy(() -> new Expression("LOG10(-1)").evaluate(UnaryOperator.identity()))
+    assertThatThrownBy(
+            () ->
+                ExpressionConfiguration.defaultExpressionParser()
+                    .parse("LOG10(-1)")
+                    .evaluate(UnaryOperator.identity()))
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Parameter must not be negative");
   }
 
   @Test
   void testLog10Zero() {
-    assertThatThrownBy(() -> new Expression("LOG10(0)").evaluate(UnaryOperator.identity()))
+    assertThatThrownBy(
+            () ->
+                ExpressionConfiguration.defaultExpressionParser()
+                    .parse("LOG10(0)")
+                    .evaluate(UnaryOperator.identity()))
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Parameter must not be zero");
   }
@@ -385,9 +419,7 @@ class BasicFunctionsTest extends BaseEvaluationTest {
   void testCoalesce(String expression, String expectedResult)
       throws EvaluationException, ParseException {
     EvaluationValue evaluationValue =
-        new Expression(
-                expression,
-                TestConfigurationProvider.StandardConfigurationWithAdditionalTestOperators)
+        TestConfigurationProvider.StandardParserWithAdditionalTestOperators.parse(expression)
             .evaluate(UnaryOperator.identity());
 
     if (expectedResult == null) {
@@ -419,7 +451,11 @@ class BasicFunctionsTest extends BaseEvaluationTest {
 
   @Test
   void testAverageThrowsException() {
-    assertThatThrownBy(() -> new Expression("AVERAGE()").evaluate(UnaryOperator.identity()))
+    assertThatThrownBy(
+            () ->
+                ExpressionConfiguration.defaultExpressionParser()
+                    .parse("AVERAGE()")
+                    .evaluate(UnaryOperator.identity()))
         .isInstanceOf(ParseException.class)
         .hasMessage("Not enough parameters for function");
   }

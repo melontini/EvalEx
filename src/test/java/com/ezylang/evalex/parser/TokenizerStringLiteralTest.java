@@ -17,7 +17,6 @@ package com.ezylang.evalex.parser;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.parser.Token.TokenType;
 import java.util.function.UnaryOperator;
@@ -71,7 +70,11 @@ class TokenizerStringLiteralTest extends BaseParserTest {
 
   @Test
   void testUnknownEscapeCharacter() {
-    assertThatThrownBy(() -> new Expression("\" \\y \"").evaluate(UnaryOperator.identity()))
+    assertThatThrownBy(
+            () ->
+                ExpressionConfiguration.defaultExpressionParser()
+                    .parse("\" \\y \"")
+                    .evaluate(UnaryOperator.identity()))
         .isInstanceOf(ParseException.class)
         .hasMessage("Unknown escape character");
   }
@@ -89,21 +92,21 @@ class TokenizerStringLiteralTest extends BaseParserTest {
 
   @Test
   void testErrorUnmatchedQuoteStart() {
-    assertThatThrownBy(() -> new Tokenizer("\"hello", configuration).parse())
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse("\"hello"))
         .isInstanceOf(ParseException.class)
         .hasMessage("Closing quote not found");
   }
 
   @Test
   void testErrorUnmatchedQuoteOffset() {
-    assertThatThrownBy(() -> new Tokenizer("test \"hello", configuration).parse())
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse("test \"hello"))
         .isInstanceOf(ParseException.class)
         .hasMessage("Closing quote not found");
   }
 
   @Test
   void testSingleQuoteAllowed() {
-    assertThatThrownBy(() -> new Tokenizer("'hello'", configuration).parse())
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse("'hello'"))
         .isInstanceOf(ParseException.class)
         .hasMessage("Undefined operator '''");
   }
@@ -134,7 +137,7 @@ class TokenizerStringLiteralTest extends BaseParserTest {
     ExpressionConfiguration config =
         ExpressionConfiguration.builder().singleQuoteStringLiteralsAllowed(true).build();
 
-    assertThatThrownBy(() -> new Tokenizer(input, config).parse())
+    assertThatThrownBy(() -> new Tokenizer(config).parse(input))
         .isInstanceOf(ParseException.class)
         .hasMessage(expectedMessage);
   }

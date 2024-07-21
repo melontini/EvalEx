@@ -157,7 +157,7 @@ class TokenizerFunctionsTest extends BaseParserTest {
 
   @Test
   void testUndefinedFunction() {
-    assertThatThrownBy(() -> new Tokenizer("a(b)", configuration).parse())
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse("a(b)"))
         .isEqualTo(new ParseException(1, 2, "a", "Undefined function 'a'"));
   }
 }

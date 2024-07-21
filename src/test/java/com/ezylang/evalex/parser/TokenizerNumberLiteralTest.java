@@ -85,7 +85,7 @@ class TokenizerNumberLiteralTest extends BaseParserTest {
   @ParameterizedTest
   @ValueSource(strings = {"2e", "2E", "2e+", "2E+", "2e-", "2E-", "2e.", "2E.", "2ex", "2Ex"})
   void testScientificLiteralsParseException(String expression) {
-    assertThatThrownBy(() -> new Tokenizer(expression, configuration).parse())
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse(expression))
         .isInstanceOf(ParseException.class)
         .hasMessage("Illegal scientific format");
   }
@@ -93,14 +93,14 @@ class TokenizerNumberLiteralTest extends BaseParserTest {
   @ParameterizedTest
   @ValueSource(strings = {"1..0*2.7*195.0", "123.45.6", "2.1.2..4", ".2.4"})
   void testMoreThanOneDecimalPointThrowsException(String expression) {
-    assertThatThrownBy(() -> new Tokenizer(expression, configuration).parse())
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse(expression))
         .isInstanceOf(ParseException.class)
         .hasMessage("Number contains more than one decimal point");
   }
 
   @Test
   void testMisplacedStructureOperator() {
-    assertThatThrownBy(() -> new Tokenizer("..3", configuration).parse())
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse("..3"))
         .isInstanceOf(ParseException.class)
         .hasMessage("Misplaced structure operator");
   }

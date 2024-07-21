@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.ezylang.evalex.BaseEvaluationTest;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
+import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.parser.ParseException;
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -75,7 +76,7 @@ class InfixNotEqualsOperatorTest extends BaseEvaluationTest {
 
   @Test
   void testInfixNotEqualsVariables() throws EvaluationException, ParseException {
-    Expression expression = new Expression("a!=b");
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("a!=b");
 
     assertThat(
             expression
@@ -112,7 +113,7 @@ class InfixNotEqualsOperatorTest extends BaseEvaluationTest {
 
   @Test
   void testInfixNotEqualsArrays() throws EvaluationException, ParseException {
-    Expression expression = new Expression("a!=b");
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("a!=b");
 
     assertThat(
             expression
@@ -137,7 +138,7 @@ class InfixNotEqualsOperatorTest extends BaseEvaluationTest {
 
   @Test
   void testInfixNotEqualsStructures() throws EvaluationException, ParseException {
-    Expression expression = new Expression("a!=b");
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("a!=b");
 
     Map<String, BigDecimal> structure1 =
         Map.of(

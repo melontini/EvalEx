@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
+import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.parser.ParseException;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +29,7 @@ class SumMinMaxArrayTest {
   void testSumSingleArray() throws EvaluationException, ParseException {
     Integer[] numbers = {1, 2, 3};
 
-    Expression expression = new Expression("SUM(numbers)");
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("SUM(numbers)");
 
     assertThat(
             expression.evaluate(builder -> builder.parameter("numbers", numbers)).getStringValue())
@@ -40,7 +41,8 @@ class SumMinMaxArrayTest {
     Integer[] numbers1 = {1, 2, 3};
     Integer[] numbers2 = {4, 5, 6};
 
-    Expression expression = new Expression("SUM(numbers1, numbers2)");
+    Expression expression =
+        ExpressionConfiguration.defaultExpressionParser().parse("SUM(numbers1, numbers2)");
 
     assertThat(
             expression
@@ -55,7 +57,8 @@ class SumMinMaxArrayTest {
   void testSumMixedArrayNumber() throws EvaluationException, ParseException {
     Integer[] numbers = {1, 2, 3};
 
-    Expression expression = new Expression("SUM(numbers, 4)");
+    Expression expression =
+        ExpressionConfiguration.defaultExpressionParser().parse("SUM(numbers, 4)");
 
     assertThat(
             expression.evaluate(builder -> builder.parameter("numbers", numbers)).getStringValue())
@@ -66,7 +69,7 @@ class SumMinMaxArrayTest {
   void testSumNestedArray() throws EvaluationException, ParseException {
     Integer[][] numbers = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
 
-    Expression expression = new Expression("SUM(numbers)");
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("SUM(numbers)");
     assertThat(
             expression.evaluate(builder -> builder.parameter("numbers", numbers)).getStringValue())
         .isEqualTo("45");
@@ -76,7 +79,7 @@ class SumMinMaxArrayTest {
   void testMinSingleArray() throws EvaluationException, ParseException {
     Integer[] numbers = {5, 2, 3};
 
-    Expression expression = new Expression("MIN(numbers)");
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("MIN(numbers)");
 
     assertThat(
             expression.evaluate(builder -> builder.parameter("numbers", numbers)).getStringValue())
@@ -88,7 +91,8 @@ class SumMinMaxArrayTest {
     Integer[] numbers1 = {5, 8, 3};
     Integer[] numbers2 = {9, 2, 6};
 
-    Expression expression = new Expression("MIN(numbers1, numbers2)");
+    Expression expression =
+        ExpressionConfiguration.defaultExpressionParser().parse("MIN(numbers1, numbers2)");
 
     assertThat(
             expression
@@ -103,7 +107,8 @@ class SumMinMaxArrayTest {
   void testMinMixedArrayNumberMinNumber() throws EvaluationException, ParseException {
     Integer[] numbers = {1, 2, 3};
 
-    Expression expression = new Expression("MIN(numbers, 0)");
+    Expression expression =
+        ExpressionConfiguration.defaultExpressionParser().parse("MIN(numbers, 0)");
 
     assertThat(
             expression.evaluate(builder -> builder.parameter("numbers", numbers)).getStringValue())
@@ -114,7 +119,8 @@ class SumMinMaxArrayTest {
   void testMinMixedArrayNumberMinArray() throws EvaluationException, ParseException {
     Integer[] numbers = {8, 2, 3};
 
-    Expression expression = new Expression("MIN(numbers, 7)");
+    Expression expression =
+        ExpressionConfiguration.defaultExpressionParser().parse("MIN(numbers, 7)");
 
     assertThat(
             expression.evaluate(builder -> builder.parameter("numbers", numbers)).getStringValue())
@@ -125,7 +131,7 @@ class SumMinMaxArrayTest {
   void testMinNestedArray() throws EvaluationException, ParseException {
     Integer[][] numbers = {{4, 5, 6}, {1, 2, 3}, {7, 8, 9}};
 
-    Expression expression = new Expression("MIN(numbers)");
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("MIN(numbers)");
     assertThat(
             expression.evaluate(builder -> builder.parameter("numbers", numbers)).getStringValue())
         .isEqualTo("1");
@@ -135,7 +141,7 @@ class SumMinMaxArrayTest {
   void testMaxSingleArray() throws EvaluationException, ParseException {
     Integer[] numbers = {1, 5, 3};
 
-    Expression expression = new Expression("MAX(numbers)");
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("MAX(numbers)");
 
     assertThat(
             expression.evaluate(builder -> builder.parameter("numbers", numbers)).getStringValue())
@@ -147,7 +153,8 @@ class SumMinMaxArrayTest {
     Integer[] numbers1 = {5, 2, 3};
     Integer[] numbers2 = {4, 9, 6};
 
-    Expression expression = new Expression("MAX(numbers1, numbers2)");
+    Expression expression =
+        ExpressionConfiguration.defaultExpressionParser().parse("MAX(numbers1, numbers2)");
 
     assertThat(
             expression
@@ -162,7 +169,8 @@ class SumMinMaxArrayTest {
   void testMaxMixedArrayNumberMaxNumber() throws EvaluationException, ParseException {
     Integer[] numbers = {1, 2, 3};
 
-    Expression expression = new Expression("MAX(numbers, 4)");
+    Expression expression =
+        ExpressionConfiguration.defaultExpressionParser().parse("MAX(numbers, 4)");
 
     assertThat(
             expression.evaluate(builder -> builder.parameter("numbers", numbers)).getStringValue())
@@ -173,7 +181,8 @@ class SumMinMaxArrayTest {
   void testMaxMixedArrayNumberMaxArray() throws EvaluationException, ParseException {
     Integer[] numbers = {1, 9, 3};
 
-    Expression expression = new Expression("MAX(numbers, 4)");
+    Expression expression =
+        ExpressionConfiguration.defaultExpressionParser().parse("MAX(numbers, 4)");
 
     assertThat(
             expression.evaluate(builder -> builder.parameter("numbers", numbers)).getStringValue())
@@ -184,7 +193,7 @@ class SumMinMaxArrayTest {
   void testMaxNestedArray() throws EvaluationException, ParseException {
     Integer[][] numbers = {{1, 2, 3}, {7, 8, 9}, {4, 5, 6}};
 
-    Expression expression = new Expression("MAX(numbers)");
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("MAX(numbers)");
     assertThat(
             expression.evaluate(builder -> builder.parameter("numbers", numbers)).getStringValue())
         .isEqualTo("9");

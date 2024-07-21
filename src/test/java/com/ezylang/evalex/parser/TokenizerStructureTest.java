@@ -79,13 +79,13 @@ class TokenizerStructureTest extends BaseParserTest {
 
   @Test
   void testStructureSeparatorNotAllowedBegin() {
-    assertThatThrownBy(() -> new Tokenizer(".", configuration).parse())
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse("."))
         .isEqualTo(new ParseException(1, 1, ".", "Structure separator not allowed here"));
   }
 
   @Test
   void testStructureSeparatorNotAllowedOperator() {
-    assertThatThrownBy(() -> new Tokenizer("-.", configuration).parse())
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse("-."))
         .isEqualTo(new ParseException(2, 2, ".", "Structure separator not allowed here"));
   }
 
@@ -94,7 +94,7 @@ class TokenizerStructureTest extends BaseParserTest {
     ExpressionConfiguration config =
         ExpressionConfiguration.builder().structuresAllowed(false).build();
 
-    assertThatThrownBy(() -> new Tokenizer("a.b", config).parse())
+    assertThatThrownBy(() -> new Tokenizer(config).parse("a.b"))
         .isEqualTo(new ParseException(2, 2, ".", "Undefined operator '.'"));
   }
 }

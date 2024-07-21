@@ -17,7 +17,9 @@ package com.ezylang.evalex;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.parser.ASTNode;
+import com.ezylang.evalex.parser.ParseException;
 import com.ezylang.evalex.parser.Token;
 import com.ezylang.evalex.parser.Token.TokenType;
 import java.util.function.UnaryOperator;
@@ -26,8 +28,8 @@ import org.junit.jupiter.api.Test;
 class ExpressionEvaluationExceptionsTest {
 
   @Test
-  void testUnexpectedToken() {
-    Expression expression = new Expression("1");
+  void testUnexpectedToken() throws ParseException {
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("1");
 
     assertThatThrownBy(
             () -> {

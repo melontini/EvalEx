@@ -18,6 +18,7 @@ package com.ezylang.evalex;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.parser.ParseException;
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -31,7 +32,8 @@ class ExpressionEvaluatorStructureTest extends BaseExpressionEvaluatorTest {
   @Test
   void testStructureScientificNumberDistinction() throws EvaluationException, ParseException {
     Map<String, BigDecimal> structure = Map.of("environment_id", new BigDecimal(12345));
-    Expression expression = new Expression("order.environment_id");
+    Expression expression =
+        ExpressionConfiguration.defaultExpressionParser().parse("order.environment_id");
 
     assertThat(
             expression.evaluate(builder -> builder.parameter("order", structure)).getStringValue())
@@ -49,7 +51,8 @@ class ExpressionEvaluatorStructureTest extends BaseExpressionEvaluatorTest {
     structure2.put("var_x", structure3);
     structure1.put("e_id_e", structure2);
 
-    Expression expression = new Expression("order.e_id_e.var_x.e");
+    Expression expression =
+        ExpressionConfiguration.defaultExpressionParser().parse("order.e_id_e.var_x.e");
 
     assertThat(
             expression.evaluate(builder -> builder.parameter("order", structure1)).getStringValue())

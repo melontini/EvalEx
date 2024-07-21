@@ -27,8 +27,7 @@ public class ExpressionInlineTest extends BaseExpressionEvaluatorTest {
 
   @Test
   public void testSimpleInlinedExpression() throws ParseException, EvaluationException {
-    Expression expression = createExpression("2 + 2");
-    expression.inlineAbstractSyntaxTree();
+    Expression expression = parser.inlineExpression(createExpression("2 + 2"));
 
     assertThat(expression.evaluate(UnaryOperator.identity()).getNumberValue())
         .isEqualTo(BigDecimal.valueOf(4));
@@ -37,8 +36,7 @@ public class ExpressionInlineTest extends BaseExpressionEvaluatorTest {
 
   @Test
   public void testConstantInlinedExpression() throws ParseException, EvaluationException {
-    Expression expression = createExpression("2 + PI");
-    expression.inlineAbstractSyntaxTree();
+    Expression expression = parser.inlineExpression(createExpression("2 + PI"));
 
     assertThat(expression.evaluate(UnaryOperator.identity()).getNumberValue())
         .isEqualTo(
@@ -51,8 +49,7 @@ public class ExpressionInlineTest extends BaseExpressionEvaluatorTest {
 
   @Test
   public void testParameterNotInlinedExpression() throws ParseException, EvaluationException {
-    Expression expression = createExpression("cheese / 2");
-    expression.inlineAbstractSyntaxTree();
+    Expression expression = parser.inlineExpression(createExpression("cheese / 2"));
 
     assertThat(expression.evaluate(builder -> builder.parameter("cheese", 22)).getNumberValue())
         .isEqualTo(

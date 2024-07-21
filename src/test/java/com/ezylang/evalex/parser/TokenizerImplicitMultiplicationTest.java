@@ -74,7 +74,7 @@ class TokenizerImplicitMultiplicationTest extends BaseParserTest {
     ExpressionConfiguration config =
         ExpressionConfiguration.builder().implicitMultiplicationAllowed(false).build();
 
-    assertThatThrownBy(() -> new Tokenizer("2(x+y)", config).parse())
+    assertThatThrownBy(() -> new Tokenizer(config).parse("2(x+y)"))
         .isEqualTo(new ParseException(2, 2, "(", "Missing operator"));
   }
 }

@@ -18,6 +18,7 @@ package com.ezylang.evalex;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
+import com.ezylang.evalex.parser.ExpressionParser;
 import com.ezylang.evalex.parser.ParseException;
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -95,10 +96,11 @@ class EvalEx2CompatibilityTest {
   void testSqrt() throws EvaluationException, ParseException {
     assertThat(evaluateToNumber("SQRT(16)")).isEqualByComparingTo("4");
     assertThat(evaluateToNumber("SQRT(2)")).isEqualByComparingTo("1.4142135");
+    ExpressionParser parser =
+        new ExpressionParser(
+            ExpressionConfiguration.builder().mathContext(new MathContext(128)).build());
 
-    Expression expression =
-        new Expression(
-            "SQRT(2)", ExpressionConfiguration.builder().mathContext(new MathContext(128)).build());
+    Expression expression = parser.parse("SQRT(2)");
     assertThat(expression.evaluate(UnaryOperator.identity()).getNumberValue())
         .isEqualByComparingTo(
             "1.41421356237309504880168872420969807856967187537694807317667973799073247846210703885038753432764157273501384623091229702492483605");
@@ -233,10 +235,10 @@ class EvalEx2CompatibilityTest {
       })
   void testImplicitMultiplication(String expressionString, String expectedResult)
       throws EvaluationException, ParseException {
-    Expression expression =
-        new Expression(
-            expressionString,
+    ExpressionParser parser =
+        new ExpressionParser(
             ExpressionConfiguration.builder().mathContext(MathContext.DECIMAL32).build());
+    Expression expression = parser.parse(expressionString);
     assertThat(
             expression
                 .evaluate(builder -> builder.parameter("a", 2).parameter("b", 3))
@@ -246,12 +248,11 @@ class EvalEx2CompatibilityTest {
 
   private BigDecimal evaluateToNumber(String expression)
       throws EvaluationException, ParseException {
+    ExpressionParser parser =
+        new ExpressionParser(
+            ExpressionConfiguration.builder().mathContext(MathContext.DECIMAL32).build());
 
     // Given an expression with EvalEx2 compatible math context
-    return new Expression(
-            expression,
-            ExpressionConfiguration.builder().mathContext(MathContext.DECIMAL32).build())
-        .evaluate(UnaryOperator.identity())
-        .getNumberValue();
+    return parser.parse(expression).evaluate(UnaryOperator.identity()).getNumberValue();
   }
 }

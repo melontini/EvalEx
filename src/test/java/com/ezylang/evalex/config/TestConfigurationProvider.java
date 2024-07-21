@@ -22,6 +22,7 @@ import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.operators.AbstractOperator;
 import com.ezylang.evalex.operators.PostfixOperator;
 import com.ezylang.evalex.operators.PrefixOperator;
+import com.ezylang.evalex.parser.ExpressionParser;
 import com.ezylang.evalex.parser.Token;
 import java.math.BigDecimal;
 import java.time.ZoneId;
@@ -47,6 +48,9 @@ public class TestConfigurationProvider {
                   .add("TEST", new DummyFunction())
                   .build())
           .build();
+
+  public static final ExpressionParser StandardParserWithAdditionalTestOperators =
+      new ExpressionParser(StandardConfigurationWithAdditionalTestOperators);
 
   public static final ExpressionConfiguration GermanConfiguration =
       ExpressionConfiguration.builder()

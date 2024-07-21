@@ -54,7 +54,7 @@ class TokenizerExpressionTest extends BaseParserTest {
 
   @Test
   void testUndefinedOperator() {
-    assertThatThrownBy(() -> new Tokenizer("a $ b", configuration).parse())
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse("a $ b"))
         .isEqualTo(new ParseException(3, 3, "$", "Undefined operator '$'"));
   }
 }

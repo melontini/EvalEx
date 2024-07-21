@@ -17,6 +17,7 @@ package com.ezylang.evalex;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.parser.ParseException;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -37,7 +38,9 @@ class ExpressionEvaluatorCombinedTest extends BaseExpressionEvaluatorTest {
     position.put("price", new BigDecimal("14.95"));
     order.put("positions", List.of(position));
 
-    Expression expression = new Expression("order.positions[x].amount * order.positions[x].price");
+    Expression expression =
+        ExpressionConfiguration.defaultExpressionParser()
+            .parse("order.positions[x].amount * order.positions[x].price");
 
     assertThat(
             expression

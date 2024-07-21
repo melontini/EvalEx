@@ -17,19 +17,22 @@ package com.ezylang.evalex;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.config.TestConfigurationProvider;
+import com.ezylang.evalex.parser.ExpressionParser;
 import com.ezylang.evalex.parser.ParseException;
 
 public abstract class BaseExpressionEvaluatorTest {
 
   final ExpressionConfiguration configuration =
       TestConfigurationProvider.StandardConfigurationWithAdditionalTestOperators;
+  final ExpressionParser parser =
+      TestConfigurationProvider.StandardParserWithAdditionalTestOperators;
 
   String evaluate(String expressionString) throws ParseException, EvaluationException {
     Expression expression = createExpression(expressionString);
     return expression.evaluate(EvaluationContext.builder(expression).build()).getStringValue();
   }
 
-  Expression createExpression(String expressionString) {
-    return new Expression(expressionString, configuration);
+  Expression createExpression(String expressionString) throws ParseException {
+    return parser.parse(expressionString);
   }
 }

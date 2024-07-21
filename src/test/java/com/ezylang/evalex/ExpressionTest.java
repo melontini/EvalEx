@@ -22,6 +22,7 @@ import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.DataAccessorIfc;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.parser.ASTNode;
+import com.ezylang.evalex.parser.ExpressionParser;
 import com.ezylang.evalex.parser.ParseException;
 import java.math.MathContext;
 import java.util.HashMap;
@@ -33,8 +34,8 @@ import org.junit.jupiter.api.Test;
 class ExpressionTest {
 
   @Test
-  void testExpressionDefaults() {
-    Expression expression = new Expression("a+b");
+  void testExpressionDefaults() throws ParseException {
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("a+b");
 
     assertThat(expression.getExpressionString()).isEqualTo("a+b");
     assertThat(expression.getConfiguration().getMathContext())
@@ -50,20 +51,23 @@ class ExpressionTest {
 
   @Test
   void testValidateOK() throws ParseException {
-    new Expression("1+1").validate();
+    ExpressionConfiguration.defaultExpressionParser().parse("1+1");
   }
 
   @Test
   void testValidateFail() {
-    assertThatThrownBy(() -> new Expression("2#3").validate())
+    assertThatThrownBy(() -> ExpressionConfiguration.defaultExpressionParser().parse("2#3"))
         .isInstanceOf(ParseException.class)
         .hasMessage("Undefined operator '#'");
   }
 
   @Test
   void testExpressionNode() throws ParseException, EvaluationException {
-    Expression expression = new Expression("a*b");
-    ASTNode subExpression = expression.createExpressionNode("4+3");
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("a*b");
+    ASTNode subExpression =
+        ExpressionConfiguration.defaultExpressionParser()
+            .parseAndInline("4+3")
+            .getAbstractSyntaxTree();
 
     EvaluationValue result =
         expression.evaluate(builder -> builder.parameter("a", 2).parameter("b", subExpression));
@@ -73,7 +77,8 @@ class ExpressionTest {
 
   @Test
   void testWithValues() throws ParseException, EvaluationException {
-    Expression expression = new Expression("(a + b) * (a - b)");
+    Expression expression =
+        ExpressionConfiguration.defaultExpressionParser().parse("(a + b) * (a - b)");
 
     Map<String, Object> values = new HashMap<>();
     values.put("a", 3.5);
@@ -86,7 +91,7 @@ class ExpressionTest {
 
   @Test
   void testWithValuesDoubleMap() throws ParseException, EvaluationException {
-    Expression expression = new Expression("a+b");
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("a+b");
 
     Map<String, Double> values = new HashMap<>();
     values.put("a", 3.9);
@@ -99,7 +104,7 @@ class ExpressionTest {
 
   @Test
   void testWithValuesStringMap() throws ParseException, EvaluationException {
-    Expression expression = new Expression("a+b+c");
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("a+b+c");
 
     Map<String, String> values = new HashMap<>();
     values.put("a", "Hello");
@@ -113,7 +118,7 @@ class ExpressionTest {
 
   @Test
   void testWithValuesMixedMap() throws ParseException, EvaluationException {
-    Expression expression = new Expression("a+b+c");
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("a+b+c");
 
     Map<String, Object> values = new HashMap<>();
     values.put("a", true);
@@ -127,7 +132,7 @@ class ExpressionTest {
 
   @SuppressWarnings("Convert2Lambda")
   @Test
-  void testDefaultExpressionOwnsOwnConfigurationEntries() {
+  void testDefaultExpressionOwnsOwnConfigurationEntries() throws ParseException {
     Supplier<ExpressionConfiguration> configuration =
         () ->
             ExpressionConfiguration.builder()
@@ -141,8 +146,8 @@ class ExpressionTest {
                           }
                         })
                 .build();
-    Expression expression1 = new Expression("1+1", configuration.get());
-    Expression expression2 = new Expression("1+1", configuration.get());
+    Expression expression1 = new ExpressionParser(configuration.get()).parse("1+1");
+    Expression expression2 = new ExpressionParser(configuration.get()).parse("1+1");
 
     assertThat(expression1.getDataAccessor()).isNotSameAs(expression2.getDataAccessor());
     assertThat(expression1.getConfiguration().getOperatorDictionary())
@@ -154,24 +159,26 @@ class ExpressionTest {
   }
 
   @Test
-  void testDoubleConverterDefaultMathContext() {
-    Expression defaultMathContextExpression = new Expression("1");
+  void testDoubleConverterDefaultMathContext() throws ParseException {
+    Expression defaultMathContextExpression =
+        ExpressionConfiguration.defaultExpressionParser().parse("1");
     assertThat(defaultMathContextExpression.convertDoubleValue(1.67987654321).getNumberValue())
         .isEqualByComparingTo("1.67987654321");
   }
 
   @Test
-  void testDoubleConverterLimitedMathContext() {
+  void testDoubleConverterLimitedMathContext() throws ParseException {
     Expression limitedMathContextExpression =
-        new Expression(
-            "1", ExpressionConfiguration.builder().mathContext(new MathContext(3)).build());
+        new ExpressionParser(
+                ExpressionConfiguration.builder().mathContext(new MathContext(3)).build())
+            .parse("1");
     assertThat(limitedMathContextExpression.convertDoubleValue(1.6789).getNumberValue())
         .isEqualByComparingTo("1.68");
   }
 
   @Test
   void testGetAllASTNodes() throws ParseException {
-    Expression expression = new Expression("1+2/3");
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("1+2/3");
     List<ASTNode> nodes = expression.getAllASTNodes();
     assertThat(nodes.get(0).getToken().getValue()).isEqualTo("+");
     assertThat(nodes.get(1).getToken().getValue()).isEqualTo("1");
@@ -182,31 +189,34 @@ class ExpressionTest {
 
   @Test
   void testGetUsedVariables() throws ParseException {
-    Expression expression = new Expression("a/2*PI+MIN(e,b)");
+    Expression expression =
+        ExpressionConfiguration.defaultExpressionParser().parse("a/2*PI+MIN(e,b)");
     assertThat(expression.getUsedVariables()).containsExactlyInAnyOrder("a", "b");
   }
 
   @Test
   void testGetUsedVariablesLongNames() throws ParseException {
-    Expression expression = new Expression("var1/2*PI+MIN(var2,var3)");
+    Expression expression =
+        ExpressionConfiguration.defaultExpressionParser().parse("var1/2*PI+MIN(var2,var3)");
     assertThat(expression.getUsedVariables()).containsExactlyInAnyOrder("var1", "var2", "var3");
   }
 
   @Test
   void testGetUsedVariablesNoVariables() throws ParseException {
-    Expression expression = new Expression("1/2");
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("1/2");
     assertThat(expression.getUsedVariables()).isEmpty();
   }
 
   @Test
   void testGetUsedVariablesCaseSensitivity() throws ParseException {
-    Expression expression = new Expression("a+B*b-A/PI*(1/2)*pi+e-E+a");
+    Expression expression =
+        ExpressionConfiguration.defaultExpressionParser().parse("a+B*b-A/PI*(1/2)*pi+e-E+a");
     assertThat(expression.getUsedVariables()).containsExactlyInAnyOrder("a", "b");
   }
 
   @Test
   void testCopy() throws ParseException, EvaluationException {
-    Expression expression = new Expression("a + b");
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("a + b");
     Expression copiedExpression = expression.copy();
 
     EvaluationValue result =

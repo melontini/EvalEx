@@ -18,6 +18,7 @@ package com.ezylang.evalex;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.parser.ParseException;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +35,7 @@ class ExpressionEvaluatorNullTest extends BaseExpressionEvaluatorTest {
 
   @Test
   void testSecondNullNotEquals() throws ParseException, EvaluationException {
-    Expression expression = new Expression("a != null");
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("a != null");
     assertExpressionHasExpectedResult(expression, builder -> builder.parameter("a", null), "false");
   }
 
@@ -46,7 +47,7 @@ class ExpressionEvaluatorNullTest extends BaseExpressionEvaluatorTest {
 
   @Test
   void testFirstNullNotEquals() throws ParseException, EvaluationException {
-    Expression expression = new Expression("null != a");
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("null != a");
     assertExpressionHasExpectedResult(expression, builder -> builder.parameter("a", null), "false");
   }
 
@@ -75,7 +76,7 @@ class ExpressionEvaluatorNullTest extends BaseExpressionEvaluatorTest {
   }
 
   @Test
-  void testFailWithNoHandling() {
+  void testFailWithNoHandling() throws ParseException {
     Expression expression1 = createExpression("a * 5");
     assertThatThrownBy(() -> expression1.evaluate(builder -> builder.parameter("a", null)))
         .isInstanceOf(EvaluationException.class)

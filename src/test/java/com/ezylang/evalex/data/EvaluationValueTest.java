@@ -593,7 +593,8 @@ class EvaluationValueTest {
 
     EvaluationValue structureMap = EvaluationValue.of(structure, defaultConfiguration());
 
-    Expression exp = new Expression("value.a == \"Hello\"");
+    Expression exp =
+        ExpressionConfiguration.defaultExpressionParser().parse("value.a == \"Hello\"");
 
     EvaluationValue result = exp.evaluate(b -> b.parameter("value", structureMap));
     assertThat(result.getBooleanValue()).isTrue();

@@ -17,6 +17,7 @@ package com.ezylang.evalex;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.parser.ParseException;
 import java.math.BigDecimal;
@@ -29,11 +30,11 @@ import org.junit.jupiter.api.Test;
 
 class ExpressionEvaluationMultiThreadedTest {
   @Test
-  void testThreadLocal() throws InterruptedException {
+  void testThreadLocal() throws InterruptedException, ParseException {
 
     AtomicInteger errorCount = new AtomicInteger();
 
-    Expression expression = new Expression("a+b");
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("a+b");
 
     SecureRandom random = new SecureRandom();
 
@@ -64,7 +65,7 @@ class ExpressionEvaluationMultiThreadedTest {
                       result.getNumberValue().toPlainString());
                 }
               }
-            } catch (EvaluationException | ParseException e) {
+            } catch (EvaluationException e) {
               System.err.printf("Exception adding decimals: %s%n", e.getMessage());
               errorCount.getAndIncrement();
             }

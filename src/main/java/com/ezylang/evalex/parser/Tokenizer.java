@@ -17,12 +17,15 @@ package com.ezylang.evalex.parser;
 
 import static com.ezylang.evalex.parser.Token.TokenType.*;
 
-import com.ezylang.evalex.config.*;
+import com.ezylang.evalex.config.ExpressionConfiguration;
+import com.ezylang.evalex.config.FunctionDictionary;
+import com.ezylang.evalex.config.OperatorDictionary;
 import com.ezylang.evalex.functions.FunctionIfc;
 import com.ezylang.evalex.operators.OperatorIfc;
 import com.ezylang.evalex.parser.Token.TokenType;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 /**
  * The tokenizer is responsible to parse a string and return a list of tokens. The order of tokens
@@ -30,29 +33,24 @@ import java.util.List;
  */
 public class Tokenizer {
 
-  private final String expressionString;
-
   private final OperatorDictionary operatorDictionary;
-
   private final FunctionDictionary functionDictionary;
-
   private final ExpressionConfiguration configuration;
 
-  private final List<Token> tokens = new ArrayList<>();
-
-  private int currentColumnIndex = 0;
-
-  private int currentChar = -2;
-
-  private int braceBalance;
-
-  private int arrayBalance;
-
-  public Tokenizer(String expressionString, ExpressionConfiguration configuration) {
-    this.expressionString = expressionString;
+  public Tokenizer(ExpressionConfiguration configuration) {
     this.configuration = configuration;
     this.operatorDictionary = configuration.getOperatorDictionary();
     this.functionDictionary = configuration.getFunctionDictionary();
+  }
+
+  @RequiredArgsConstructor
+  private static class Context {
+    private final String expressionString;
+    private final List<Token> tokens = new ArrayList<>();
+    private int currentColumnIndex = 0;
+    private int currentChar = -2;
+    private int braceBalance;
+    private int arrayBalance;
   }
 
   /**
@@ -61,10 +59,12 @@ public class Tokenizer {
    * @return A list of expression tokens.
    * @throws ParseException When the expression can't be parsed.
    */
-  public List<Token> parse() throws ParseException {
-    Token currentToken = getNextToken();
+  public List<Token> parse(String expressionString) throws ParseException {
+    Context context = new Context(expressionString);
+
+    Token currentToken = getNextToken(context);
     while (currentToken != null) {
-      if (implicitMultiplicationPossible(currentToken)) {
+      if (implicitMultiplicationPossible(currentToken, context)) {
         if (configuration.isImplicitMultiplicationAllowed()) {
           Token multiplication =
               new Token(
@@ -72,29 +72,29 @@ public class Tokenizer {
                   "*",
                   TokenType.INFIX_OPERATOR,
                   operatorDictionary.getInfixOperator("*"));
-          tokens.add(multiplication);
+          context.tokens.add(multiplication);
         } else {
           throw new ParseException(currentToken, "Missing operator");
         }
       }
-      validateToken(currentToken);
-      tokens.add(currentToken);
-      currentToken = getNextToken();
+      validateToken(currentToken, context);
+      context.tokens.add(currentToken);
+      currentToken = getNextToken(context);
     }
 
-    if (braceBalance > 0) {
+    if (context.braceBalance > 0) {
       throw new ParseException(expressionString, "Closing brace not found");
     }
 
-    if (arrayBalance > 0) {
+    if (context.arrayBalance > 0) {
       throw new ParseException(expressionString, "Closing array not found");
     }
 
-    return tokens;
+    return context.tokens;
   }
 
-  private boolean implicitMultiplicationPossible(Token currentToken) {
-    Token previousToken = getPreviousToken();
+  private boolean implicitMultiplicationPossible(Token currentToken, Context context) {
+    Token previousToken = getPreviousToken(context);
 
     if (previousToken == null) {
       return false;
@@ -106,13 +106,13 @@ public class Tokenizer {
         || (previousToken.getType() == NUMBER_LITERAL && currentToken.getType() == BRACE_OPEN));
   }
 
-  private void validateToken(Token currentToken) throws ParseException {
+  private void validateToken(Token currentToken, Context context) throws ParseException {
 
-    if (currentToken.getType() == STRUCTURE_SEPARATOR && getPreviousToken() == null) {
+    if (currentToken.getType() == STRUCTURE_SEPARATOR && getPreviousToken(context) == null) {
       throw new ParseException(currentToken, "Misplaced structure operator");
     }
 
-    Token previousToken = getPreviousToken();
+    Token previousToken = getPreviousToken(context);
     if (previousToken != null
         && previousToken.getType() == INFIX_OPERATOR
         && invalidTokenAfterInfixOperator(currentToken)) {
@@ -131,120 +131,122 @@ public class Tokenizer {
     }
   }
 
-  private Token getNextToken() throws ParseException {
+  private Token getNextToken(Context context) throws ParseException {
 
     // blanks are always skipped.
-    skipBlanks();
+    skipBlanks(context);
 
     // end of input
-    if (currentChar == -1) {
+    if (context.currentChar == -1) {
       return null;
     }
 
     // we have a token start, identify and parse it
-    if (isAtStringLiteralStart()) {
-      return parseStringLiteral();
-    } else if (currentChar == '(') {
-      return parseBraceOpen();
-    } else if (currentChar == ')') {
-      return parseBraceClose();
-    } else if (currentChar == '[' && configuration.isArraysAllowed()) {
-      return parseArrayOpen();
-    } else if (currentChar == ']' && configuration.isArraysAllowed()) {
-      return parseArrayClose();
-    } else if (currentChar == '.'
-        && !isNextCharNumberChar()
+    if (isAtStringLiteralStart(context)) {
+      return parseStringLiteral(context);
+    } else if (context.currentChar == '(') {
+      return parseBraceOpen(context);
+    } else if (context.currentChar == ')') {
+      return parseBraceClose(context);
+    } else if (context.currentChar == '[' && configuration.isArraysAllowed()) {
+      return parseArrayOpen(context);
+    } else if (context.currentChar == ']' && configuration.isArraysAllowed()) {
+      return parseArrayClose(context);
+    } else if (context.currentChar == '.'
+        && !isNextCharNumberChar(context)
         && configuration.isStructuresAllowed()) {
-      return parseStructureSeparator();
-    } else if (currentChar == ',') {
-      Token token = new Token(currentColumnIndex, ",", TokenType.COMMA);
-      consumeChar();
+      return parseStructureSeparator(context);
+    } else if (context.currentChar == ',') {
+      Token token = new Token(context.currentColumnIndex, ",", TokenType.COMMA);
+      consumeChar(context);
       return token;
-    } else if (isAtIdentifierStart()) {
-      return parseIdentifier();
-    } else if (isAtNumberStart()) {
-      return parseNumberLiteral();
+    } else if (isAtIdentifierStart(context)) {
+      return parseIdentifier(context);
+    } else if (isAtNumberStart(context)) {
+      return parseNumberLiteral(context);
     } else {
-      return parseOperator();
+      return parseOperator(context);
     }
   }
 
-  private Token parseStructureSeparator() throws ParseException {
-    Token token = new Token(currentColumnIndex, ".", TokenType.STRUCTURE_SEPARATOR);
-    if (arrayOpenOrStructureSeparatorNotAllowed()) {
+  private Token parseStructureSeparator(Context context) throws ParseException {
+    Token token = new Token(context.currentColumnIndex, ".", TokenType.STRUCTURE_SEPARATOR);
+    if (arrayOpenOrStructureSeparatorNotAllowed(context)) {
       throw new ParseException(token, "Structure separator not allowed here");
     }
-    consumeChar();
+    consumeChar(context);
     return token;
   }
 
-  private Token parseArrayClose() throws ParseException {
-    Token token = new Token(currentColumnIndex, "]", TokenType.ARRAY_CLOSE);
-    if (!arrayCloseAllowed()) {
+  private Token parseArrayClose(Context context) throws ParseException {
+    Token token = new Token(context.currentColumnIndex, "]", TokenType.ARRAY_CLOSE);
+    if (!arrayCloseAllowed(context)) {
       throw new ParseException(token, "Array close not allowed here");
     }
-    consumeChar();
-    arrayBalance--;
-    if (arrayBalance < 0) {
+    consumeChar(context);
+    context.arrayBalance--;
+    if (context.arrayBalance < 0) {
       throw new ParseException(token, "Unexpected closing array");
     }
     return token;
   }
 
-  private Token parseArrayOpen() throws ParseException {
-    Token token = new Token(currentColumnIndex, "[", TokenType.ARRAY_OPEN);
-    if (arrayOpenOrStructureSeparatorNotAllowed()) {
+  private Token parseArrayOpen(Context context) throws ParseException {
+    Token token = new Token(context.currentColumnIndex, "[", TokenType.ARRAY_OPEN);
+    if (arrayOpenOrStructureSeparatorNotAllowed(context)) {
       throw new ParseException(token, "Array open not allowed here");
     }
-    consumeChar();
-    arrayBalance++;
+    consumeChar(context);
+    context.arrayBalance++;
     return token;
   }
 
-  private Token parseBraceClose() throws ParseException {
-    Token token = new Token(currentColumnIndex, ")", TokenType.BRACE_CLOSE);
-    consumeChar();
-    braceBalance--;
-    if (braceBalance < 0) {
+  private Token parseBraceClose(Context context) throws ParseException {
+    Token token = new Token(context.currentColumnIndex, ")", TokenType.BRACE_CLOSE);
+    consumeChar(context);
+    context.braceBalance--;
+    if (context.braceBalance < 0) {
       throw new ParseException(token, "Unexpected closing brace");
     }
     return token;
   }
 
-  private Token parseBraceOpen() {
-    Token token = new Token(currentColumnIndex, "(", BRACE_OPEN);
-    consumeChar();
-    braceBalance++;
+  private Token parseBraceOpen(Context context) {
+    Token token = new Token(context.currentColumnIndex, "(", BRACE_OPEN);
+    consumeChar(context);
+    context.braceBalance++;
     return token;
   }
 
-  private Token getPreviousToken() {
-    return tokens.isEmpty() ? null : tokens.get(tokens.size() - 1);
+  private Token getPreviousToken(Context context) {
+    return context.tokens.isEmpty() ? null : context.tokens.get(context.tokens.size() - 1);
   }
 
-  private Token parseOperator() throws ParseException {
-    int tokenStartIndex = currentColumnIndex;
+  private Token parseOperator(Context context) throws ParseException {
+    int tokenStartIndex = context.currentColumnIndex;
     StringBuilder tokenValue = new StringBuilder();
     while (true) {
-      tokenValue.append((char) currentChar);
+      tokenValue.append((char) context.currentChar);
       String tokenString = tokenValue.toString();
-      String possibleNextOperator = tokenString + (char) peekNextChar();
+      String possibleNextOperator = tokenString + (char) peekNextChar(context);
       boolean possibleNextOperatorFound =
-          (prefixOperatorAllowed() && operatorDictionary.hasPrefixOperator(possibleNextOperator))
-              || (postfixOperatorAllowed()
+          (prefixOperatorAllowed(context)
+                  && operatorDictionary.hasPrefixOperator(possibleNextOperator))
+              || (postfixOperatorAllowed(context)
                   && operatorDictionary.hasPostfixOperator(possibleNextOperator))
-              || (infixOperatorAllowed()
+              || (infixOperatorAllowed(context)
                   && operatorDictionary.hasInfixOperator(possibleNextOperator));
-      consumeChar();
+      consumeChar(context);
       if (!possibleNextOperatorFound) {
         break;
       }
     }
     String tokenString = tokenValue.toString();
-    if (prefixOperatorAllowed() && operatorDictionary.hasPrefixOperator(tokenString)) {
+    if (prefixOperatorAllowed(context) && operatorDictionary.hasPrefixOperator(tokenString)) {
       OperatorIfc operator = operatorDictionary.getPrefixOperator(tokenString);
       return new Token(tokenStartIndex, tokenString, TokenType.PREFIX_OPERATOR, operator);
-    } else if (postfixOperatorAllowed() && operatorDictionary.hasPostfixOperator(tokenString)) {
+    } else if (postfixOperatorAllowed(context)
+        && operatorDictionary.hasPostfixOperator(tokenString)) {
       OperatorIfc operator = operatorDictionary.getPostfixOperator(tokenString);
       return new Token(tokenStartIndex, tokenString, TokenType.POSTFIX_OPERATOR, operator);
     } else if (operatorDictionary.hasInfixOperator(tokenString)) {
@@ -260,8 +262,8 @@ public class Tokenizer {
         "Undefined operator '" + tokenString + "'");
   }
 
-  private boolean arrayOpenOrStructureSeparatorNotAllowed() {
-    Token previousToken = getPreviousToken();
+  private boolean arrayOpenOrStructureSeparatorNotAllowed(Context context) {
+    Token previousToken = getPreviousToken(context);
 
     if (previousToken == null) {
       return true;
@@ -278,8 +280,8 @@ public class Tokenizer {
     }
   }
 
-  private boolean arrayCloseAllowed() {
-    Token previousToken = getPreviousToken();
+  private boolean arrayCloseAllowed(Context context) {
+    Token previousToken = getPreviousToken(context);
 
     if (previousToken == null) {
       return false;
@@ -298,8 +300,8 @@ public class Tokenizer {
     }
   }
 
-  private boolean prefixOperatorAllowed() {
-    Token previousToken = getPreviousToken();
+  private boolean prefixOperatorAllowed(Context context) {
+    Token previousToken = getPreviousToken(context);
 
     if (previousToken == null) {
       return true;
@@ -317,8 +319,8 @@ public class Tokenizer {
     }
   }
 
-  private boolean postfixOperatorAllowed() {
-    Token previousToken = getPreviousToken();
+  private boolean postfixOperatorAllowed(Context context) {
+    Token previousToken = getPreviousToken(context);
 
     if (previousToken == null) {
       return false;
@@ -335,8 +337,8 @@ public class Tokenizer {
     }
   }
 
-  private boolean infixOperatorAllowed() {
-    Token previousToken = getPreviousToken();
+  private boolean infixOperatorAllowed(Context context) {
+    Token previousToken = getPreviousToken(context);
 
     if (previousToken == null) {
       return false;
@@ -355,38 +357,38 @@ public class Tokenizer {
     }
   }
 
-  private Token parseNumberLiteral() throws ParseException {
-    int nextChar = peekNextChar();
-    if (currentChar == '0' && (nextChar == 'x' || nextChar == 'X')) {
-      return parseHexNumberLiteral();
+  private Token parseNumberLiteral(Context context) throws ParseException {
+    int nextChar = peekNextChar(context);
+    if (context.currentChar == '0' && (nextChar == 'x' || nextChar == 'X')) {
+      return parseHexNumberLiteral(context);
     } else {
-      return parseDecimalNumberLiteral();
+      return parseDecimalNumberLiteral(context);
     }
   }
 
-  private Token parseDecimalNumberLiteral() throws ParseException {
-    int tokenStartIndex = currentColumnIndex;
+  private Token parseDecimalNumberLiteral(Context context) throws ParseException {
+    int tokenStartIndex = context.currentColumnIndex;
     StringBuilder tokenValue = new StringBuilder();
 
     int lastChar = -1;
     boolean scientificNotation = false;
     boolean dotEncountered = false;
-    while (currentChar != -1 && isAtNumberChar()) {
-      if (currentChar == '.' && dotEncountered) {
-        tokenValue.append((char) currentChar);
+    while (context.currentChar != -1 && isAtNumberChar(context)) {
+      if (context.currentChar == '.' && dotEncountered) {
+        tokenValue.append((char) context.currentChar);
         throw new ParseException(
             new Token(tokenStartIndex, tokenValue.toString(), TokenType.NUMBER_LITERAL),
             "Number contains more than one decimal point");
       }
-      if (currentChar == '.') {
+      if (context.currentChar == '.') {
         dotEncountered = true;
       }
-      if (currentChar == 'e' || currentChar == 'E') {
+      if (context.currentChar == 'e' || context.currentChar == 'E') {
         scientificNotation = true;
       }
-      tokenValue.append((char) currentChar);
-      lastChar = currentChar;
-      consumeChar();
+      tokenValue.append((char) context.currentChar);
+      lastChar = context.currentChar;
+      consumeChar(context);
     }
     // illegal scientific format literal
     if (scientificNotation
@@ -402,36 +404,37 @@ public class Tokenizer {
     return new Token(tokenStartIndex, tokenValue.toString(), TokenType.NUMBER_LITERAL);
   }
 
-  private Token parseHexNumberLiteral() {
-    int tokenStartIndex = currentColumnIndex;
+  private Token parseHexNumberLiteral(Context context) {
+    int tokenStartIndex = context.currentColumnIndex;
     StringBuilder tokenValue = new StringBuilder();
 
     // hexadecimal number, consume "0x"
-    tokenValue.append((char) currentChar);
-    consumeChar();
+    tokenValue.append((char) context.currentChar);
+    consumeChar(context);
     do {
-      tokenValue.append((char) currentChar);
-      consumeChar();
-    } while (currentChar != -1 && isAtHexChar());
+      tokenValue.append((char) context.currentChar);
+      consumeChar(context);
+    } while (context.currentChar != -1 && isAtHexChar(context));
     return new Token(tokenStartIndex, tokenValue.toString(), TokenType.NUMBER_LITERAL);
   }
 
-  private Token parseIdentifier() throws ParseException {
-    int tokenStartIndex = currentColumnIndex;
+  private Token parseIdentifier(Context context) throws ParseException {
+    int tokenStartIndex = context.currentColumnIndex;
     StringBuilder tokenValue = new StringBuilder();
-    while (currentChar != -1 && isAtIdentifierChar()) {
-      tokenValue.append((char) currentChar);
-      consumeChar();
+    while (context.currentChar != -1 && isAtIdentifierChar(context)) {
+      tokenValue.append((char) context.currentChar);
+      consumeChar(context);
     }
     String tokenName = tokenValue.toString();
 
-    if (prefixOperatorAllowed() && operatorDictionary.hasPrefixOperator(tokenName)) {
+    if (prefixOperatorAllowed(context) && operatorDictionary.hasPrefixOperator(tokenName)) {
       return new Token(
           tokenStartIndex,
           tokenName,
           TokenType.PREFIX_OPERATOR,
           operatorDictionary.getPrefixOperator(tokenName));
-    } else if (postfixOperatorAllowed() && operatorDictionary.hasPostfixOperator(tokenName)) {
+    } else if (postfixOperatorAllowed(context)
+        && operatorDictionary.hasPostfixOperator(tokenName)) {
       return new Token(
           tokenStartIndex,
           tokenName,
@@ -445,12 +448,12 @@ public class Tokenizer {
           operatorDictionary.getInfixOperator(tokenName));
     }
 
-    skipBlanks();
-    if (currentChar == '(') {
+    skipBlanks(context);
+    if (context.currentChar == '(') {
       if (!functionDictionary.hasFunction(tokenName)) {
         throw new ParseException(
             tokenStartIndex,
-            currentColumnIndex,
+            context.currentColumnIndex,
             tokenName,
             "Undefined function '" + tokenName + "'");
       }
@@ -461,32 +464,35 @@ public class Tokenizer {
     }
   }
 
-  Token parseStringLiteral() throws ParseException {
-    int startChar = currentChar;
-    int tokenStartIndex = currentColumnIndex;
+  Token parseStringLiteral(Context context) throws ParseException {
+    int startChar = context.currentChar;
+    int tokenStartIndex = context.currentColumnIndex;
     StringBuilder tokenValue = new StringBuilder();
     // skip starting quote
-    consumeChar();
+    consumeChar(context);
     boolean inQuote = true;
-    while (inQuote && currentChar != -1) {
-      if (currentChar == '\\') {
-        consumeChar();
-        tokenValue.append(escapeCharacter(currentChar));
-      } else if (currentChar == startChar) {
+    while (inQuote && context.currentChar != -1) {
+      if (context.currentChar == '\\') {
+        consumeChar(context);
+        tokenValue.append(escapeCharacter(context.currentChar, context));
+      } else if (context.currentChar == startChar) {
         inQuote = false;
       } else {
-        tokenValue.append((char) currentChar);
+        tokenValue.append((char) context.currentChar);
       }
-      consumeChar();
+      consumeChar(context);
     }
     if (inQuote) {
       throw new ParseException(
-          tokenStartIndex, currentColumnIndex, tokenValue.toString(), "Closing quote not found");
+          tokenStartIndex,
+          context.currentColumnIndex,
+          tokenValue.toString(),
+          "Closing quote not found");
     }
     return new Token(tokenStartIndex, tokenValue.toString(), TokenType.STRING_LITERAL);
   }
 
-  private char escapeCharacter(int character) throws ParseException {
+  private char escapeCharacter(int character, Context context) throws ParseException {
     switch (character) {
       case '\'':
         return '\'';
@@ -506,47 +512,51 @@ public class Tokenizer {
         return '\f';
       default:
         throw new ParseException(
-            currentColumnIndex, 1, "\\" + (char) character, "Unknown escape character");
+            context.currentColumnIndex, 1, "\\" + (char) character, "Unknown escape character");
     }
   }
 
-  private boolean isAtNumberStart() {
-    if (Character.isDigit(currentChar)) {
+  private boolean isAtNumberStart(Context context) {
+    if (Character.isDigit(context.currentChar)) {
       return true;
     }
-    return currentChar == '.' && Character.isDigit(peekNextChar());
+    return context.currentChar == '.' && Character.isDigit(peekNextChar(context));
   }
 
-  private boolean isAtNumberChar() {
-    int previousChar = peekPreviousChar();
+  private boolean isAtNumberChar(Context context) {
+    int previousChar = peekPreviousChar(context);
 
-    if ((previousChar == 'e' || previousChar == 'E') && currentChar != '.') {
-      return Character.isDigit(currentChar) || currentChar == '+' || currentChar == '-';
+    if ((previousChar == 'e' || previousChar == 'E') && context.currentChar != '.') {
+      return Character.isDigit(context.currentChar)
+          || context.currentChar == '+'
+          || context.currentChar == '-';
     }
 
-    if (previousChar == '.' && currentChar != '.') {
-      return Character.isDigit(currentChar) || currentChar == 'e' || currentChar == 'E';
+    if (previousChar == '.' && context.currentChar != '.') {
+      return Character.isDigit(context.currentChar)
+          || context.currentChar == 'e'
+          || context.currentChar == 'E';
     }
 
-    return Character.isDigit(currentChar)
-        || currentChar == '.'
-        || currentChar == 'e'
-        || currentChar == 'E';
+    return Character.isDigit(context.currentChar)
+        || context.currentChar == '.'
+        || context.currentChar == 'e'
+        || context.currentChar == 'E';
   }
 
-  private boolean isNextCharNumberChar() {
-    if (peekNextChar() == -1) {
+  private boolean isNextCharNumberChar(Context context) {
+    if (peekNextChar(context) == -1) {
       return false;
     }
-    consumeChar();
-    boolean isAtNumber = isAtNumberChar();
-    currentColumnIndex--;
-    currentChar = expressionString.charAt(currentColumnIndex - 1);
+    consumeChar(context);
+    boolean isAtNumber = isAtNumberChar(context);
+    context.currentColumnIndex--;
+    context.currentChar = context.expressionString.charAt(context.currentColumnIndex - 1);
     return isAtNumber;
   }
 
-  private boolean isAtHexChar() {
-    switch (currentChar) {
+  private boolean isAtHexChar(Context context) {
+    switch (context.currentChar) {
       case '0':
       case '1':
       case '2':
@@ -575,44 +585,48 @@ public class Tokenizer {
     }
   }
 
-  private boolean isAtIdentifierStart() {
-    return Character.isLetter(currentChar) || currentChar == '_';
+  private boolean isAtIdentifierStart(Context context) {
+    return Character.isLetter(context.currentChar) || context.currentChar == '_';
   }
 
-  private boolean isAtIdentifierChar() {
-    return Character.isLetter(currentChar) || Character.isDigit(currentChar) || currentChar == '_';
+  private boolean isAtIdentifierChar(Context context) {
+    return Character.isLetter(context.currentChar)
+        || Character.isDigit(context.currentChar)
+        || context.currentChar == '_';
   }
 
-  private boolean isAtStringLiteralStart() {
-    return currentChar == '"'
-        || currentChar == '\'' && configuration.isSingleQuoteStringLiteralsAllowed();
+  private boolean isAtStringLiteralStart(Context context) {
+    return context.currentChar == '"'
+        || context.currentChar == '\'' && configuration.isSingleQuoteStringLiteralsAllowed();
   }
 
-  private void skipBlanks() {
-    if (currentChar == -2) {
+  private void skipBlanks(Context context) {
+    if (context.currentChar == -2) {
       // consume first character of expression
-      consumeChar();
+      consumeChar(context);
     }
-    while (currentChar != -1 && Character.isWhitespace(currentChar)) {
-      consumeChar();
+    while (context.currentChar != -1 && Character.isWhitespace(context.currentChar)) {
+      consumeChar(context);
     }
   }
 
-  private int peekNextChar() {
-    return currentColumnIndex == expressionString.length()
+  private int peekNextChar(Context context) {
+    return context.currentColumnIndex == context.expressionString.length()
         ? -1
-        : expressionString.charAt(currentColumnIndex);
+        : context.expressionString.charAt(context.currentColumnIndex);
   }
 
-  private int peekPreviousChar() {
-    return currentColumnIndex == 1 ? -1 : expressionString.charAt(currentColumnIndex - 2);
+  private int peekPreviousChar(Context context) {
+    return context.currentColumnIndex == 1
+        ? -1
+        : context.expressionString.charAt(context.currentColumnIndex - 2);
   }
 
-  private void consumeChar() {
-    if (currentColumnIndex == expressionString.length()) {
-      currentChar = -1;
+  private void consumeChar(Context context) {
+    if (context.currentColumnIndex == context.expressionString.length()) {
+      context.currentChar = -1;
     } else {
-      currentChar = expressionString.charAt(currentColumnIndex++);
+      context.currentChar = context.expressionString.charAt(context.currentColumnIndex++);
     }
   }
 }

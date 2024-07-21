@@ -51,13 +51,13 @@ class TokenizerBracesTest extends BaseParserTest {
 
   @Test
   void testMissingClosingBrace() {
-    assertThatThrownBy(() -> new Tokenizer("(2+4", configuration).parse())
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse("(2+4"))
         .isEqualTo(new ParseException(1, 4, "(2+4", "Closing brace not found"));
   }
 
   @Test
   void testUnexpectedClosingBrace() {
-    assertThatThrownBy(() -> new Tokenizer("(2+4))", configuration).parse())
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse("(2+4))"))
         .isEqualTo(new ParseException(6, 6, ")", "Unexpected closing brace"));
   }
 }

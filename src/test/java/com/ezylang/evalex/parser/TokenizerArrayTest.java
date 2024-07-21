@@ -137,43 +137,43 @@ class TokenizerArrayTest extends BaseParserTest {
 
   @Test
   void testMissingClosingArray() {
-    assertThatThrownBy(() -> new Tokenizer("a[2+4", configuration).parse())
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse("a[2+4"))
         .isEqualTo(new ParseException(1, 5, "a[2+4", "Closing array not found"));
   }
 
   @Test
   void testUnexpectedClosingArray() {
-    assertThatThrownBy(() -> new Tokenizer("a[2+4]]", configuration).parse())
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse("a[2+4]]"))
         .isEqualTo(new ParseException(7, 7, "]", "Unexpected closing array"));
   }
 
   @Test
   void testOpenArrayNotAllowedBeginning() {
-    assertThatThrownBy(() -> new Tokenizer("[1]", configuration).parse())
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse("[1]"))
         .isEqualTo(new ParseException(1, 1, "[", "Array open not allowed here"));
   }
 
   @Test
   void testOpenArrayNotAllowedAfterOperator() {
-    assertThatThrownBy(() -> new Tokenizer("1+[1]", configuration).parse())
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse("1+[1]"))
         .isEqualTo(new ParseException(3, 3, "[", "Array open not allowed here"));
   }
 
   @Test
   void testOpenArrayNotAllowedAfterBrace() {
-    assertThatThrownBy(() -> new Tokenizer("([1]", configuration).parse())
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse("([1]"))
         .isEqualTo(new ParseException(2, 2, "[", "Array open not allowed here"));
   }
 
   @Test
   void testCloseArrayNotAllowedBeginning() {
-    assertThatThrownBy(() -> new Tokenizer("]", configuration).parse())
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse("]"))
         .isEqualTo(new ParseException(1, 1, "]", "Array close not allowed here"));
   }
 
   @Test
   void testCloseArrayNotAllowedAfterBrace() {
-    assertThatThrownBy(() -> new Tokenizer("(]", configuration).parse())
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse("(]"))
         .isEqualTo(new ParseException(2, 2, "]", "Array close not allowed here"));
   }
 
@@ -181,7 +181,7 @@ class TokenizerArrayTest extends BaseParserTest {
   void testArraysNotAllowedOpen() {
     ExpressionConfiguration config = ExpressionConfiguration.builder().arraysAllowed(false).build();
 
-    assertThatThrownBy(() -> new Tokenizer("a[0]", config).parse())
+    assertThatThrownBy(() -> new Tokenizer(config).parse("a[0]"))
         .isEqualTo(new ParseException(2, 2, "[", "Undefined operator '['"));
   }
 
@@ -189,7 +189,7 @@ class TokenizerArrayTest extends BaseParserTest {
   void testArraysNotAllowedClose() {
     ExpressionConfiguration config = ExpressionConfiguration.builder().arraysAllowed(false).build();
 
-    assertThatThrownBy(() -> new Tokenizer("]", config).parse())
+    assertThatThrownBy(() -> new Tokenizer(config).parse("]"))
         .isEqualTo(new ParseException(1, 1, "]", "Undefined operator ']'"));
   }
 }

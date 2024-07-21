@@ -20,18 +20,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.config.TestConfigurationProvider;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.parser.ExpressionParser;
 import com.ezylang.evalex.parser.ParseException;
 
 public abstract class BaseEvaluationTest {
 
   protected void assertExpressionHasExpectedResult(String expression, String expectedResult)
       throws EvaluationException, ParseException {
-    assertThat(
-            evaluate(
-                    expression,
-                    TestConfigurationProvider.StandardConfigurationWithAdditionalTestOperators)
-                .getStringValue())
-        .isEqualTo(expectedResult);
+    assertThat(evaluate(expression).getStringValue()).isEqualTo(expectedResult);
   }
 
   protected void assertExpressionHasExpectedResult(
@@ -41,14 +37,18 @@ public abstract class BaseEvaluationTest {
         .isEqualTo(expectedResult);
   }
 
-  protected EvaluationValue evaluate(String expression) throws EvaluationException, ParseException {
-    return evaluate(
-        expression, TestConfigurationProvider.StandardConfigurationWithAdditionalTestOperators);
+  protected EvaluationValue evaluate(String expressionString)
+      throws EvaluationException, ParseException {
+    ;
+    Expression expression =
+        TestConfigurationProvider.StandardParserWithAdditionalTestOperators.parse(expressionString);
+    return expression.evaluate(EvaluationContext.builder(expression).build());
   }
 
   private EvaluationValue evaluate(String expressionString, ExpressionConfiguration configuration)
       throws EvaluationException, ParseException {
-    Expression expression = new Expression(expressionString, configuration);
+    ExpressionParser parser = new ExpressionParser(configuration);
+    Expression expression = parser.parse(expressionString);
 
     return expression.evaluate(EvaluationContext.builder(expression).build());
   }

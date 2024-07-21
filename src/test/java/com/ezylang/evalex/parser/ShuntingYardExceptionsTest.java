@@ -18,7 +18,7 @@ package com.ezylang.evalex.parser;
 import static com.ezylang.evalex.parser.Token.TokenType.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ezylang.evalex.Expression;
+import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.operators.arithmetic.InfixMultiplicationOperator;
 import com.ezylang.evalex.operators.arithmetic.PrefixMinusOperator;
 import java.util.Arrays;
@@ -33,7 +33,8 @@ class ShuntingYardExceptionsTest extends BaseParserTest {
   @Test
   void testUnexpectedToken() {
     List<Token> tokens = List.of(new Token(1, "x", FUNCTION_PARAM_START));
-    assertThatThrownBy(new ShuntingYardConverter("x", tokens, configuration)::toAbstractSyntaxTree)
+    assertThatThrownBy(
+            () -> new ShuntingYardConverter(configuration).toAbstractSyntaxTree(tokens, "x"))
         .isInstanceOf(ParseException.class)
         .hasMessage("Unexpected token of type 'FUNCTION_PARAM_START'");
   }
@@ -41,7 +42,8 @@ class ShuntingYardExceptionsTest extends BaseParserTest {
   @Test
   void testMissingPrefixOperand() {
     List<Token> tokens = List.of(new Token(1, "-", PREFIX_OPERATOR, new PrefixMinusOperator()));
-    assertThatThrownBy(new ShuntingYardConverter("-", tokens, configuration)::toAbstractSyntaxTree)
+    assertThatThrownBy(
+            () -> new ShuntingYardConverter(configuration).toAbstractSyntaxTree(tokens, "-"))
         .isInstanceOf(ParseException.class)
         .hasMessage("Missing operand for operator");
   }
@@ -52,34 +54,29 @@ class ShuntingYardExceptionsTest extends BaseParserTest {
         Arrays.asList(
             new Token(1, "2", VARIABLE_OR_CONSTANT),
             new Token(2, "*", INFIX_OPERATOR, new InfixMultiplicationOperator()));
-    assertThatThrownBy(new ShuntingYardConverter("2*", tokens, configuration)::toAbstractSyntaxTree)
+    assertThatThrownBy(
+            () -> new ShuntingYardConverter(configuration).toAbstractSyntaxTree(tokens, "2*"))
         .isInstanceOf(ParseException.class)
         .hasMessage("Missing second operand for operator");
   }
 
   @Test
   void testEmptyExpression() {
-    Expression expression = new Expression("");
-
-    assertThatThrownBy(expression::getAbstractSyntaxTree)
+    assertThatThrownBy(() -> ExpressionConfiguration.defaultExpressionParser().parse(""))
         .isInstanceOf(ParseException.class)
         .hasMessage("Empty expression");
   }
 
   @Test
   void testEmptyExpressionBraces() {
-    Expression expression = new Expression("()");
-
-    assertThatThrownBy(expression::getAbstractSyntaxTree)
+    assertThatThrownBy(() -> ExpressionConfiguration.defaultExpressionParser().parse("()"))
         .isInstanceOf(ParseException.class)
         .hasMessage("Empty expression");
   }
 
   @Test
   void testComma() {
-    Expression expression = new Expression(",");
-
-    assertThatThrownBy(expression::getAbstractSyntaxTree)
+    assertThatThrownBy(() -> ExpressionConfiguration.defaultExpressionParser().parse(","))
         .isInstanceOf(ParseException.class)
         .hasMessage("Empty expression");
   }
@@ -88,7 +85,8 @@ class ShuntingYardExceptionsTest extends BaseParserTest {
   void testDoubleStructureOperator() {
     List<Token> tokens =
         List.of(new Token(1, ".", STRUCTURE_SEPARATOR), new Token(2, ".", STRUCTURE_SEPARATOR));
-    assertThatThrownBy(new ShuntingYardConverter("..", tokens, configuration)::toAbstractSyntaxTree)
+    assertThatThrownBy(
+            () -> new ShuntingYardConverter(configuration).toAbstractSyntaxTree(tokens, ".."))
         .isInstanceOf(ParseException.class)
         .hasMessage("Missing operand for operator");
   }
@@ -97,7 +95,8 @@ class ShuntingYardExceptionsTest extends BaseParserTest {
   void testStructureFollowsPostfixOperator() {
     List<Token> tokens =
         List.of(new Token(1, ".", STRUCTURE_SEPARATOR), new Token(2, "!", POSTFIX_OPERATOR));
-    assertThatThrownBy(new ShuntingYardConverter("..", tokens, configuration)::toAbstractSyntaxTree)
+    assertThatThrownBy(
+            () -> new ShuntingYardConverter(configuration).toAbstractSyntaxTree(tokens, ".."))
         .isInstanceOf(ParseException.class)
         .hasMessage("Missing operand for operator");
   }
@@ -109,16 +108,15 @@ class ShuntingYardExceptionsTest extends BaseParserTest {
             new Token(1, ".", STRUCTURE_SEPARATOR),
             new Token(2, "!", POSTFIX_OPERATOR),
             new Token(2, "!", POSTFIX_OPERATOR));
-    assertThatThrownBy(new ShuntingYardConverter("..", tokens, configuration)::toAbstractSyntaxTree)
+    assertThatThrownBy(
+            () -> new ShuntingYardConverter(configuration).toAbstractSyntaxTree(tokens, ".."))
         .isInstanceOf(ParseException.class)
         .hasMessage("Missing operand for operator");
   }
 
   @Test
   void testFunctionNotEnoughParameters() {
-    Expression expression = new Expression("ROUND(2)");
-
-    assertThatThrownBy(expression::getAbstractSyntaxTree)
+    assertThatThrownBy(() -> ExpressionConfiguration.defaultExpressionParser().parse("ROUND(2)"))
         .isInstanceOf(ParseException.class)
         .hasMessage("Not enough parameters for function");
   }
@@ -126,18 +124,16 @@ class ShuntingYardExceptionsTest extends BaseParserTest {
   @Test
   void testFunctionNotEnoughParametersForVarArgs() {
     // The DT_DATE_PARSE() function has a required parameter and var-args
-    Expression expression = new Expression("DT_DATE_PARSE()");
-
-    assertThatThrownBy(expression::getAbstractSyntaxTree)
+    assertThatThrownBy(
+            () -> ExpressionConfiguration.defaultExpressionParser().parse("DT_DATE_PARSE()"))
         .isInstanceOf(ParseException.class)
         .hasMessage("Not enough parameters for function");
   }
 
   @Test
   void testFunctionTooManyParameters() {
-    Expression expression = new Expression("ROUND(1,2,3)");
-
-    assertThatThrownBy(expression::getAbstractSyntaxTree)
+    assertThatThrownBy(
+            () -> ExpressionConfiguration.defaultExpressionParser().parse("ROUND(1,2,3)"))
         .isInstanceOf(ParseException.class)
         .hasMessage("Too many parameters for function");
   }
@@ -157,9 +153,8 @@ class ShuntingYardExceptionsTest extends BaseParserTest {
         "E.1"
       })
   void testTooManyOperands(String expressionString) {
-    Expression expression = new Expression(expressionString);
-
-    assertThatThrownBy(expression::getAbstractSyntaxTree)
+    assertThatThrownBy(
+            () -> ExpressionConfiguration.defaultExpressionParser().parse(expressionString))
         .isInstanceOf(ParseException.class)
         .hasMessage("Too many operands");
   }
@@ -169,9 +164,8 @@ class ShuntingYardExceptionsTest extends BaseParserTest {
       delimiter = ':',
       value = {"(x+y)*(a-) : 10", "a** : 3", "5+, : 3"})
   void testInvalidTokenAfterInfixOperator(String expressionString, int position) {
-    Expression expression = new Expression(expressionString);
-
-    assertThatThrownBy(expression::getAbstractSyntaxTree)
+    assertThatThrownBy(
+            () -> ExpressionConfiguration.defaultExpressionParser().parse(expressionString))
         .isInstanceOf(ParseException.class)
         .hasMessage("Unexpected token after infix operator")
         .extracting("startPosition")

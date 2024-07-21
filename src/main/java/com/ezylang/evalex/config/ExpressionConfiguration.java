@@ -28,6 +28,8 @@ import com.ezylang.evalex.functions.trigonometric.*;
 import com.ezylang.evalex.operators.OperatorIfc;
 import com.ezylang.evalex.operators.arithmetic.*;
 import com.ezylang.evalex.operators.booleans.*;
+import com.ezylang.evalex.parser.ASTNode;
+import com.ezylang.evalex.parser.ExpressionParser;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -86,6 +88,7 @@ public class ExpressionConfiguration {
               DateTimeFormatter.RFC_1123_DATE_TIME));
 
   private static final ExpressionConfiguration DEFAULT = ExpressionConfiguration.builder().build();
+  private static final ExpressionParser DEFAULT_PARSER = new ExpressionParser(DEFAULT);
 
   /** The operator dictionary holds all operators that will be allowed in an expression. */
   @Builder.Default
@@ -115,7 +118,7 @@ public class ExpressionConfiguration {
    * Default constants will be added automatically to each expression and can be used in expression
    * evaluation. <br>
    * It is assumed that constant will <b>never</b> change. {@link
-   * Expression#inlineAbstractSyntaxTree()} relies on this assumption!
+   * ExpressionParser#inlineASTNode(Expression, ASTNode)} relies on this assumption!
    */
   @Builder.Default
   private final Map<String, EvaluationValue> constants =
@@ -198,12 +201,21 @@ public class ExpressionConfiguration {
       new DefaultEvaluationValueConverter();
 
   /**
-   * Convenience method to create a default configuration.
+   * Convenience method to get the default configuration.
    *
    * @return A configuration with default settings.
    */
   public static ExpressionConfiguration defaultConfiguration() {
     return DEFAULT;
+  }
+
+  /**
+   * Convenience method to get the parser with default configuration.
+   *
+   * @return A parser with default settings.
+   */
+  public static ExpressionParser defaultExpressionParser() {
+    return DEFAULT_PARSER;
   }
 
   public static OperatorDictionary.Builder getStandardOperators(

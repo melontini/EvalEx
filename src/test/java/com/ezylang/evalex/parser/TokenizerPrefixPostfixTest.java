@@ -40,7 +40,7 @@ class TokenizerPrefixPostfixTest extends BaseParserTest {
 
   @Test
   void testPostfixAsPrefixThrowsException() {
-    assertThatThrownBy(new Tokenizer("?a", configuration)::parse)
+    assertThatThrownBy(() -> new Tokenizer(configuration).parse("?a"))
         .isInstanceOf(ParseException.class)
         .hasMessage("Undefined operator '?'");
   }

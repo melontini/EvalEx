@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.parser.ExpressionParser;
 import com.ezylang.evalex.parser.ParseException;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -59,10 +60,10 @@ class ExpressionEvaluatorConstantsTest extends BaseExpressionEvaluatorTest {
             "A", EvaluationValue.numberValue(new BigDecimal("2.5")),
             "B", EvaluationValue.numberValue(new BigDecimal("3.9"))));
 
-    ExpressionConfiguration configuration =
-        ExpressionConfiguration.builder().constants(constants).build();
+    ExpressionParser parser =
+        new ExpressionParser(ExpressionConfiguration.builder().constants(constants).build());
 
-    Expression expression = new Expression("a+B", configuration);
+    Expression expression = parser.parse("a+B");
 
     assertThat(expression.evaluate(UnaryOperator.identity()).getStringValue()).isEqualTo("6.4");
   }
@@ -70,8 +71,9 @@ class ExpressionEvaluatorConstantsTest extends BaseExpressionEvaluatorTest {
   @Test
   void testOverwriteConstantsWith() throws EvaluationException, ParseException {
     Expression expression =
-        new Expression(
-            "e", ExpressionConfiguration.builder().allowOverwriteConstants(true).build());
+        new ExpressionParser(
+                ExpressionConfiguration.builder().allowOverwriteConstants(true).build())
+            .parse("e");
     assertThat(expression.evaluate(builder -> builder.parameter("e", 9)).getStringValue())
         .isEqualTo("9");
   }
@@ -81,15 +83,16 @@ class ExpressionEvaluatorConstantsTest extends BaseExpressionEvaluatorTest {
     Map<String, Object> values = new HashMap<>();
     values.put("E", 6);
     Expression expression =
-        new Expression(
-            "e", ExpressionConfiguration.builder().allowOverwriteConstants(true).build());
+        new ExpressionParser(
+                ExpressionConfiguration.builder().allowOverwriteConstants(true).build())
+            .parse("e");
     assertThat(expression.evaluate(builder -> builder.parameters(values)).getStringValue())
         .isEqualTo("6");
   }
 
   @Test
-  void testOverwriteConstantsNotAllowed() {
-    Expression expression = new Expression("e");
+  void testOverwriteConstantsNotAllowed() throws ParseException {
+    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("e");
     assertThatThrownBy(() -> expression.evaluate(builder -> builder.parameter("e", 9)))
         .isInstanceOf(UnsupportedOperationException.class)
         .hasMessage("Can't set value for constant 'e'");

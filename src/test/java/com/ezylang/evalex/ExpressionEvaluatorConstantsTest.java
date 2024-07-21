@@ -69,7 +69,9 @@ class ExpressionEvaluatorConstantsTest extends BaseExpressionEvaluatorTest {
 
   @Test
   void testOverwriteConstantsWith() throws EvaluationException, ParseException {
-    Expression expression = new Expression("e");
+    Expression expression =
+        new Expression(
+            "e", ExpressionConfiguration.builder().allowOverwriteConstants(true).build());
     assertThat(expression.evaluate(builder -> builder.parameter("e", 9)).getStringValue())
         .isEqualTo("9");
   }
@@ -78,16 +80,16 @@ class ExpressionEvaluatorConstantsTest extends BaseExpressionEvaluatorTest {
   void testOverwriteConstantsWithValues() throws EvaluationException, ParseException {
     Map<String, Object> values = new HashMap<>();
     values.put("E", 6);
-    Expression expression = new Expression("e");
+    Expression expression =
+        new Expression(
+            "e", ExpressionConfiguration.builder().allowOverwriteConstants(true).build());
     assertThat(expression.evaluate(builder -> builder.parameters(values)).getStringValue())
         .isEqualTo("6");
   }
 
   @Test
   void testOverwriteConstantsNotAllowed() {
-    Expression expression =
-        new Expression(
-            "e", ExpressionConfiguration.builder().allowOverwriteConstants(false).build());
+    Expression expression = new Expression("e");
     assertThatThrownBy(() -> expression.evaluate(builder -> builder.parameter("e", 9)))
         .isInstanceOf(UnsupportedOperationException.class)
         .hasMessage("Can't set value for constant 'e'");

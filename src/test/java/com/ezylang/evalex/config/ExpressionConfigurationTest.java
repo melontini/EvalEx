@@ -52,7 +52,7 @@ class ExpressionConfigurationTest {
     assertThat(configuration.getDecimalPlacesRounding())
         .isEqualTo(ExpressionConfiguration.DECIMAL_PLACES_ROUNDING_UNLIMITED);
     assertThat(configuration.isStripTrailingZeros()).isTrue();
-    assertThat(configuration.isAllowOverwriteConstants()).isTrue();
+    assertThat(configuration.isAllowOverwriteConstants()).isFalse();
     assertThat(configuration.getZoneId()).isEqualTo(ZoneId.systemDefault());
     assertThat(configuration.getLocale()).isEqualTo(Locale.getDefault());
     assertThat(configuration.isSingleQuoteStringLiteralsAllowed()).isFalse();

@@ -15,6 +15,7 @@
 */
 package com.ezylang.evalex.config;
 
+import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.DataAccessorIfc;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.data.conversion.DefaultEvaluationValueConverter;
@@ -54,7 +55,8 @@ public class ExpressionConfiguration {
 
   /** The standard set constants for EvalEx. */
   public static final Map<String, EvaluationValue> StandardConstants =
-      getStandardConstants(() -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
+      Collections.unmodifiableMap(
+          getStandardConstants(() -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
 
   /** Setting the decimal places to unlimited, will disable intermediate rounding. */
   public static final int DECIMAL_PLACES_ROUNDING_UNLIMITED = -1;
@@ -111,11 +113,14 @@ public class ExpressionConfiguration {
 
   /**
    * Default constants will be added automatically to each expression and can be used in expression
-   * evaluation.
+   * evaluation. <br>
+   * It is assumed that constant will <b>never</b> change. {@link
+   * Expression#inlineAbstractSyntaxTree()} relies on this assumption!
    */
   @Builder.Default
   private final Map<String, EvaluationValue> constants =
-      getStandardConstants(() -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
+      Collections.unmodifiableMap(
+          getStandardConstants(() -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
 
   /** Support for arrays in expressions are allowed or not. */
   @Builder.Default private final boolean arraysAllowed = true;
@@ -170,7 +175,7 @@ public class ExpressionConfiguration {
    * If set to true (default), then variables can be set that have the name of a constant. In that
    * case, the constant value will be removed and a variable value will be set.
    */
-  @Builder.Default private final boolean allowOverwriteConstants = true;
+  @Builder.Default private final boolean allowOverwriteConstants = false;
 
   /** The time zone id. By default, the system default zone ID is used. */
   @Builder.Default private final ZoneId zoneId = ZoneId.systemDefault();
@@ -330,6 +335,6 @@ public class ExpressionConfiguration {
         "DT_FORMAT_LOCAL_DATE_TIME", EvaluationValue.stringValue("yyyy-MM-dd'T'HH:mm:ss[.SSS]"));
     constants.put("DT_FORMAT_LOCAL_DATE", EvaluationValue.stringValue("yyyy-MM-dd"));
 
-    return Collections.unmodifiableMap(constants);
+    return constants;
   }
 }

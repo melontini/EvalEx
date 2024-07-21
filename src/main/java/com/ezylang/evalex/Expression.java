@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.UnaryOperator;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -123,9 +124,7 @@ public class Expression {
    */
   public EvaluationValue evaluateSubtree(ASTNode startNode, EvaluationContext context)
       throws EvaluationException {
-    if (startNode instanceof InlinedASTNode) {
-      return tryRoundValue(((InlinedASTNode) startNode).getValue()); // All primitives go here.
-    }
+    if (startNode instanceof InlinedASTNode) return tryRoundValue(((InlinedASTNode) startNode).getValue()); // All primitives go here.
 
     Token token = startNode.getToken();
     EvaluationValue result;
@@ -184,11 +183,11 @@ public class Expression {
   private EvaluationValue getVariableOrConstant(Token token, EvaluationContext context)
       throws EvaluationException {
     EvaluationValue result = context.parameters().get(token.getValue());
-    if (result == null && getDataAccessor() != null) {
-      result = getDataAccessor().getData(token.getValue(), context);
-    }
     if (result == null) {
       result = configuration.getConstants().get(token.getValue());
+    }
+    if (result == null && getDataAccessor() != null) {
+      result = getDataAccessor().getData(token.getValue(), context);
     }
     if (result == null) {
       throw new EvaluationException(
@@ -297,6 +296,69 @@ public class Expression {
     }
 
     return abstractSyntaxTree;
+  }
+
+  /**
+   * Optional operation which attempts to inline nodes with constant results.<br>
+   * This method attempts to inline constant variables, functions and operators.
+   *
+   * <p>If an operator cannot be inlined, it must implement {@link
+   * OperatorIfc#inlineOperator(Expression, Token, List)} and return null. Same with functions, but
+   * {@link FunctionIfc#inlineFunction(Expression, Token, List)}.
+   *
+   * @throws ParseException If there was an issue parsing the expression.
+   * @throws EvaluationException If there was an issue inlining the expression value.
+   */
+  public void inlineAbstractSyntaxTree() throws ParseException, EvaluationException {
+    this.abstractSyntaxTree = this.inlineASTNode(this.getAbstractSyntaxTree());
+  }
+
+  private @NotNull ASTNode inlineASTNode(ASTNode node) throws EvaluationException, ParseException {
+    if (node instanceof InlinedASTNode) return node;
+
+    if (node.getParameters().isEmpty()) {
+      if (node.getToken().getType() == Token.TokenType.VARIABLE_OR_CONSTANT) {
+        if (!configuration.isAllowOverwriteConstants()) {
+          EvaluationValue constant = configuration.getConstants().get(node.getToken().getValue());
+          if (constant != null) return new InlinedASTNode(node.getToken(), constant);
+        }
+      } else if (node.getToken().getType() == Token.TokenType.FUNCTION) {
+        EvaluationValue function =
+            node.getToken()
+                .getFunctionDefinition()
+                .inlineFunction(this, node.getToken(), Collections.emptyList());
+        if (function != null) return new InlinedASTNode(node.getToken(), function);
+      }
+      return node;
+    }
+
+    List<ASTNode> result = new ArrayList<>();
+    for (ASTNode astNode : node.getParameters()) {
+      ASTNode inlineASTNode = inlineASTNode(astNode);
+      result.add(inlineASTNode);
+    }
+    if (!result.stream().allMatch(node1 -> node1 instanceof InlinedASTNode)) return node;
+    List<InlinedASTNode> parameters = (List<InlinedASTNode>) (Object) result;
+
+    switch (node.getToken().getType()) {
+      case POSTFIX_OPERATOR:
+      case PREFIX_OPERATOR:
+      case INFIX_OPERATOR:
+        EvaluationValue operator =
+            node.getToken()
+                .getOperatorDefinition()
+                .inlineOperator(this, node.getToken(), parameters);
+        if (operator != null)
+          return new InlinedASTNode(node.getToken(), operator, parameters.toArray(ASTNode[]::new));
+      case FUNCTION:
+        EvaluationValue function =
+            node.getToken()
+                .getFunctionDefinition()
+                .inlineFunction(this, node.getToken(), parameters);
+        if (function != null)
+          return new InlinedASTNode(node.getToken(), function, parameters.toArray(ASTNode[]::new));
+    }
+    return node;
   }
 
   /**

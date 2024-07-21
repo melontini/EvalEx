@@ -20,7 +20,11 @@ import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.parser.InlinedASTNode;
+import com.ezylang.evalex.parser.ParseException;
 import com.ezylang.evalex.parser.Token;
+import java.util.List;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Interface that is required for all operators in an operator dictionary for evaluation of
@@ -135,4 +139,17 @@ public interface OperatorIfc {
       EvaluationContext context,
       EvaluationValue... operands)
       throws EvaluationException;
+
+  default @Nullable EvaluationValue inlineOperator(
+      Expression expression, Token token, List<InlinedASTNode> parameters)
+      throws EvaluationException, ParseException {
+    if (isPostfix() || isPrefix()) {
+      EvaluationValue operand = parameters.get(0).getValue();
+      return this.evaluate(expression, token, EvaluationContext.builder().build(), operand);
+    } else {
+      EvaluationValue left = parameters.get(0).getValue();
+      EvaluationValue right = parameters.get(1).getValue();
+      return this.evaluate(expression, token, EvaluationContext.builder().build(), left, right);
+    }
+  }
 }

@@ -18,7 +18,6 @@ package com.ezylang.evalex.parser;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -36,8 +35,10 @@ import lombok.experimental.FieldDefaults;
  *
  * <p><a href="https://vanya.jp.net/vtree/">Online JSON to Tree Diagram Converter</a>
  */
-@Getter @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@ToString @EqualsAndHashCode
+@Getter
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@ToString
+@EqualsAndHashCode
 public class ASTNode {
 
   /** The children od the tree. */

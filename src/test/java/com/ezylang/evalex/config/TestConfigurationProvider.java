@@ -15,6 +15,7 @@
 */
 package com.ezylang.evalex.config;
 
+import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
@@ -56,7 +57,10 @@ public class TestConfigurationProvider {
   public static class DummyFunction extends AbstractFunction {
     @Override
     public EvaluationValue evaluate(
-        Expression expression, Token functionToken, EvaluationValue... parameterValues) {
+        Expression expression,
+        Token functionToken,
+        EvaluationContext context,
+        EvaluationValue... parameterValues) {
       // dummy implementation
       return expression.convertValue("OK");
     }
@@ -66,7 +70,10 @@ public class TestConfigurationProvider {
   public static class PrefixPlusPlusOperator extends AbstractOperator {
     @Override
     public EvaluationValue evaluate(
-        Expression expression, Token operatorToken, EvaluationValue... operands) {
+        Expression expression,
+        Token operatorToken,
+        EvaluationContext context,
+        EvaluationValue... operands) {
       // dummy implementation
       EvaluationValue operand = operands[0];
       return EvaluationValue.numberValue(operand.getNumberValue().add(BigDecimal.ONE));
@@ -77,7 +84,10 @@ public class TestConfigurationProvider {
   public static class PostfixPlusPlusOperator extends AbstractOperator {
     @Override
     public EvaluationValue evaluate(
-        Expression expression, Token operatorToken, EvaluationValue... operands) {
+        Expression expression,
+        Token operatorToken,
+        EvaluationContext context,
+        EvaluationValue... operands) {
       // dummy implementation
       EvaluationValue operand = operands[0];
       return EvaluationValue.numberValue(operand.getNumberValue().add(BigDecimal.ONE));
@@ -88,7 +98,10 @@ public class TestConfigurationProvider {
   public static class PostfixQuestionOperator extends AbstractOperator {
     @Override
     public EvaluationValue evaluate(
-        Expression expression, Token operatorToken, EvaluationValue... operands) {
+        Expression expression,
+        Token operatorToken,
+        EvaluationContext context,
+        EvaluationValue... operands) {
       // dummy implementation
       return EvaluationValue.stringValue("?");
     }

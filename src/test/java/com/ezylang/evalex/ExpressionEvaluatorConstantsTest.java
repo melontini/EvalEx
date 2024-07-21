@@ -24,6 +24,8 @@ import com.ezylang.evalex.parser.ParseException;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -51,23 +53,25 @@ class ExpressionEvaluatorConstantsTest extends BaseExpressionEvaluatorTest {
 
   @Test
   void testCustomConstantsMixedCase() throws EvaluationException, ParseException {
-    Map<String, EvaluationValue> constants =
+    Map<String, EvaluationValue> constants = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    constants.putAll(
         Map.of(
             "A", EvaluationValue.numberValue(new BigDecimal("2.5")),
-            "B", EvaluationValue.numberValue(new BigDecimal("3.9")));
+            "B", EvaluationValue.numberValue(new BigDecimal("3.9"))));
 
     ExpressionConfiguration configuration =
         ExpressionConfiguration.builder().defaultConstants(constants).build();
 
     Expression expression = new Expression("a+B", configuration);
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("6.4");
+    assertThat(expression.evaluate(UnaryOperator.identity()).getStringValue()).isEqualTo("6.4");
   }
 
   @Test
   void testOverwriteConstantsWith() throws EvaluationException, ParseException {
     Expression expression = new Expression("e");
-    assertThat(expression.with("e", 9).evaluate().getStringValue()).isEqualTo("9");
+    assertThat(expression.evaluate(builder -> builder.parameter("e", 9)).getStringValue())
+        .isEqualTo("9");
   }
 
   @Test
@@ -75,7 +79,8 @@ class ExpressionEvaluatorConstantsTest extends BaseExpressionEvaluatorTest {
     Map<String, Object> values = new HashMap<>();
     values.put("E", 6);
     Expression expression = new Expression("e");
-    assertThat(expression.withValues(values).evaluate().getStringValue()).isEqualTo("6");
+    assertThat(expression.evaluate(builder -> builder.parameters(values)).getStringValue())
+        .isEqualTo("6");
   }
 
   @Test
@@ -83,7 +88,7 @@ class ExpressionEvaluatorConstantsTest extends BaseExpressionEvaluatorTest {
     Expression expression =
         new Expression(
             "e", ExpressionConfiguration.builder().allowOverwriteConstants(false).build());
-    assertThatThrownBy(() -> expression.with("e", 9))
+    assertThatThrownBy(() -> expression.evaluate(builder -> builder.parameter("e", 9)))
         .isInstanceOf(UnsupportedOperationException.class)
         .hasMessage("Can't set value for constant 'e'");
   }

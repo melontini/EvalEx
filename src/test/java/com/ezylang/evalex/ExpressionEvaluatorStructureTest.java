@@ -31,9 +31,11 @@ class ExpressionEvaluatorStructureTest extends BaseExpressionEvaluatorTest {
   @Test
   void testStructureScientificNumberDistinction() throws EvaluationException, ParseException {
     Map<String, BigDecimal> structure = Map.of("environment_id", new BigDecimal(12345));
-    Expression expression = new Expression("order.environment_id").with("order", structure);
+    Expression expression = new Expression("order.environment_id");
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("12345");
+    assertThat(
+            expression.evaluate(builder -> builder.parameter("order", structure)).getStringValue())
+        .isEqualTo("12345");
   }
 
   @Test
@@ -47,18 +49,21 @@ class ExpressionEvaluatorStructureTest extends BaseExpressionEvaluatorTest {
     structure2.put("var_x", structure3);
     structure1.put("e_id_e", structure2);
 
-    Expression expression = new Expression("order.e_id_e.var_x.e").with("order", structure1);
+    Expression expression = new Expression("order.e_id_e.var_x.e");
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("765");
+    assertThat(
+            expression.evaluate(builder -> builder.parameter("order", structure1)).getStringValue())
+        .isEqualTo("765");
   }
 
   @Test
   void testSimpleStructure() throws ParseException, EvaluationException {
     Map<String, BigDecimal> structure = Map.of("b", new BigDecimal(99));
 
-    Expression expression = createExpression("a.b").with("a", structure);
+    Expression expression = createExpression("a.b");
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("99");
+    assertThat(expression.evaluate(builder -> builder.parameter("a", structure)).getStringValue())
+        .isEqualTo("99");
   }
 
   @Test
@@ -69,14 +74,16 @@ class ExpressionEvaluatorStructureTest extends BaseExpressionEvaluatorTest {
 
     structure.put("b", subStructure);
 
-    Expression expression = createExpression("a.b.c").with("a", structure);
+    Expression expression = createExpression("a.b.c");
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("95");
+    assertThat(expression.evaluate(builder -> builder.parameter("a", structure)).getStringValue())
+        .isEqualTo("95");
   }
 
   @Test
   void testThrowsUnsupportedDataTypeForStructure() {
-    assertThatThrownBy(() -> createExpression("a.b").with("a", "aString").evaluate())
+    assertThatThrownBy(
+            () -> createExpression("a.b").evaluate(builder -> builder.parameter("a", "aString")))
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Unsupported data types in operation");
   }
@@ -87,7 +94,9 @@ class ExpressionEvaluatorStructureTest extends BaseExpressionEvaluatorTest {
     testStructure.put("field1", new BigDecimal(3));
 
     assertThatThrownBy(
-            () -> createExpression("a.field1 + a.field2").with("a", testStructure).evaluate())
+            () ->
+                createExpression("a.field1 + a.field2")
+                    .evaluate(builder -> builder.parameter("a", testStructure)))
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Field 'field2' not found in structure")
         .extracting("startPosition")
@@ -99,9 +108,11 @@ class ExpressionEvaluatorStructureTest extends BaseExpressionEvaluatorTest {
     Map<String, BigDecimal> testStructure = new HashMap<>();
     testStructure.put("field 1", new BigDecimal(88));
 
-    Expression expression = createExpression("a.\"field 1\"").with("a", testStructure);
+    Expression expression = createExpression("a.\"field 1\"");
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("88");
+    assertThat(
+            expression.evaluate(builder -> builder.parameter("a", testStructure)).getStringValue())
+        .isEqualTo("88");
   }
 
   @Test
@@ -111,17 +122,19 @@ class ExpressionEvaluatorStructureTest extends BaseExpressionEvaluatorTest {
     subStructure.put("prop c", 99);
     structure.put("prop b", List.of(subStructure));
 
-    Expression expression = createExpression("a.\"prop b\"[0].\"prop c\"").with("a", structure);
+    Expression expression = createExpression("a.\"prop b\"[0].\"prop c\"");
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("99");
+    assertThat(expression.evaluate(builder -> builder.parameter("a", structure)).getStringValue())
+        .isEqualTo("99");
   }
 
   @Test
   void testStructureWithSpaceInNameAndArrayAccess() throws EvaluationException, ParseException {
     Map<String, List<Integer>> structure = Map.of("b prop", Arrays.asList(1, 2, 3));
 
-    Expression expression = createExpression("a.\"b prop\"[1]").with("a", structure);
+    Expression expression = createExpression("a.\"b prop\"[1]");
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("2");
+    assertThat(expression.evaluate(builder -> builder.parameter("a", structure)).getStringValue())
+        .isEqualTo("2");
   }
 }

@@ -18,6 +18,7 @@ package com.ezylang.evalex.functions;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.parser.Token;
@@ -66,7 +67,10 @@ class FunctionTest {
   private static class CorrectFunctionDefinitionFunction extends AbstractFunction {
     @Override
     public EvaluationValue evaluate(
-        Expression expression, Token functionToken, EvaluationValue... parameterValues) {
+        Expression expression,
+        Token functionToken,
+        EvaluationContext context,
+        EvaluationValue... parameterValues) {
       return EvaluationValue.stringValue("OK");
     }
   }
@@ -77,7 +81,10 @@ class FunctionTest {
   private static class WrongVarargFunctionDefinitionFunction extends AbstractFunction {
     @Override
     public EvaluationValue evaluate(
-        Expression expression, Token functionToken, EvaluationValue... parameterValues) {
+        Expression expression,
+        Token functionToken,
+        EvaluationContext context,
+        EvaluationValue... parameterValues) {
       return EvaluationValue.stringValue("OK");
     }
   }

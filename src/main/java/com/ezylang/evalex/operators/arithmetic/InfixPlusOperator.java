@@ -17,6 +17,7 @@ package com.ezylang.evalex.operators.arithmetic;
 
 import static com.ezylang.evalex.operators.OperatorIfc.OPERATOR_PRECEDENCE_ADDITIVE;
 
+import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.operators.AbstractOperator;
@@ -32,7 +33,10 @@ public class InfixPlusOperator extends AbstractOperator {
 
   @Override
   public EvaluationValue evaluate(
-      Expression expression, Token operatorToken, EvaluationValue... operands) {
+      Expression expression,
+      Token operatorToken,
+      EvaluationContext context,
+      EvaluationValue... operands) {
     EvaluationValue leftOperand = operands[0];
     EvaluationValue rightOperand = operands[1];
 

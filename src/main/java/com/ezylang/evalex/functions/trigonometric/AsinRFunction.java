@@ -18,6 +18,7 @@ package com.ezylang.evalex.functions.trigonometric;
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.valueOf;
 
+import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
@@ -34,7 +35,10 @@ public class AsinRFunction extends AbstractFunction {
 
   @Override
   public EvaluationValue evaluate(
-      Expression expression, Token functionToken, EvaluationValue... parameterValues)
+      Expression expression,
+      Token functionToken,
+      EvaluationContext context,
+      EvaluationValue... parameterValues)
       throws EvaluationException {
 
     BigDecimal parameterValue = parameterValues[0].getNumberValue();

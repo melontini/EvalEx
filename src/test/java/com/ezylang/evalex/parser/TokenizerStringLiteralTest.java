@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.parser.Token.TokenType;
+import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -70,7 +71,7 @@ class TokenizerStringLiteralTest extends BaseParserTest {
 
   @Test
   void testUnknownEscapeCharacter() {
-    assertThatThrownBy(() -> new Expression("\" \\y \"").evaluate())
+    assertThatThrownBy(() -> new Expression("\" \\y \"").evaluate(UnaryOperator.identity()))
         .isInstanceOf(ParseException.class)
         .hasMessage("Unknown escape character");
   }

@@ -18,6 +18,7 @@ package com.ezylang.evalex.parser;
 import static com.ezylang.evalex.operators.OperatorIfc.OPERATOR_PRECEDENCE_AND;
 import static com.ezylang.evalex.operators.OperatorIfc.OPERATOR_PRECEDENCE_OR;
 
+import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.operators.AbstractOperator;
@@ -61,7 +62,10 @@ class TokenizerLiteralOperatorsTest extends BaseParserTest {
   static class AndOperator extends AbstractOperator {
     @Override
     public EvaluationValue evaluate(
-        Expression expression, Token operatorToken, EvaluationValue... operands) {
+        Expression expression,
+        Token operatorToken,
+        EvaluationContext context,
+        EvaluationValue... operands) {
       return EvaluationValue.booleanValue(
           operands[0].getBooleanValue() && operands[1].getBooleanValue());
     }
@@ -71,7 +75,10 @@ class TokenizerLiteralOperatorsTest extends BaseParserTest {
   static class OrOperator extends AbstractOperator {
     @Override
     public EvaluationValue evaluate(
-        Expression expression, Token operatorToken, EvaluationValue... operands) {
+        Expression expression,
+        Token operatorToken,
+        EvaluationContext context,
+        EvaluationValue... operands) {
       return EvaluationValue.booleanValue(
           operands[0].getBooleanValue() || operands[1].getBooleanValue());
     }
@@ -81,7 +88,10 @@ class TokenizerLiteralOperatorsTest extends BaseParserTest {
   static class NotOperator extends AbstractOperator {
     @Override
     public EvaluationValue evaluate(
-        Expression expression, Token operatorToken, EvaluationValue... operands) {
+        Expression expression,
+        Token operatorToken,
+        EvaluationContext context,
+        EvaluationValue... operands) {
       return EvaluationValue.booleanValue(!operands[0].getBooleanValue());
     }
   }
@@ -90,7 +100,10 @@ class TokenizerLiteralOperatorsTest extends BaseParserTest {
   static class DeniedOperator extends AbstractOperator {
     @Override
     public EvaluationValue evaluate(
-        Expression expression, Token operatorToken, EvaluationValue... operands) {
+        Expression expression,
+        Token operatorToken,
+        EvaluationContext context,
+        EvaluationValue... operands) {
       return EvaluationValue.booleanValue(!operands[0].getBooleanValue());
     }
   }

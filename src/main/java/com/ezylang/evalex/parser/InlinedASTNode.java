@@ -28,10 +28,10 @@ import lombok.experimental.FieldDefaults;
 @EqualsAndHashCode(callSuper = true)
 public class InlinedASTNode extends ASTNode {
 
-    EvaluationValue value;
+  EvaluationValue value;
 
-    public InlinedASTNode(Token token, EvaluationValue value, ASTNode... parameters) {
-        super(token, parameters);
-        this.value = value;
-    }
+  public InlinedASTNode(Token token, EvaluationValue value, ASTNode... parameters) {
+    super(token, parameters);
+    this.value = value;
+  }
 }

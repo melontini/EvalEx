@@ -23,6 +23,7 @@ import com.ezylang.evalex.parser.ParseException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.Test;
 
 class ExpressionEvaluatorDecimalPlacesTest extends BaseExpressionEvaluatorTest {
@@ -34,9 +35,13 @@ class ExpressionEvaluatorDecimalPlacesTest extends BaseExpressionEvaluatorTest {
 
   @Test
   void testDefaultNoRoundingVariable() throws ParseException, EvaluationException {
-    Expression expression = new Expression("a").with("a", new BigDecimal("2.12345"));
+    Expression expression = new Expression("a");
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("2.12345");
+    assertThat(
+            expression
+                .evaluate(builder -> builder.parameter("a", new BigDecimal("2.12345")))
+                .getStringValue())
+        .isEqualTo("2.12345");
   }
 
   @Test
@@ -57,18 +62,20 @@ class ExpressionEvaluatorDecimalPlacesTest extends BaseExpressionEvaluatorTest {
   @Test
   void testDefaultNoRoundingArray() throws ParseException, EvaluationException {
     List<BigDecimal> array = List.of(new BigDecimal("1.12345"));
-    Expression expression = createExpression("a[0]").with("a", array);
+    Expression expression = createExpression("a[0]");
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("1.12345");
+    assertThat(expression.evaluate(builder -> builder.parameter("a", array)).getStringValue())
+        .isEqualTo("1.12345");
   }
 
   @Test
   void testDefaultNoRoundingStructure() throws ParseException, EvaluationException {
     Map<String, BigDecimal> structure = Map.of("b", new BigDecimal("1.12345"));
 
-    Expression expression = createExpression("a.b").with("a", structure);
+    Expression expression = createExpression("a.b");
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("1.12345");
+    assertThat(expression.evaluate(builder -> builder.parameter("a", structure)).getStringValue())
+        .isEqualTo("1.12345");
   }
 
   @Test
@@ -77,16 +84,20 @@ class ExpressionEvaluatorDecimalPlacesTest extends BaseExpressionEvaluatorTest {
         ExpressionConfiguration.builder().decimalPlacesRounding(2).build();
     Expression expression = new Expression("2.12345", config);
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("2.12");
+    assertThat(expression.evaluate(UnaryOperator.identity()).getStringValue()).isEqualTo("2.12");
   }
 
   @Test
   void testCustomRoundingDecimalsVariable() throws ParseException, EvaluationException {
     ExpressionConfiguration config =
         ExpressionConfiguration.builder().decimalPlacesRounding(2).build();
-    Expression expression = new Expression("a", config).with("a", new BigDecimal("2.126"));
+    Expression expression = new Expression("a", config);
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("2.13");
+    assertThat(
+            expression
+                .evaluate(builder -> builder.parameter("a", new BigDecimal("2.126")))
+                .getStringValue())
+        .isEqualTo("2.13");
   }
 
   @Test
@@ -96,7 +107,7 @@ class ExpressionEvaluatorDecimalPlacesTest extends BaseExpressionEvaluatorTest {
     Expression expression = new Expression("2.12345+1.54321", config);
 
     // literals are rounded first, the added and rounded again.
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("3.666");
+    assertThat(expression.evaluate(UnaryOperator.identity()).getStringValue()).isEqualTo("3.666");
   }
 
   @Test
@@ -105,7 +116,7 @@ class ExpressionEvaluatorDecimalPlacesTest extends BaseExpressionEvaluatorTest {
         ExpressionConfiguration.builder().decimalPlacesRounding(3).build();
     Expression expression = new Expression("-2.12345", config);
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("-2.123");
+    assertThat(expression.evaluate(UnaryOperator.identity()).getStringValue()).isEqualTo("-2.123");
   }
 
   @Test
@@ -115,7 +126,7 @@ class ExpressionEvaluatorDecimalPlacesTest extends BaseExpressionEvaluatorTest {
     Expression expression = new Expression("SUM(2.12345,1.54321)", config);
 
     // literals are rounded first, the added and rounded again.
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("3.666");
+    assertThat(expression.evaluate(UnaryOperator.identity()).getStringValue()).isEqualTo("3.666");
   }
 
   @Test
@@ -123,9 +134,10 @@ class ExpressionEvaluatorDecimalPlacesTest extends BaseExpressionEvaluatorTest {
     ExpressionConfiguration config =
         ExpressionConfiguration.builder().decimalPlacesRounding(3).build();
     List<BigDecimal> array = List.of(new BigDecimal("1.12345"));
-    Expression expression = new Expression("a[0]", config).with("a", array);
+    Expression expression = new Expression("a[0]", config);
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("1.123");
+    assertThat(expression.evaluate(builder -> builder.parameter("a", array)).getStringValue())
+        .isEqualTo("1.123");
   }
 
   @Test
@@ -134,15 +146,16 @@ class ExpressionEvaluatorDecimalPlacesTest extends BaseExpressionEvaluatorTest {
         ExpressionConfiguration.builder().decimalPlacesRounding(3).build();
     Map<String, BigDecimal> structure = Map.of("b", new BigDecimal("1.12345"));
 
-    Expression expression = new Expression("a.b", config).with("a", structure);
+    Expression expression = new Expression("a.b", config);
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("1.123");
+    assertThat(expression.evaluate(builder -> builder.parameter("a", structure)).getStringValue())
+        .isEqualTo("1.123");
   }
 
   @Test
   void testDefaultStripZeros() throws EvaluationException, ParseException {
     Expression expression = new Expression("9.000");
-    assertThat(expression.evaluate().getNumberValue()).isEqualTo("9");
+    assertThat(expression.evaluate(UnaryOperator.identity()).getNumberValue()).isEqualTo("9");
   }
 
   @Test
@@ -151,7 +164,7 @@ class ExpressionEvaluatorDecimalPlacesTest extends BaseExpressionEvaluatorTest {
         ExpressionConfiguration.builder().stripTrailingZeros(false).build();
 
     Expression expression = new Expression("9.000", config);
-    assertThat(expression.evaluate().getNumberValue()).isEqualTo("9.000");
+    assertThat(expression.evaluate(UnaryOperator.identity()).getNumberValue()).isEqualTo("9.000");
   }
 
   @Test
@@ -160,7 +173,7 @@ class ExpressionEvaluatorDecimalPlacesTest extends BaseExpressionEvaluatorTest {
         ExpressionConfiguration.builder().decimalPlacesResult(3).build();
     Expression expression = new Expression("1.6666+1.6666+1.6666", config);
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("5");
+    assertThat(expression.evaluate(UnaryOperator.identity()).getStringValue()).isEqualTo("5");
   }
 
   @Test
@@ -169,7 +182,7 @@ class ExpressionEvaluatorDecimalPlacesTest extends BaseExpressionEvaluatorTest {
         ExpressionConfiguration.builder().decimalPlacesResult(3).stripTrailingZeros(false).build();
     Expression expression = new Expression("1.6666+1.6666+1.6666", config);
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("5.000");
+    assertThat(expression.evaluate(UnaryOperator.identity()).getStringValue()).isEqualTo("5.000");
   }
 
   @Test
@@ -178,13 +191,14 @@ class ExpressionEvaluatorDecimalPlacesTest extends BaseExpressionEvaluatorTest {
         ExpressionConfiguration.builder().decimalPlacesResult(3).decimalPlacesRounding(2).build();
     Expression expression = new Expression("1.6666+1.6666+1.6666", config);
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("5.01");
+    assertThat(expression.evaluate(UnaryOperator.identity()).getStringValue()).isEqualTo("5.01");
   }
 
   @Test
   void testEqualsIgnoresScale() throws EvaluationException, ParseException {
     Expression expression = new Expression("a == b");
-    EvaluationValue result = expression.with("a", 70).and("b", 70.0).evaluate();
+    EvaluationValue result =
+        expression.evaluate(builder -> builder.parameter("a", 70).parameter("b", 70.0));
 
     assertThat(result.getBooleanValue()).isTrue();
   }
@@ -192,7 +206,8 @@ class ExpressionEvaluatorDecimalPlacesTest extends BaseExpressionEvaluatorTest {
   @Test
   void testNotEqualsIgnoresScale() throws EvaluationException, ParseException {
     Expression expression = new Expression("a != b");
-    EvaluationValue result = expression.with("a", 70).and("b", 70.0).evaluate();
+    EvaluationValue result =
+        expression.evaluate(builder -> builder.parameter("a", 70).parameter("b", 70.0));
 
     assertThat(result.getBooleanValue()).isFalse();
   }

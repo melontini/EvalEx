@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.operators.OperatorIfc;
 import com.ezylang.evalex.parser.ParseException;
+import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.Test;
 
 class ExpressionEvaluatorPowerOfTest extends BaseExpressionEvaluatorTest {
@@ -38,6 +39,6 @@ class ExpressionEvaluatorPowerOfTest extends BaseExpressionEvaluatorTest {
 
     Expression expression = new Expression("-2^2", config);
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("-4");
+    assertThat(expression.evaluate(UnaryOperator.identity()).getStringValue()).isEqualTo("-4");
   }
 }

@@ -15,6 +15,7 @@
 */
 package com.ezylang.evalex.functions.basic;
 
+import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
@@ -65,7 +66,10 @@ import com.ezylang.evalex.parser.Token;
 public class SwitchFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression, Token functionToken, EvaluationValue... parameterValues)
+      Expression expression,
+      Token functionToken,
+      EvaluationContext context,
+      EvaluationValue... parameterValues)
       throws EvaluationException {
 
     EvaluationValue result = EvaluationValue.NULL_VALUE;
@@ -79,7 +83,7 @@ public class SwitchFunction extends AbstractFunction {
     while (index < parameterValues.length) {
       int next = index + 1;
       if (next < parameterValues.length) {
-        if (value.equals(evaluateParameter(expression, parameterValues[index]))) {
+        if (value.equals(evaluateParameter(expression, parameterValues[index], context))) {
           result = parameterValues[next];
           break;
         }
@@ -89,13 +93,14 @@ public class SwitchFunction extends AbstractFunction {
         result = parameterValues[index++];
       }
     }
-    return evaluateParameter(expression, result);
+    return evaluateParameter(expression, result, context);
   }
 
-  private EvaluationValue evaluateParameter(Expression expression, EvaluationValue parameter)
+  private EvaluationValue evaluateParameter(
+      Expression expression, EvaluationValue parameter, EvaluationContext context)
       throws EvaluationException {
     return parameter.isExpressionNode()
-        ? expression.evaluateSubtree(parameter.getExpressionNode())
+        ? expression.evaluateSubtree(parameter.getExpressionNode(), context)
         : parameter;
   }
 }

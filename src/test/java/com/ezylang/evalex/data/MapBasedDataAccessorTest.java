@@ -18,36 +18,41 @@ package com.ezylang.evalex.data;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
 
 class MapBasedDataAccessorTest {
 
   @Test
   void testSetGetData() {
-    DataAccessorIfc dataAccessor = new MapBasedDataAccessor();
+    Map<String, EvaluationValue> variables = new HashMap<>();
+    DataAccessorIfc dataAccessor = (variable, context) -> variables.get(variable);
 
     EvaluationValue num = EvaluationValue.numberValue(new BigDecimal("123"));
     EvaluationValue string = EvaluationValue.stringValue("hello");
     EvaluationValue bool = EvaluationValue.booleanValue(true);
 
-    dataAccessor.setData("num", num);
-    dataAccessor.setData("string", string);
-    dataAccessor.setData("bool", bool);
+    variables.put("num", num);
+    variables.put("string", string);
+    variables.put("bool", bool);
 
-    assertThat(dataAccessor.getData("num")).isEqualTo(num);
-    assertThat(dataAccessor.getData("string")).isEqualTo(string);
-    assertThat(dataAccessor.getData("bool")).isEqualTo(bool);
+    assertThat(dataAccessor.getData("num", null)).isEqualTo(num);
+    assertThat(dataAccessor.getData("string", null)).isEqualTo(string);
+    assertThat(dataAccessor.getData("bool", null)).isEqualTo(bool);
   }
 
   @Test
   void testCaseInsensitivity() {
-    DataAccessorIfc dataAccessor = new MapBasedDataAccessor();
+    Map<String, EvaluationValue> variables = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    DataAccessorIfc dataAccessor = (variable, context) -> variables.get(variable);
 
     EvaluationValue num = EvaluationValue.numberValue(new BigDecimal("123"));
-    dataAccessor.setData("Hello", num);
+    variables.put("Hello", num);
 
-    assertThat(dataAccessor.getData("Hello")).isEqualTo(num);
-    assertThat(dataAccessor.getData("hello")).isEqualTo(num);
-    assertThat(dataAccessor.getData("HELLO")).isEqualTo(num);
+    assertThat(dataAccessor.getData("Hello", null)).isEqualTo(num);
+    assertThat(dataAccessor.getData("hello", null)).isEqualTo(num);
+    assertThat(dataAccessor.getData("HELLO", null)).isEqualTo(num);
   }
 }

@@ -15,6 +15,7 @@
 */
 package com.ezylang.evalex.operators;
 
+import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.config.ExpressionConfiguration;
@@ -128,6 +129,10 @@ public interface OperatorIfc {
    * @return The evaluation result in form of a {@link EvaluationValue}.
    * @throws EvaluationException In case there were problems during evaluation.
    */
-  EvaluationValue evaluate(Expression expression, Token operatorToken, EvaluationValue... operands)
+  EvaluationValue evaluate(
+      Expression expression,
+      Token operatorToken,
+      EvaluationContext context,
+      EvaluationValue... operands)
       throws EvaluationException;
 }

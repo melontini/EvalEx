@@ -79,21 +79,35 @@ class InfixEqualsOperatorTest extends BaseEvaluationTest {
 
     assertThat(
             expression
-                .with("a", new BigDecimal("1.4"))
-                .and("b", new BigDecimal("1.4"))
-                .evaluate()
+                .evaluate(
+                    builder ->
+                        builder.with("a", new BigDecimal("1.4")).and("b", new BigDecimal("1.4")))
                 .getBooleanValue())
         .isTrue();
 
-    assertThat(expression.with("a", "Hello").and("b", "Hello").evaluate().getBooleanValue())
+    assertThat(
+            expression
+                .evaluate(builder -> builder.with("a", "Hello").and("b", "Hello"))
+                .getBooleanValue())
         .isTrue();
 
-    assertThat(expression.with("a", "Hello").and("b", "Goodbye").evaluate().getBooleanValue())
+    assertThat(
+            expression
+                .evaluate(builder -> builder.with("a", "Hello").and("b", "Goodbye"))
+                .getBooleanValue())
         .isFalse();
 
-    assertThat(expression.with("a", true).and("b", true).evaluate().getBooleanValue()).isTrue();
+    assertThat(
+            expression
+                .evaluate(builder -> builder.with("a", true).and("b", true))
+                .getBooleanValue())
+        .isTrue();
 
-    assertThat(expression.with("a", false).and("b", true).evaluate().getBooleanValue()).isFalse();
+    assertThat(
+            expression
+                .evaluate(builder -> builder.with("a", false).and("b", true))
+                .getBooleanValue())
+        .isFalse();
   }
 
   @Test
@@ -102,17 +116,21 @@ class InfixEqualsOperatorTest extends BaseEvaluationTest {
 
     assertThat(
             expression
-                .with("a", Arrays.asList("a", "b", "c"))
-                .and("b", Arrays.asList("a", "b", "c"))
-                .evaluate()
+                .evaluate(
+                    builder ->
+                        builder
+                            .with("a", Arrays.asList("a", "b", "c"))
+                            .and("b", Arrays.asList("a", "b", "c")))
                 .getBooleanValue())
         .isTrue();
 
     assertThat(
             expression
-                .with("a", Arrays.asList("a", "b", "c"))
-                .and("b", Arrays.asList("c", "b", "a"))
-                .evaluate()
+                .evaluate(
+                    builder ->
+                        builder
+                            .with("a", Arrays.asList("a", "b", "c"))
+                            .and("b", Arrays.asList("c", "b", "a")))
                 .getBooleanValue())
         .isFalse();
   }
@@ -136,10 +154,16 @@ class InfixEqualsOperatorTest extends BaseEvaluationTest {
             "a", new BigDecimal(45),
             "b", new BigDecimal(99));
 
-    assertThat(expression.with("a", structure1).and("b", structure2).evaluate().getBooleanValue())
+    assertThat(
+            expression
+                .evaluate(builder -> builder.with("a", structure1).and("b", structure2))
+                .getBooleanValue())
         .isTrue();
 
-    assertThat(expression.with("a", structure1).and("b", structure3).evaluate().getBooleanValue())
+    assertThat(
+            expression
+                .evaluate(builder -> builder.with("a", structure1).and("b", structure3))
+                .getBooleanValue())
         .isFalse();
   }
 }

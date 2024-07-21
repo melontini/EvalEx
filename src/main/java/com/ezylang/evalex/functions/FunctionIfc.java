@@ -15,6 +15,7 @@
 */
 package com.ezylang.evalex.functions;
 
+import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
@@ -45,7 +46,10 @@ public interface FunctionIfc {
    * @throws EvaluationException In case there were problems during evaluation.
    */
   EvaluationValue evaluate(
-      Expression expression, Token functionToken, EvaluationValue... parameterValues)
+      Expression expression,
+      Token functionToken,
+      EvaluationContext context,
+      EvaluationValue... parameterValues)
       throws EvaluationException;
 
   /**

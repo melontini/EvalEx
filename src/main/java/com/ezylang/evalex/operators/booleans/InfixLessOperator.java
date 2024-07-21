@@ -17,6 +17,7 @@ package com.ezylang.evalex.operators.booleans;
 
 import static com.ezylang.evalex.operators.OperatorIfc.OPERATOR_PRECEDENCE_COMPARISON;
 
+import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.operators.AbstractOperator;
@@ -29,7 +30,10 @@ public class InfixLessOperator extends AbstractOperator {
 
   @Override
   public EvaluationValue evaluate(
-      Expression expression, Token operatorToken, EvaluationValue... operands) {
+      Expression expression,
+      Token operatorToken,
+      EvaluationContext context,
+      EvaluationValue... operands) {
     return expression.convertValue(operands[0].compareTo(operands[1]) < 0);
   }
 }

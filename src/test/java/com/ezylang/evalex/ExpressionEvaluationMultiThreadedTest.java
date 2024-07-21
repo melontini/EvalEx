@@ -47,7 +47,10 @@ class ExpressionEvaluationMultiThreadedTest {
 
                 BigDecimal a = new BigDecimal(random.nextInt());
                 BigDecimal b = new BigDecimal(random.nextInt());
-                EvaluationValue result = expression.copy().with("a", a).and("b", b).evaluate();
+                EvaluationValue result =
+                    expression
+                        .copy()
+                        .evaluate(builder -> builder.parameter("a", a).parameter("b", b));
 
                 BigDecimal sum = a.add(b);
 

@@ -21,6 +21,7 @@ import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.parser.ParseException;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -98,7 +99,7 @@ class EvalEx2CompatibilityTest {
     Expression expression =
         new Expression(
             "SQRT(2)", ExpressionConfiguration.builder().mathContext(new MathContext(128)).build());
-    assertThat(expression.evaluate().getNumberValue())
+    assertThat(expression.evaluate(UnaryOperator.identity()).getNumberValue())
         .isEqualByComparingTo(
             "1.41421356237309504880168872420969807856967187537694807317667973799073247846210703885038753432764157273501384623091229702492483605");
 
@@ -234,11 +235,13 @@ class EvalEx2CompatibilityTest {
       throws EvaluationException, ParseException {
     Expression expression =
         new Expression(
-                expressionString,
-                ExpressionConfiguration.builder().mathContext(MathContext.DECIMAL32).build())
-            .with("a", 2)
-            .and("b", 3);
-    assertThat(expression.evaluate().getStringValue()).isEqualTo(expectedResult);
+            expressionString,
+            ExpressionConfiguration.builder().mathContext(MathContext.DECIMAL32).build());
+    assertThat(
+            expression
+                .evaluate(builder -> builder.parameter("a", 2).parameter("b", 3))
+                .getStringValue())
+        .isEqualTo(expectedResult);
   }
 
   private BigDecimal evaluateToNumber(String expression)
@@ -248,7 +251,7 @@ class EvalEx2CompatibilityTest {
     return new Expression(
             expression,
             ExpressionConfiguration.builder().mathContext(MathContext.DECIMAL32).build())
-        .evaluate()
+        .evaluate(UnaryOperator.identity())
         .getNumberValue();
   }
 }

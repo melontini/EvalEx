@@ -15,6 +15,7 @@
 */
 package com.ezylang.evalex.functions.datetime;
 
+import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
@@ -35,7 +36,10 @@ import java.time.format.DateTimeFormatter;
 public class DateTimeFormatFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression, Token functionToken, EvaluationValue... parameterValues)
+      Expression expression,
+      Token functionToken,
+      EvaluationContext context,
+      EvaluationValue... parameterValues)
       throws EvaluationException {
 
     DateTimeFormatter formatter = expression.getConfiguration().getDateTimeFormatters().get(0);

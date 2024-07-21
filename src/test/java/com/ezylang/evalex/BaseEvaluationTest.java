@@ -50,6 +50,6 @@ public abstract class BaseEvaluationTest {
       throws EvaluationException, ParseException {
     Expression expression = new Expression(expressionString, configuration);
 
-    return expression.evaluate();
+    return expression.evaluate(EvaluationContext.builder(expression).build());
   }
 }

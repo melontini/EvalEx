@@ -29,25 +29,32 @@ class ExpressionEvaluatorArrayTest extends BaseExpressionEvaluatorTest {
   @Test
   void testSimpleArray() throws ParseException, EvaluationException {
     List<BigDecimal> array = List.of(new BigDecimal(99));
-    Expression expression = createExpression("a[0]").with("a", array);
+    Expression expression = createExpression("a[0]");
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("99");
+    assertThat(expression.evaluate(builder -> builder.parameter("a", array)).getStringValue())
+        .isEqualTo("99");
   }
 
   @Test
   void testMultipleEntriesArray() throws ParseException, EvaluationException {
     List<BigDecimal> array = Arrays.asList(new BigDecimal(2), new BigDecimal(4), new BigDecimal(6));
-    Expression expression = createExpression("a[0]+a[1]+a[2]").with("a", array);
+    Expression expression = createExpression("a[0]+a[1]+a[2]");
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("12");
+    assertThat(expression.evaluate(builder -> builder.parameter("a", array)).getStringValue())
+        .isEqualTo("12");
   }
 
   @Test
   void testExpressionArray() throws ParseException, EvaluationException {
     List<BigDecimal> array = List.of(new BigDecimal(3));
-    Expression expression = createExpression("a[4-x]").with("a", array).and("x", new BigDecimal(4));
+    Expression expression = createExpression("a[4-x]");
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("3");
+    assertThat(
+            expression
+                .evaluate(
+                    builder -> builder.parameter("a", array).parameter("x", new BigDecimal(4)))
+                .getStringValue())
+        .isEqualTo("3");
   }
 
   @Test
@@ -55,29 +62,36 @@ class ExpressionEvaluatorArrayTest extends BaseExpressionEvaluatorTest {
     List<BigDecimal> arrayA = List.of(new BigDecimal(3));
     List<BigDecimal> arrayB =
         Arrays.asList(new BigDecimal(2), new BigDecimal(4), new BigDecimal(6));
-    Expression expression =
-        createExpression("a[b[6-4]-x]")
-            .with("a", arrayA)
-            .and("b", arrayB)
-            .and("x", new BigDecimal(6));
+    Expression expression = createExpression("a[b[6-4]-x]");
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("3");
+    assertThat(
+            expression
+                .evaluate(
+                    builder ->
+                        builder
+                            .parameter("a", arrayA)
+                            .parameter("b", arrayB)
+                            .parameter("x", new BigDecimal(6)))
+                .getStringValue())
+        .isEqualTo("3");
   }
 
   @Test
   void testStringArray() throws ParseException, EvaluationException {
     List<String> array = Arrays.asList("Hello", "beautiful", "world");
-    Expression expression = createExpression("a[0] + \" \" + a[1] + \" \" + a[2]").with("a", array);
+    Expression expression = createExpression("a[0] + \" \" + a[1] + \" \" + a[2]");
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("Hello beautiful world");
+    assertThat(expression.evaluate(builder -> builder.parameter("a", array)).getStringValue())
+        .isEqualTo("Hello beautiful world");
   }
 
   @Test
   void testBooleanArray() throws ParseException, EvaluationException {
     List<Boolean> array = Arrays.asList(true, true, false);
-    Expression expression = createExpression("a[0] + \" \" + a[1] + \" \" + a[2]").with("a", array);
+    Expression expression = createExpression("a[0] + \" \" + a[1] + \" \" + a[2]");
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("true true false");
+    assertThat(expression.evaluate(builder -> builder.parameter("a", array)).getStringValue())
+        .isEqualTo("true true false");
   }
 
   @Test
@@ -87,56 +101,76 @@ class ExpressionEvaluatorArrayTest extends BaseExpressionEvaluatorTest {
 
     List<List<BigDecimal>> array = Arrays.asList(subArray1, subArray2);
 
-    Expression expression1 = createExpression("a[0][0]").with("a", array);
-    Expression expression2 = createExpression("a[0][1]").with("a", array);
-    Expression expression3 = createExpression("a[1][0]").with("a", array);
-    Expression expression4 = createExpression("a[1][1]").with("a", array);
+    Expression expression1 = createExpression("a[0][0]");
+    Expression expression2 = createExpression("a[0][1]");
+    Expression expression3 = createExpression("a[1][0]");
+    Expression expression4 = createExpression("a[1][1]");
 
-    assertThat(expression1.evaluate().getStringValue()).isEqualTo("1");
-    assertThat(expression2.evaluate().getStringValue()).isEqualTo("2");
-    assertThat(expression3.evaluate().getStringValue()).isEqualTo("4");
-    assertThat(expression4.evaluate().getStringValue()).isEqualTo("8");
+    assertThat(expression1.evaluate(builder -> builder.parameter("a", array)).getStringValue())
+        .isEqualTo("1");
+    assertThat(expression2.evaluate(builder -> builder.parameter("a", array)).getStringValue())
+        .isEqualTo("2");
+    assertThat(expression3.evaluate(builder -> builder.parameter("a", array)).getStringValue())
+        .isEqualTo("4");
+    assertThat(expression4.evaluate(builder -> builder.parameter("a", array)).getStringValue())
+        .isEqualTo("8");
   }
 
   @Test
   void testMixedArray() throws ParseException, EvaluationException {
     List<?> array = Arrays.asList("Hello", new BigDecimal(4), true);
-    Expression expression1 = createExpression("a[0]").with("a", array);
-    Expression expression2 = createExpression("a[1]").with("a", array);
-    Expression expression3 = createExpression("a[2]").with("a", array);
+    Expression expression1 = createExpression("a[0]");
+    Expression expression2 = createExpression("a[1]");
+    Expression expression3 = createExpression("a[2]");
 
-    assertThat(expression1.evaluate().getStringValue()).isEqualTo("Hello");
-    assertThat(expression2.evaluate().getStringValue()).isEqualTo("4");
-    assertThat(expression3.evaluate().getStringValue()).isEqualTo("true");
+    assertThat(expression1.evaluate(builder -> builder.parameter("a", array)).getStringValue())
+        .isEqualTo("Hello");
+    assertThat(expression2.evaluate(builder -> builder.parameter("a", array)).getStringValue())
+        .isEqualTo("4");
+    assertThat(expression3.evaluate(builder -> builder.parameter("a", array)).getStringValue())
+        .isEqualTo("true");
   }
 
   @Test
   void testArrayAndList() throws EvaluationException, ParseException {
-    Expression expression =
-        createExpression("values[i-1] * factors[i-1]")
-            .with("values", List.of(2, 3, 4))
-            .and("factors", new Object[] {2, 4, 6})
-            .and("i", 1);
+    Expression expression = createExpression("values[i-1] * factors[i-1]");
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("4");
+    assertThat(
+            expression
+                .evaluate(
+                    builder ->
+                        builder
+                            .parameter("values", List.of(2, 3, 4))
+                            .parameter("factors", new Object[] {2, 4, 6})
+                            .parameter("i", 1))
+                .getStringValue())
+        .isEqualTo("4");
   }
 
   @Test
   void testArrayTypes() throws EvaluationException, ParseException {
     Expression expression =
-        createExpression("decimals[1] + integers[1] + doubles[1] + strings[1] + booleans[1]")
-            .with("decimals", new BigDecimal[] {new BigDecimal(1), new BigDecimal(2)})
-            .and("integers", new Integer[] {1, 2})
-            .and("doubles", new Double[] {1.1, 2.2})
-            .and("strings", new String[] {" Hello ", " World "})
-            .and("booleans", new Boolean[] {true, false});
+        createExpression("decimals[1] + integers[1] + doubles[1] + strings[1] + booleans[1]");
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("6.2 World false");
+    assertThat(
+            expression
+                .evaluate(
+                    builder ->
+                        builder
+                            .parameter(
+                                "decimals", new BigDecimal[] {new BigDecimal(1), new BigDecimal(2)})
+                            .parameter("integers", new Integer[] {1, 2})
+                            .parameter("doubles", new Double[] {1.1, 2.2})
+                            .parameter("strings", new String[] {"Hello ", " World "})
+                            .parameter("booleans", new Boolean[] {true, false}))
+                .getStringValue())
+        .isEqualTo("6.2 World false");
   }
 
   @Test
   void testThrowsUnsupportedDataTypeForArray() {
-    assertThatThrownBy(() -> createExpression("a[0]").with("a", "aString").evaluate())
+    assertThatThrownBy(
+            () -> createExpression("a[0]").evaluate(builder -> builder.parameter("a", "aString")))
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Unsupported data types in operation");
   }
@@ -146,7 +180,9 @@ class ExpressionEvaluatorArrayTest extends BaseExpressionEvaluatorTest {
     assertThatThrownBy(
             () -> {
               List<?> array = List.of("Hello");
-              createExpression("a[b]").with("a", array).and("b", "anotherString").evaluate();
+              createExpression("a[b]")
+                  .evaluate(
+                      builder -> builder.parameter("a", array).parameter("b", "anotherString"));
             })
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Unsupported data types in operation");
@@ -157,7 +193,7 @@ class ExpressionEvaluatorArrayTest extends BaseExpressionEvaluatorTest {
     assertThatThrownBy(
             () -> {
               List<?> array = List.of("Hello");
-              createExpression("a[1]").with("a", array).evaluate();
+              createExpression("a[1]").evaluate(builder -> builder.parameter("a", array));
             })
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Index 1 out of bounds for array of length 1");
@@ -168,7 +204,7 @@ class ExpressionEvaluatorArrayTest extends BaseExpressionEvaluatorTest {
     assertThatThrownBy(
             () -> {
               List<?> array = List.of("Hello");
-              createExpression("a[-1]").with("a", array).evaluate();
+              createExpression("a[-1]").evaluate(builder -> builder.parameter("a", array));
             })
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Index -1 out of bounds for array of length 1");

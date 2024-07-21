@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.ezylang.evalex.parser.ASTNode;
 import com.ezylang.evalex.parser.Token;
 import com.ezylang.evalex.parser.Token.TokenType;
+import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.Test;
 
 class ExpressionEvaluationExceptionsTest {
@@ -31,7 +32,7 @@ class ExpressionEvaluationExceptionsTest {
     assertThatThrownBy(
             () -> {
               ASTNode node = new ASTNode(new Token(1, "(", TokenType.BRACE_OPEN));
-              expression.evaluateSubtree(node);
+              expression.evaluateSubtree(node, UnaryOperator.identity());
             })
         .isInstanceOf(EvaluationException.class)
         .hasMessage(

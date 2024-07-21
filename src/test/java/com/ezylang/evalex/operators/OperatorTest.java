@@ -20,6 +20,7 @@ import static com.ezylang.evalex.operators.OperatorIfc.OPERATOR_PRECEDENCE_UNARY
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.parser.Token;
@@ -86,7 +87,10 @@ class OperatorTest {
   private static class DummyAnnotationOperator extends AbstractOperator {
     @Override
     public EvaluationValue evaluate(
-        Expression expression, Token operatorToken, EvaluationValue... operands) {
+        Expression expression,
+        Token operatorToken,
+        EvaluationContext context,
+        EvaluationValue... operands) {
       return EvaluationValue.stringValue("OK");
     }
   }

@@ -17,7 +17,6 @@ package com.ezylang.evalex.config;
 
 import com.ezylang.evalex.data.DataAccessorIfc;
 import com.ezylang.evalex.data.EvaluationValue;
-import com.ezylang.evalex.data.MapBasedDataAccessor;
 import com.ezylang.evalex.data.conversion.DefaultEvaluationValueConverter;
 import com.ezylang.evalex.data.conversion.EvaluationValueConverterIfc;
 import com.ezylang.evalex.functions.FunctionIfc;
@@ -208,8 +207,11 @@ public class ExpressionConfiguration {
    * MapBasedDataAccessor} instance for each expression, providing a new storage for each
    * expression.
    */
+  @Builder.Default private final Supplier<DataAccessorIfc> dataAccessorSupplier = () -> null;
+
   @Builder.Default
-  private final Supplier<DataAccessorIfc> dataAccessorSupplier = MapBasedDataAccessor::new;
+  private final Supplier<Map<?, ?>> defaultMapConstructor =
+      () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
   /**
    * Default constants will be added automatically to each expression and can be used in expression

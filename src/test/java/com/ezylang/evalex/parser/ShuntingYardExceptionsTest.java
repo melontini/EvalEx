@@ -61,7 +61,7 @@ class ShuntingYardExceptionsTest extends BaseParserTest {
   void testEmptyExpression() {
     Expression expression = new Expression("");
 
-    assertThatThrownBy(expression::evaluate)
+    assertThatThrownBy(expression::getAbstractSyntaxTree)
         .isInstanceOf(ParseException.class)
         .hasMessage("Empty expression");
   }
@@ -70,7 +70,7 @@ class ShuntingYardExceptionsTest extends BaseParserTest {
   void testEmptyExpressionBraces() {
     Expression expression = new Expression("()");
 
-    assertThatThrownBy(expression::evaluate)
+    assertThatThrownBy(expression::getAbstractSyntaxTree)
         .isInstanceOf(ParseException.class)
         .hasMessage("Empty expression");
   }
@@ -79,7 +79,7 @@ class ShuntingYardExceptionsTest extends BaseParserTest {
   void testComma() {
     Expression expression = new Expression(",");
 
-    assertThatThrownBy(expression::evaluate)
+    assertThatThrownBy(expression::getAbstractSyntaxTree)
         .isInstanceOf(ParseException.class)
         .hasMessage("Empty expression");
   }
@@ -118,7 +118,7 @@ class ShuntingYardExceptionsTest extends BaseParserTest {
   void testFunctionNotEnoughParameters() {
     Expression expression = new Expression("ROUND(2)");
 
-    assertThatThrownBy(expression::evaluate)
+    assertThatThrownBy(expression::getAbstractSyntaxTree)
         .isInstanceOf(ParseException.class)
         .hasMessage("Not enough parameters for function");
   }
@@ -128,7 +128,7 @@ class ShuntingYardExceptionsTest extends BaseParserTest {
     // The DT_DATE_PARSE() function has a required parameter and var-args
     Expression expression = new Expression("DT_DATE_PARSE()");
 
-    assertThatThrownBy(expression::evaluate)
+    assertThatThrownBy(expression::getAbstractSyntaxTree)
         .isInstanceOf(ParseException.class)
         .hasMessage("Not enough parameters for function");
   }
@@ -137,7 +137,7 @@ class ShuntingYardExceptionsTest extends BaseParserTest {
   void testFunctionTooManyParameters() {
     Expression expression = new Expression("ROUND(1,2,3)");
 
-    assertThatThrownBy(expression::evaluate)
+    assertThatThrownBy(expression::getAbstractSyntaxTree)
         .isInstanceOf(ParseException.class)
         .hasMessage("Too many parameters for function");
   }
@@ -159,7 +159,7 @@ class ShuntingYardExceptionsTest extends BaseParserTest {
   void testTooManyOperands(String expressionString) {
     Expression expression = new Expression(expressionString);
 
-    assertThatThrownBy(expression::evaluate)
+    assertThatThrownBy(expression::getAbstractSyntaxTree)
         .isInstanceOf(ParseException.class)
         .hasMessage("Too many operands");
   }
@@ -171,7 +171,7 @@ class ShuntingYardExceptionsTest extends BaseParserTest {
   void testInvalidTokenAfterInfixOperator(String expressionString, int position) {
     Expression expression = new Expression(expressionString);
 
-    assertThatThrownBy(expression::evaluate)
+    assertThatThrownBy(expression::getAbstractSyntaxTree)
         .isInstanceOf(ParseException.class)
         .hasMessage("Unexpected token after infix operator")
         .extracting("startPosition")

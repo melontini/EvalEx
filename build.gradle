@@ -46,6 +46,7 @@ sourcesJar {
 
 spotless {
     java {
+        googleJavaFormat("1.15.0").style("GOOGLE").reflowLongStrings()
         licenseHeaderFile("spotless/header.txt")
     }
 }

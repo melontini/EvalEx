@@ -15,10 +15,11 @@
 */
 package com.ezylang.evalex.data;
 
+import com.ezylang.evalex.EvaluationContext;
+
 /**
- * A data accessor is responsible for accessing data, e.g. variable and constant values during an
- * expression evaluation. The default implementation for setting and reading local data is the
- * {@link MapBasedDataAccessor}.
+ * A data accessor is responsible for accessing data, e.g. variable values during an expression
+ * evaluation.
  */
 public interface DataAccessorIfc {
 
@@ -28,13 +29,5 @@ public interface DataAccessorIfc {
    * @param variable The variable name, e.g. a variable or constant name.
    * @return The data value, or <code>null</code> if not found.
    */
-  EvaluationValue getData(String variable);
-
-  /**
-   * Sets a data value.
-   *
-   * @param variable The variable name, e.g. a variable or constant name.
-   * @param value The value to set.
-   */
-  void setData(String variable, EvaluationValue value);
+  EvaluationValue getData(String variable, EvaluationContext context);
 }

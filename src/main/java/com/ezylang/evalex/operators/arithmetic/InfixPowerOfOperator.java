@@ -17,6 +17,7 @@ package com.ezylang.evalex.operators.arithmetic;
 
 import static com.ezylang.evalex.operators.OperatorIfc.OPERATOR_PRECEDENCE_POWER;
 
+import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.config.ExpressionConfiguration;
@@ -39,7 +40,10 @@ public class InfixPowerOfOperator extends AbstractOperator {
 
   @Override
   public EvaluationValue evaluate(
-      Expression expression, Token operatorToken, EvaluationValue... operands)
+      Expression expression,
+      Token operatorToken,
+      EvaluationContext context,
+      EvaluationValue... operands)
       throws EvaluationException {
     EvaluationValue leftOperand = operands[0];
     EvaluationValue rightOperand = operands[1];

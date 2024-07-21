@@ -23,7 +23,9 @@ import com.ezylang.evalex.operators.OperatorIfc;
 import com.ezylang.evalex.parser.*;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.UnaryOperator;
 import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Main class that allow creating, parsing, passing parameters and evaluating an expression string.
@@ -35,11 +37,9 @@ public class Expression {
 
   @Getter private final String expressionString;
 
-  @Getter private final DataAccessorIfc dataAccessor;
+  @Getter private final @Nullable DataAccessorIfc dataAccessor;
 
-  @Getter
-  private final Map<String, EvaluationValue> constants =
-      new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+  @Getter private final Map<String, EvaluationValue> constants;
 
   private ASTNode abstractSyntaxTree;
 
@@ -63,6 +63,7 @@ public class Expression {
     this.expressionString = expressionString;
     this.configuration = configuration;
     this.dataAccessor = configuration.getDataAccessorSupplier().get();
+    this.constants = (Map<String, EvaluationValue>) configuration.getDefaultMapConstructor().get();
     this.constants.putAll(configuration.getDefaultConstants());
   }
 
@@ -78,6 +79,11 @@ public class Expression {
     this.abstractSyntaxTree = expression.getAbstractSyntaxTree();
   }
 
+  public EvaluationValue evaluate(UnaryOperator<EvaluationContext.EvaluationContextBuilder> builder)
+      throws EvaluationException, ParseException {
+    return this.evaluate(builder.apply(EvaluationContext.builder(getConfiguration())).build());
+  }
+
   /**
    * Evaluates the expression by parsing it (if not done before) and the evaluating it.
    *
@@ -85,8 +91,9 @@ public class Expression {
    * @throws EvaluationException If there were problems while evaluating the expression.
    * @throws ParseException If there were problems while parsing the expression.
    */
-  public EvaluationValue evaluate() throws EvaluationException, ParseException {
-    EvaluationValue result = evaluateSubtree(getAbstractSyntaxTree());
+  public EvaluationValue evaluate(EvaluationContext context)
+      throws EvaluationException, ParseException {
+    EvaluationValue result = evaluateSubtree(getAbstractSyntaxTree(), context);
     if (result.isNumberValue()) {
       BigDecimal bigDecimal = result.getNumberValue();
       if (configuration.getDecimalPlacesResult()
@@ -104,6 +111,13 @@ public class Expression {
     return result;
   }
 
+  public EvaluationValue evaluateSubtree(
+      ASTNode startNode, UnaryOperator<EvaluationContext.EvaluationContextBuilder> builder)
+      throws EvaluationException {
+    return this.evaluateSubtree(
+        startNode, builder.apply(EvaluationContext.builder(getConfiguration())).build());
+  }
+
   /**
    * Evaluates only a subtree of the abstract syntax tree.
    *
@@ -111,7 +125,8 @@ public class Expression {
    * @return The evaluation result value.
    * @throws EvaluationException If there were problems while evaluating the expression.
    */
-  public EvaluationValue evaluateSubtree(ASTNode startNode) throws EvaluationException {
+  public EvaluationValue evaluateSubtree(ASTNode startNode, EvaluationContext context)
+      throws EvaluationException {
     if (startNode instanceof InlinedASTNode) {
       return tryRoundValue(((InlinedASTNode) startNode).getValue()); // All primitives go here.
     }
@@ -126,9 +141,9 @@ public class Expression {
         result = EvaluationValue.stringValue(token.getValue());
         break;
       case VARIABLE_OR_CONSTANT:
-        result = getVariableOrConstant(token);
+        result = getVariableOrConstant(token, context);
         if (result.isExpressionNode()) {
-          result = evaluateSubtree(result.getExpressionNode());
+          result = evaluateSubtree(result.getExpressionNode(), context);
         }
         break;
       case PREFIX_OPERATOR:
@@ -136,19 +151,23 @@ public class Expression {
         result =
             token
                 .getOperatorDefinition()
-                .evaluate(this, token, evaluateSubtree(startNode.getParameters().get(0)));
+                .evaluate(
+                    this,
+                    token,
+                    context,
+                    evaluateSubtree(startNode.getParameters().get(0), context));
         break;
       case INFIX_OPERATOR:
-        result = evaluateInfixOperator(startNode, token);
+        result = evaluateInfixOperator(startNode, token, context);
         break;
       case ARRAY_INDEX:
-        result = evaluateArrayIndex(startNode);
+        result = evaluateArrayIndex(startNode, context);
         break;
       case STRUCTURE_SEPARATOR:
-        result = evaluateStructureSeparator(startNode);
+        result = evaluateStructureSeparator(startNode, context);
         break;
       case FUNCTION:
-        result = evaluateFunction(startNode, token);
+        result = evaluateFunction(startNode, token, context);
         break;
       default:
         throw new EvaluationException(token, "Unexpected evaluation token: " + token);
@@ -158,18 +177,22 @@ public class Expression {
 
   private EvaluationValue tryRoundValue(EvaluationValue value) {
     if (value.isNumberValue()
-            && configuration.getDecimalPlacesRounding()
+        && configuration.getDecimalPlacesRounding()
             != ExpressionConfiguration.DECIMAL_PLACES_ROUNDING_UNLIMITED) {
       return EvaluationValue.numberValue(
-              roundValue(value.getNumberValue(), configuration.getDecimalPlacesRounding()));
+          roundValue(value.getNumberValue(), configuration.getDecimalPlacesRounding()));
     }
     return value;
   }
 
-  private EvaluationValue getVariableOrConstant(Token token) throws EvaluationException {
-    EvaluationValue result = constants.get(token.getValue());
+  private EvaluationValue getVariableOrConstant(Token token, EvaluationContext context)
+      throws EvaluationException {
+    EvaluationValue result = context.parameters().get(token.getValue());
+    if (result == null && getDataAccessor() != null) {
+      result = getDataAccessor().getData(token.getValue(), context);
+    }
     if (result == null) {
-      result = getDataAccessor().getData(token.getValue());
+      result = constants.get(token.getValue());
     }
     if (result == null) {
       throw new EvaluationException(
@@ -178,14 +201,14 @@ public class Expression {
     return result;
   }
 
-  private EvaluationValue evaluateFunction(ASTNode startNode, Token token)
-      throws EvaluationException {
+  private EvaluationValue evaluateFunction(
+      ASTNode startNode, Token token, EvaluationContext context) throws EvaluationException {
     List<EvaluationValue> parameterResults = new ArrayList<>();
     for (int i = 0; i < startNode.getParameters().size(); i++) {
       if (token.getFunctionDefinition().isParameterLazy(i)) {
         parameterResults.add(convertValue(startNode.getParameters().get(i)));
       } else {
-        parameterResults.add(evaluateSubtree(startNode.getParameters().get(i)));
+        parameterResults.add(evaluateSubtree(startNode.getParameters().get(i), context));
       }
     }
 
@@ -195,12 +218,13 @@ public class Expression {
 
     function.validatePreEvaluation(token, parameters);
 
-    return function.evaluate(this, token, parameters);
+    return function.evaluate(this, token, context, parameters);
   }
 
-  private EvaluationValue evaluateArrayIndex(ASTNode startNode) throws EvaluationException {
-    EvaluationValue array = evaluateSubtree(startNode.getParameters().get(0));
-    EvaluationValue index = evaluateSubtree(startNode.getParameters().get(1));
+  private EvaluationValue evaluateArrayIndex(ASTNode startNode, EvaluationContext context)
+      throws EvaluationException {
+    EvaluationValue array = evaluateSubtree(startNode.getParameters().get(0), context);
+    EvaluationValue index = evaluateSubtree(startNode.getParameters().get(1), context);
 
     if (array.isArrayValue() && index.isNumberValue()) {
       if (index.getNumberValue().intValue() < 0
@@ -217,8 +241,9 @@ public class Expression {
     }
   }
 
-  private EvaluationValue evaluateStructureSeparator(ASTNode startNode) throws EvaluationException {
-    EvaluationValue structure = evaluateSubtree(startNode.getParameters().get(0));
+  private EvaluationValue evaluateStructureSeparator(ASTNode startNode, EvaluationContext context)
+      throws EvaluationException {
+    EvaluationValue structure = evaluateSubtree(startNode.getParameters().get(0), context);
     Token nameToken = startNode.getParameters().get(1).getToken();
     String name = nameToken.getValue();
 
@@ -233,8 +258,8 @@ public class Expression {
     }
   }
 
-  private EvaluationValue evaluateInfixOperator(ASTNode startNode, Token token)
-      throws EvaluationException {
+  private EvaluationValue evaluateInfixOperator(
+      ASTNode startNode, Token token, EvaluationContext context) throws EvaluationException {
     EvaluationValue left;
     EvaluationValue right;
 
@@ -243,10 +268,10 @@ public class Expression {
       left = convertValue(startNode.getParameters().get(0));
       right = convertValue(startNode.getParameters().get(1));
     } else {
-      left = evaluateSubtree(startNode.getParameters().get(0));
-      right = evaluateSubtree(startNode.getParameters().get(1));
+      left = evaluateSubtree(startNode.getParameters().get(0), context);
+      right = evaluateSubtree(startNode.getParameters().get(1), context);
     }
-    return op.evaluate(this, token, left, right);
+    return op.evaluate(this, token, context, left, right);
   }
 
   /**
@@ -285,57 +310,6 @@ public class Expression {
    */
   public void validate() throws ParseException {
     getAbstractSyntaxTree();
-  }
-
-  /**
-   * Adds a variable value to the expression data storage. If a value with the same name already
-   * exists, it is overridden. The data type will be determined by examining the passed value
-   * object. An exception is thrown, if he found data type is not supported.
-   *
-   * @param variable The variable name.
-   * @param value The variable value.
-   * @return The Expression instance, to allow chaining of methods.
-   */
-  public Expression with(String variable, Object value) {
-    if (constants.containsKey(variable)) {
-      if (configuration.isAllowOverwriteConstants()) {
-        constants.remove(variable);
-      } else {
-        throw new UnsupportedOperationException(
-            String.format("Can't set value for constant '%s'", variable));
-      }
-    }
-    getDataAccessor().setData(variable, convertValue(value));
-    return this;
-  }
-
-  /**
-   * Adds a variable value to the expression data storage. If a value with the same name already
-   * exists, it is overridden. The data type will be determined by examining the passed value
-   * object. An exception is thrown, if he found data type is not supported.
-   *
-   * @param variable The variable name.
-   * @param value The variable value.
-   * @return The Expression instance, to allow chaining of methods.
-   */
-  public Expression and(String variable, Object value) {
-    return with(variable, value);
-  }
-
-  /**
-   * Adds all variables values defined in the map with their name (key) and value to the data
-   * storage.If a value with the same name already exists, it is overridden. The data type will be
-   * determined by examining the passed value object. An exception is thrown, if he found data type
-   * is not supported.
-   *
-   * @param values A map with variable values.
-   * @return The Expression instance, to allow chaining of methods.
-   */
-  public Expression withValues(Map<String, ?> values) {
-    for (Map.Entry<String, ?> entry : values.entrySet()) {
-      with(entry.getKey(), entry.getValue());
-    }
-    return this;
   }
 
   /**
@@ -421,22 +395,6 @@ public class Expression {
       }
     }
 
-    return variables;
-  }
-
-  /**
-   * Returns all variables that are used in the expression, but have no value assigned.
-   *
-   * @return All variables that have no value assigned.
-   * @throws ParseException If there were problems while parsing the expression.
-   */
-  public Set<String> getUndefinedVariables() throws ParseException {
-    Set<String> variables = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-    for (String variable : getUsedVariables()) {
-      if (getDataAccessor().getData(variable) == null) {
-        variables.add(variable);
-      }
-    }
     return variables;
   }
 }

@@ -37,11 +37,12 @@ class ExpressionEvaluatorCombinedTest extends BaseExpressionEvaluatorTest {
     position.put("price", new BigDecimal("14.95"));
     order.put("positions", List.of(position));
 
-    Expression expression =
-        new Expression("order.positions[x].amount * order.positions[x].price")
-            .with("order", order)
-            .and("x", 0);
+    Expression expression = new Expression("order.positions[x].amount * order.positions[x].price");
 
-    assertThat(expression.evaluate().getStringValue()).isEqualTo("44.85");
+    assertThat(
+            expression
+                .evaluate(builder -> builder.parameter("order", order).parameter("x", 0))
+                .getStringValue())
+        .isEqualTo("44.85");
   }
 }

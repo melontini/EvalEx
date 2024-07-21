@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.ezylang.evalex.parser.ParseException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.Test;
 
 class ExpressionEvaluatorNullTest extends BaseExpressionEvaluatorTest {
@@ -28,37 +29,39 @@ class ExpressionEvaluatorNullTest extends BaseExpressionEvaluatorTest {
   @Test
   void testSecondNullEquals() throws ParseException, EvaluationException {
     Expression expression = createExpression("a == null");
-    assertExpressionHasExpectedResult(expression.with("a", null), "true");
+    assertExpressionHasExpectedResult(expression, builder -> builder.parameter("a", null), "true");
   }
 
   @Test
   void testSecondNullNotEquals() throws ParseException, EvaluationException {
     Expression expression = new Expression("a != null");
-    assertExpressionHasExpectedResult(expression.with("a", null), "false");
+    assertExpressionHasExpectedResult(expression, builder -> builder.parameter("a", null), "false");
   }
 
   @Test
   void testFirstNullEquals() throws ParseException, EvaluationException {
     Expression expression = createExpression("null == a");
-    assertExpressionHasExpectedResult(expression.with("a", null), "true");
+    assertExpressionHasExpectedResult(expression, builder -> builder.parameter("a", null), "true");
   }
 
   @Test
   void testFirstNullNotEquals() throws ParseException, EvaluationException {
     Expression expression = new Expression("null != a");
-    assertExpressionHasExpectedResult(expression.with("a", null), "false");
+    assertExpressionHasExpectedResult(expression, builder -> builder.parameter("a", null), "false");
   }
 
   @Test
   void testHandleWithIf() throws EvaluationException, ParseException {
     Expression expression1 = createExpression("IF(a != null, a * 5, 1)");
-    assertExpressionHasExpectedResult(expression1.with("a", null), "1");
-    assertExpressionHasExpectedResult(expression1.with("a", 3), "15");
+    assertExpressionHasExpectedResult(expression1, builder -> builder.parameter("a", null), "1");
+    assertExpressionHasExpectedResult(expression1, builder -> builder.parameter("a", 3), "15");
 
     Expression expression2 =
         createExpression("IF(a == null, \"Unknown name\", \"The name is \" + a)");
-    assertExpressionHasExpectedResult(expression2.with("a", null), "Unknown name");
-    assertExpressionHasExpectedResult(expression2.with("a", "Max"), "The name is Max");
+    assertExpressionHasExpectedResult(
+        expression2, builder -> builder.parameter("a", null), "Unknown name");
+    assertExpressionHasExpectedResult(
+        expression2, builder -> builder.parameter("a", "Max"), "The name is Max");
   }
 
   @Test
@@ -68,25 +71,30 @@ class ExpressionEvaluatorNullTest extends BaseExpressionEvaluatorTest {
     values.put("a", null);
     values.put("b", null);
 
-    assertExpressionHasExpectedResult(expression.withValues(values), "true");
+    assertExpressionHasExpectedResult(expression, builder -> builder.parameters(values), "true");
   }
 
   @Test
   void testFailWithNoHandling() {
-    Expression expression1 = createExpression("a * 5").with("a", null);
-    assertThatThrownBy(expression1::evaluate)
+    Expression expression1 = createExpression("a * 5");
+    assertThatThrownBy(() -> expression1.evaluate(builder -> builder.parameter("a", null)))
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Unsupported data types in operation");
 
-    Expression expression2 = createExpression("FLOOR(a)").with("a", null);
-    assertThatThrownBy(expression2::evaluate).isInstanceOf(NullPointerException.class);
+    Expression expression2 = createExpression("FLOOR(a)");
+    assertThatThrownBy(() -> expression2.evaluate(builder -> builder.parameter("a", null)))
+        .isInstanceOf(NullPointerException.class);
 
-    Expression expression3 = createExpression("a > 5").with("a", null);
-    assertThatThrownBy(expression3::evaluate).isInstanceOf(NullPointerException.class);
+    Expression expression3 = createExpression("a > 5");
+    assertThatThrownBy(() -> expression3.evaluate(builder -> builder.parameter("a", null)))
+        .isInstanceOf(NullPointerException.class);
   }
 
-  private void assertExpressionHasExpectedResult(Expression expression, String expectedResult)
+  private void assertExpressionHasExpectedResult(
+      Expression expression,
+      UnaryOperator<EvaluationContext.EvaluationContextBuilder> operator,
+      String expectedResult)
       throws EvaluationException, ParseException {
-    assertThat(expression.evaluate().getStringValue()).isEqualTo(expectedResult);
+    assertThat(expression.evaluate(operator).getStringValue()).isEqualTo(expectedResult);
   }
 }

@@ -15,6 +15,7 @@
 */
 package com.ezylang.evalex.functions.string;
 
+import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
@@ -47,7 +48,10 @@ import java.util.stream.IntStream;
 public class StringFormatFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression, Token functionToken, EvaluationValue... parameterValues) {
+      Expression expression,
+      Token functionToken,
+      EvaluationContext context,
+      EvaluationValue... parameterValues) {
     String format = parameterValues[0].getStringValue();
     Object[] arguments = getFormatArguments(parameterValues, expression.getConfiguration());
     return expression.convertValue(

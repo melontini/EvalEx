@@ -17,10 +17,10 @@ package com.ezylang.evalex.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.config.TestConfigurationProvider.DummyFunction;
 import com.ezylang.evalex.data.DataAccessorIfc;
 import com.ezylang.evalex.data.EvaluationValue;
-import com.ezylang.evalex.data.MapBasedDataAccessor;
 import com.ezylang.evalex.operators.OperatorIfc;
 import com.ezylang.evalex.operators.arithmetic.InfixPlusOperator;
 import java.math.MathContext;
@@ -42,8 +42,7 @@ class ExpressionConfigurationTest {
         .isInstanceOf(MapBasedOperatorDictionary.class);
     assertThat(configuration.getFunctionDictionary())
         .isInstanceOf(MapBasedFunctionDictionary.class);
-    assertThat(configuration.getDataAccessorSupplier().get())
-        .isInstanceOf(MapBasedDataAccessor.class);
+    assertThat(configuration.getDataAccessorSupplier().get()).isEqualTo(null);
     assertThat(configuration.isArraysAllowed()).isTrue();
     assertThat(configuration.isStructuresAllowed()).isTrue();
     assertThat(configuration.isImplicitMultiplicationAllowed()).isTrue();
@@ -121,9 +120,20 @@ class ExpressionConfigurationTest {
     assertThat(configuration.getDataAccessorSupplier().get()).isEqualTo(mockedDataAccessor);
   }
 
+  @SuppressWarnings("Convert2Lambda")
   @Test
   void testDataAccessorSupplierReturnsNewInstance() {
-    ExpressionConfiguration configuration = ExpressionConfiguration.defaultConfiguration();
+    ExpressionConfiguration configuration =
+        ExpressionConfiguration.builder()
+            .dataAccessorSupplier(
+                () ->
+                    new DataAccessorIfc() {
+                      @Override
+                      public EvaluationValue getData(String variable, EvaluationContext context) {
+                        return EvaluationValue.stringValue(variable);
+                      }
+                    })
+            .build();
 
     DataAccessorIfc accessor1 = configuration.getDataAccessorSupplier().get();
     DataAccessorIfc accessor2 = configuration.getDataAccessorSupplier().get();

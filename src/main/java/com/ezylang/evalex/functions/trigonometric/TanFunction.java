@@ -15,6 +15,7 @@
 */
 package com.ezylang.evalex.functions.trigonometric;
 
+import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
@@ -26,7 +27,10 @@ import com.ezylang.evalex.parser.Token;
 public class TanFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression, Token functionToken, EvaluationValue... parameterValues) {
+      Expression expression,
+      Token functionToken,
+      EvaluationContext context,
+      EvaluationValue... parameterValues) {
 
     return expression.convertDoubleValue(
         Math.tan(Math.toRadians(parameterValues[0].getNumberValue().doubleValue())));

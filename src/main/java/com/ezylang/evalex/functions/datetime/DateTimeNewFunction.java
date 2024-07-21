@@ -15,6 +15,7 @@
 */
 package com.ezylang.evalex.functions.datetime;
 
+import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
@@ -40,7 +41,10 @@ import java.util.TimeZone;
 public class DateTimeNewFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
-      Expression expression, Token functionToken, EvaluationValue... parameterValues)
+      Expression expression,
+      Token functionToken,
+      EvaluationContext context,
+      EvaluationValue... parameterValues)
       throws EvaluationException {
 
     int parameterLength = parameterValues.length;

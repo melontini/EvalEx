@@ -26,7 +26,7 @@ public abstract class BaseExpressionEvaluatorTest {
 
   String evaluate(String expressionString) throws ParseException, EvaluationException {
     Expression expression = createExpression(expressionString);
-    return expression.evaluate().getStringValue();
+    return expression.evaluate(EvaluationContext.builder(expression).build()).getStringValue();
   }
 
   Expression createExpression(String expressionString) {

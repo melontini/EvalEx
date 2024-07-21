@@ -30,6 +30,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
+import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -72,7 +73,7 @@ class DateTimeFunctionsTest extends BaseEvaluationTest {
         "DT_DATE_NEW(2022,\"Africa/Nairobi\")"
       })
   void testDateTimeNewTooFewParameters(String expression) {
-    assertThatThrownBy(() -> new Expression(expression).evaluate())
+    assertThatThrownBy(() -> new Expression(expression).evaluate(UnaryOperator.identity()))
         .isInstanceOf(EvaluationException.class)
         .hasMessage("A minimum of 3 parameters (year, month, day) is required");
   }
@@ -86,14 +87,15 @@ class DateTimeFunctionsTest extends BaseEvaluationTest {
         "DT_DATE_NEW(2022,10,30,11,50,20,30,40,50,\"Africa/Nairobi\")"
       })
   void testDateTimeNewTooManyParameters(String expression) {
-    assertThatThrownBy(() -> new Expression(expression).evaluate())
+    assertThatThrownBy(() -> new Expression(expression).evaluate(UnaryOperator.identity()))
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Too many parameters to function");
   }
 
   @Test
   void testDateTimeNewWrongMillisNewDate() {
-    assertThatThrownBy(() -> new Expression("DT_DATE_NEW(\"nan\")").evaluate())
+    assertThatThrownBy(
+            () -> new Expression("DT_DATE_NEW(\"nan\")").evaluate(UnaryOperator.identity()))
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Expected a number value for the time in milliseconds since the epoch");
   }
@@ -101,7 +103,9 @@ class DateTimeFunctionsTest extends BaseEvaluationTest {
   @Test
   void testDateTimeNewZoneIdNotFound() {
     assertThatThrownBy(
-            () -> new Expression("DT_DATE_NEW(2022,10,30,\"Mars/Olympus-Mons\")").evaluate())
+            () ->
+                new Expression("DT_DATE_NEW(2022,10,30,\"Mars/Olympus-Mons\")")
+                    .evaluate(UnaryOperator.identity()))
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Time zone with id 'Mars/Olympus-Mons' not found");
   }
@@ -178,14 +182,18 @@ class DateTimeFunctionsTest extends BaseEvaluationTest {
   @Test
   void testDateTimeParseIllegalFormat() {
     assertThatThrownBy(
-            () -> new Expression("DT_DATE_PARSE(\"2023-01-01\", NULL, \"defect\")").evaluate())
+            () ->
+                new Expression("DT_DATE_PARSE(\"2023-01-01\", NULL, \"defect\")")
+                    .evaluate(UnaryOperator.identity()))
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Illegal date-time format in parameter 3: 'defect'");
   }
 
   @Test
   void testDateTimeParseUnableToParse() {
-    assertThatThrownBy(() -> new Expression("DT_DATE_PARSE(\"2023-99-99\")").evaluate())
+    assertThatThrownBy(
+            () ->
+                new Expression("DT_DATE_PARSE(\"2023-99-99\")").evaluate(UnaryOperator.identity()))
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Unable to parse date-time string '2023-99-99'");
   }
@@ -215,14 +223,17 @@ class DateTimeFunctionsTest extends BaseEvaluationTest {
                 new Expression(
                         "DT_DATE_FORMAT(DT_DATE_PARSE(\"2022-12-20T11:50:20\"), \"dd.MM.yyyy\","
                             + " \"America/New_York\", \"invalid\")")
-                    .evaluate())
+                    .evaluate(UnaryOperator.identity()))
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Too many parameters");
   }
 
   @Test
   void testDateTimeFormatNotADateTime() {
-    assertThatThrownBy(() -> new Expression("DT_DATE_FORMAT(value)").with("value", 23).evaluate())
+    assertThatThrownBy(
+            () ->
+                new Expression("DT_DATE_FORMAT(value)")
+                    .evaluate(builder -> builder.parameter("value", 23)))
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Unable to format a 'NUMBER' type as a date-time");
   }

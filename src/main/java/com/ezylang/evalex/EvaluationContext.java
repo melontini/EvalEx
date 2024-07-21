@@ -51,13 +51,12 @@ public class EvaluationContext {
 
     private EvaluationContextBuilder(ExpressionConfiguration configuration) {
       this.configuration = configuration;
-      this.parameters =
-          (Map<String, EvaluationValue>) configuration.getDefaultMapConstructor().get();
+      this.parameters = configuration.getParameterMapSupplier().get();
     }
 
     public EvaluationContextBuilder parameter(String parameter, Object value) {
       if (!configuration.isAllowOverwriteConstants()) {
-        if (configuration.getDefaultConstants().containsKey(parameter))
+        if (configuration.getConstants().containsKey(parameter))
           throw new UnsupportedOperationException(
               String.format("Can't set value for constant '%s'", parameter));
       }

@@ -39,8 +39,6 @@ public class Expression {
 
   @Getter private final @Nullable DataAccessorIfc dataAccessor;
 
-  @Getter private final Map<String, EvaluationValue> constants;
-
   private ASTNode abstractSyntaxTree;
 
   /**
@@ -63,8 +61,6 @@ public class Expression {
     this.expressionString = expressionString;
     this.configuration = configuration;
     this.dataAccessor = configuration.getDataAccessorSupplier().get();
-    this.constants = (Map<String, EvaluationValue>) configuration.getDefaultMapConstructor().get();
-    this.constants.putAll(configuration.getDefaultConstants());
   }
 
   /**
@@ -192,7 +188,7 @@ public class Expression {
       result = getDataAccessor().getData(token.getValue(), context);
     }
     if (result == null) {
-      result = constants.get(token.getValue());
+      result = configuration.getConstants().get(token.getValue());
     }
     if (result == null) {
       throw new EvaluationException(
@@ -390,7 +386,7 @@ public class Expression {
 
     for (ASTNode node : getAllASTNodes()) {
       if (node.getToken().getType() == Token.TokenType.VARIABLE_OR_CONSTANT
-          && !constants.containsKey(node.getToken().getValue())) {
+          && !configuration.getConstants().containsKey(node.getToken().getValue())) {
         variables.add(node.getToken().getValue());
       }
     }

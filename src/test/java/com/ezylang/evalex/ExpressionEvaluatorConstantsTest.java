@@ -60,7 +60,7 @@ class ExpressionEvaluatorConstantsTest extends BaseExpressionEvaluatorTest {
             "B", EvaluationValue.numberValue(new BigDecimal("3.9"))));
 
     ExpressionConfiguration configuration =
-        ExpressionConfiguration.builder().defaultConstants(constants).build();
+        ExpressionConfiguration.builder().constants(constants).build();
 
     Expression expression = new Expression("a+B", configuration);
 

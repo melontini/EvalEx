@@ -15,7 +15,6 @@
 */
 package com.ezylang.evalex.config;
 
-import com.ezylang.evalex.functions.FunctionIfc;
 import com.ezylang.evalex.operators.OperatorIfc;
 import java.util.Collections;
 import java.util.Map;

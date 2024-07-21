@@ -47,7 +47,7 @@ class ExpressionConfigurationTest {
     assertThat(configuration.isImplicitMultiplicationAllowed()).isTrue();
     assertThat(configuration.getPowerOfPrecedence())
         .isEqualTo(OperatorIfc.OPERATOR_PRECEDENCE_POWER);
-    assertThat(configuration.getDefaultConstants())
+    assertThat(configuration.getConstants())
         .containsAllEntriesOf(ExpressionConfiguration.StandardConstants);
     assertThat(configuration.getDecimalPlacesRounding())
         .isEqualTo(ExpressionConfiguration.DECIMAL_PLACES_ROUNDING_UNLIMITED);
@@ -156,9 +156,9 @@ class ExpressionConfigurationTest {
             "A", EvaluationValue.stringValue("a"),
             "B", EvaluationValue.stringValue("b"));
     ExpressionConfiguration configuration =
-        ExpressionConfiguration.builder().defaultConstants(constants).build();
+        ExpressionConfiguration.builder().constants(constants).build();
 
-    assertThat(configuration.getDefaultConstants()).containsAllEntriesOf(constants);
+    assertThat(configuration.getConstants()).containsAllEntriesOf(constants);
   }
 
   @Test

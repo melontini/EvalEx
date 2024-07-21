@@ -149,8 +149,8 @@ class ExpressionTest {
         .isNotSameAs(expression2.getConfiguration().getOperatorDictionary());
     assertThat(expression1.getConfiguration().getFunctionDictionary())
         .isNotSameAs(expression2.getConfiguration().getFunctionDictionary());
-    assertThat(expression1.getConfiguration().getDefaultConstants())
-        .isNotSameAs(expression2.getConfiguration().getDefaultConstants());
+    assertThat(expression1.getConfiguration().getConstants())
+        .isNotSameAs(expression2.getConfiguration().getConstants());
   }
 
   @Test

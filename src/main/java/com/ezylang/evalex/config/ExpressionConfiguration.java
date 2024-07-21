@@ -54,8 +54,7 @@ public class ExpressionConfiguration {
 
   /** The standard set constants for EvalEx. */
   public static final Map<String, EvaluationValue> StandardConstants =
-      Collections.unmodifiableMap(
-          getStandardConstants(() -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
+          getStandardConstants(() -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
 
   /** Setting the decimal places to unlimited, will disable intermediate rounding. */
   public static final int DECIMAL_PLACES_ROUNDING_UNLIMITED = -1;
@@ -107,7 +106,7 @@ public class ExpressionConfiguration {
   @Builder.Default private final Supplier<DataAccessorIfc> dataAccessorSupplier = () -> null;
 
   @Builder.Default
-  private final Supplier<Map<?, ?>> defaultMapConstructor =
+  private final Supplier<Map<String, EvaluationValue>> parameterMapSupplier =
       () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
   /**
@@ -115,7 +114,7 @@ public class ExpressionConfiguration {
    * evaluation.
    */
   @Builder.Default
-  private final Map<String, EvaluationValue> defaultConstants =
+  private final Map<String, EvaluationValue> constants =
       getStandardConstants(() -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
 
   /** Support for arrays in expressions are allowed or not. */
@@ -331,6 +330,6 @@ public class ExpressionConfiguration {
         "DT_FORMAT_LOCAL_DATE_TIME", EvaluationValue.stringValue("yyyy-MM-dd'T'HH:mm:ss[.SSS]"));
     constants.put("DT_FORMAT_LOCAL_DATE", EvaluationValue.stringValue("yyyy-MM-dd"));
 
-    return constants;
+    return Collections.unmodifiableMap(constants);
   }
 }

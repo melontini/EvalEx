@@ -24,6 +24,7 @@ import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.parser.ASTNode;
 import com.ezylang.evalex.parser.ExpressionParser;
 import com.ezylang.evalex.parser.ParseException;
+import com.ezylang.evalex.parser.Token;
 import java.math.MathContext;
 import java.util.HashMap;
 import java.util.List;
@@ -141,7 +142,7 @@ class ExpressionTest {
                         new DataAccessorIfc() {
                           @Override
                           public EvaluationValue getData(
-                              String variable, EvaluationContext context) {
+                              String variable, Token token, EvaluationContext context) {
                             return EvaluationValue.stringValue(variable);
                           }
                         })

@@ -160,7 +160,7 @@ public class Expression {
       result = configuration.getConstants().get(token.getValue());
     }
     if (result == null && getDataAccessor() != null) {
-      result = getDataAccessor().getData(token.getValue(), context);
+      result = getDataAccessor().getData(token.getValue(), token, context);
     }
     if (result == null) {
       throw new EvaluationException(

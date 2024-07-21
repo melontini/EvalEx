@@ -23,6 +23,7 @@ import com.ezylang.evalex.data.DataAccessorIfc;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.operators.OperatorIfc;
 import com.ezylang.evalex.operators.arithmetic.InfixPlusOperator;
+import com.ezylang.evalex.parser.Token;
 import java.math.MathContext;
 import java.time.ZoneId;
 import java.util.Locale;
@@ -137,7 +138,8 @@ class ExpressionConfigurationTest {
                 () ->
                     new DataAccessorIfc() {
                       @Override
-                      public EvaluationValue getData(String variable, EvaluationContext context) {
+                      public EvaluationValue getData(
+                          String variable, Token token, EvaluationContext context) {
                         return EvaluationValue.stringValue(variable);
                       }
                     })

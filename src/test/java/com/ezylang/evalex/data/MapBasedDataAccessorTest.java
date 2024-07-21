@@ -29,7 +29,7 @@ class MapBasedDataAccessorTest {
   @Test
   void testSetGetData() throws EvaluationException {
     Map<String, EvaluationValue> variables = new HashMap<>();
-    DataAccessorIfc dataAccessor = (variable, context) -> variables.get(variable);
+    DataAccessorIfc dataAccessor = (variable, token, context) -> variables.get(variable);
 
     EvaluationValue num = EvaluationValue.numberValue(new BigDecimal("123"));
     EvaluationValue string = EvaluationValue.stringValue("hello");
@@ -39,21 +39,21 @@ class MapBasedDataAccessorTest {
     variables.put("string", string);
     variables.put("bool", bool);
 
-    assertThat(dataAccessor.getData("num", null)).isEqualTo(num);
-    assertThat(dataAccessor.getData("string", null)).isEqualTo(string);
-    assertThat(dataAccessor.getData("bool", null)).isEqualTo(bool);
+    assertThat(dataAccessor.getData("num", null, null)).isEqualTo(num);
+    assertThat(dataAccessor.getData("string", null, null)).isEqualTo(string);
+    assertThat(dataAccessor.getData("bool", null, null)).isEqualTo(bool);
   }
 
   @Test
   void testCaseInsensitivity() throws EvaluationException {
     Map<String, EvaluationValue> variables = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    DataAccessorIfc dataAccessor = (variable, context) -> variables.get(variable);
+    DataAccessorIfc dataAccessor = (variable, token, context) -> variables.get(variable);
 
     EvaluationValue num = EvaluationValue.numberValue(new BigDecimal("123"));
     variables.put("Hello", num);
 
-    assertThat(dataAccessor.getData("Hello", null)).isEqualTo(num);
-    assertThat(dataAccessor.getData("hello", null)).isEqualTo(num);
-    assertThat(dataAccessor.getData("HELLO", null)).isEqualTo(num);
+    assertThat(dataAccessor.getData("Hello", null, null)).isEqualTo(num);
+    assertThat(dataAccessor.getData("hello", null, null)).isEqualTo(num);
+    assertThat(dataAccessor.getData("HELLO", null, null)).isEqualTo(num);
   }
 }

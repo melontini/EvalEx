@@ -17,6 +17,7 @@ package com.ezylang.evalex.data;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
+import com.ezylang.evalex.parser.Token;
 
 /**
  * A data accessor is responsible for accessing data, e.g. variable values during an expression
@@ -30,5 +31,6 @@ public interface DataAccessorIfc {
    * @param variable The variable name, e.g. a variable or constant name.
    * @return The data value, or <code>null</code> if not found.
    */
-  EvaluationValue getData(String variable, EvaluationContext context) throws EvaluationException;
+  EvaluationValue getData(String variable, Token token, EvaluationContext context)
+      throws EvaluationException;
 }

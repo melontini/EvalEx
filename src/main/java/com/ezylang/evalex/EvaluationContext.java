@@ -18,17 +18,31 @@ package com.ezylang.evalex;
 import com.ezylang.evalex.data.EvaluationValue;
 import java.util.Map;
 import lombok.Value;
-import lombok.With;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.Nullable;
 
 @Value
-@With
 @Accessors(fluent = true)
 public class EvaluationContext {
   Expression expression;
   Map<String, EvaluationValue> parameters;
   Object @Nullable [] context;
+
+  public EvaluationContext withParameter(String parameter, EvaluationValue value) {
+    Map<String, EvaluationValue> parameters =
+        expression.getConfiguration().getParameterMapSupplier().get();
+    parameters.putAll(this.parameters);
+    parameters.put(parameter, value);
+    return new EvaluationContext(expression, parameters, context);
+  }
+
+  public EvaluationContext withParameters(Map<String, EvaluationValue> map) {
+    Map<String, EvaluationValue> parameters =
+        expression.getConfiguration().getParameterMapSupplier().get();
+    parameters.putAll(this.parameters);
+    parameters.putAll(map);
+    return new EvaluationContext(expression, parameters, context);
+  }
 
   public static EvaluationContextBuilder builder(Expression expression) {
     return new EvaluationContextBuilder(expression);

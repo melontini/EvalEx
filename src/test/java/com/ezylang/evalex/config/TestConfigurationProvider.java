@@ -27,7 +27,7 @@ import com.ezylang.evalex.parser.Token;
 import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.util.Locale;
-import java.util.Map;
+import java.util.TreeMap;
 
 public class TestConfigurationProvider {
 
@@ -35,12 +35,19 @@ public class TestConfigurationProvider {
       ExpressionConfiguration.builder()
           .zoneId(ZoneId.of("Europe/Berlin"))
           .locale(Locale.US)
-          .build()
-          .withAdditionalOperators(
-              Map.entry("++", new PrefixPlusPlusOperator()),
-              Map.entry("++", new PostfixPlusPlusOperator()),
-              Map.entry("?", new PostfixQuestionOperator()))
-          .withAdditionalFunctions(Map.entry("TEST", new DummyFunction()));
+          .operatorDictionary(
+              ExpressionConfiguration.getStandardOperators(
+                      () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER))
+                  .prefix("++", new PrefixPlusPlusOperator())
+                  .postfix("++", new PostfixPlusPlusOperator())
+                  .postfix("?", new PostfixQuestionOperator())
+                  .build())
+          .functionDictionary(
+              ExpressionConfiguration.getStandardFunctions(
+                      () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER))
+                  .add("TEST", new DummyFunction())
+                  .build())
+          .build();
 
   public static final ExpressionConfiguration GermanConfiguration =
       ExpressionConfiguration.builder()

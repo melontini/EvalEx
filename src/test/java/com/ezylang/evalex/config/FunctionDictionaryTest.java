@@ -20,19 +20,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.ezylang.evalex.functions.FunctionIfc;
 import com.ezylang.evalex.functions.basic.MaxFunction;
 import com.ezylang.evalex.functions.basic.MinFunction;
-import java.util.Map;
+import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
 
-class MapBasedFunctionDictionaryTest {
+class FunctionDictionaryTest {
 
   @Test
   void testCreationOfFunctions() {
     FunctionIfc min = new MinFunction();
     FunctionIfc max = new MaxFunction();
 
-    @SuppressWarnings({"unchecked", "varargs"})
-    FunctionDictionaryIfc dictionary =
-        MapBasedFunctionDictionary.ofFunctions(Map.entry("min", min), Map.entry("max", max));
+    FunctionDictionary dictionary =
+        FunctionDictionary.builder(() -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER))
+            .add("min", min)
+            .add("max", max)
+            .build();
 
     assertThat(dictionary.hasFunction("min")).isTrue();
     assertThat(dictionary.hasFunction("max")).isTrue();
@@ -48,9 +50,11 @@ class MapBasedFunctionDictionaryTest {
     FunctionIfc min = new MinFunction();
     FunctionIfc max = new MaxFunction();
 
-    @SuppressWarnings({"unchecked", "varargs"})
-    FunctionDictionaryIfc dictionary =
-        MapBasedFunctionDictionary.ofFunctions(Map.entry("Min", min), Map.entry("MAX", max));
+    FunctionDictionary dictionary =
+        FunctionDictionary.builder(() -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER))
+            .add("Min", min)
+            .add("MAX", max)
+            .build();
 
     assertThat(dictionary.hasFunction("min")).isTrue();
     assertThat(dictionary.hasFunction("MIN")).isTrue();

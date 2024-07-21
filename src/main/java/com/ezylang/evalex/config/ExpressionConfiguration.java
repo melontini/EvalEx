@@ -36,6 +36,7 @@ import java.util.*;
 import java.util.function.Supplier;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.With;
 
 /**
  * The expression configuration can be used to configure various aspects of expression parsing and
@@ -45,26 +46,16 @@ import lombok.Getter;
  * <pre>
  *   ExpressionConfiguration config = ExpressionConfiguration.builder().mathContext(MathContext.DECIMAL32).arraysAllowed(false).build();
  * </pre>
- *
- * <br>
- * Additional operators and functions can be added to an existing configuration:<br>
- *
- * <pre>
- *     ExpressionConfiguration.defaultConfiguration()
- *        .withAdditionalOperators(
- *            Map.entry("++", new PrefixPlusPlusOperator()),
- *            Map.entry("++", new PostfixPlusPlusOperator()))
- *        .withAdditionalFunctions(Map.entry("save", new SaveFunction()),
- *            Map.entry("update", new UpdateFunction()));
- * </pre>
  */
+@With
 @Builder(toBuilder = true)
 @Getter
 public class ExpressionConfiguration {
 
   /** The standard set constants for EvalEx. */
   public static final Map<String, EvaluationValue> StandardConstants =
-      Collections.unmodifiableMap(getStandardConstants());
+      Collections.unmodifiableMap(
+          getStandardConstants(() -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
 
   /** Setting the decimal places to unlimited, will disable intermediate rounding. */
   public static final int DECIMAL_PLACES_ROUNDING_UNLIMITED = -1;
@@ -93,118 +84,24 @@ public class ExpressionConfiguration {
               DateTimeFormatter.ISO_LOCAL_DATE,
               DateTimeFormatter.RFC_1123_DATE_TIME));
 
+  private static final ExpressionConfiguration DEFAULT = ExpressionConfiguration.builder().build();
+
   /** The operator dictionary holds all operators that will be allowed in an expression. */
   @Builder.Default
-  @SuppressWarnings("unchecked")
-  private final OperatorDictionaryIfc operatorDictionary =
-      MapBasedOperatorDictionary.ofOperators(
-          // arithmetic
-          Map.entry("+", new PrefixPlusOperator()),
-          Map.entry("-", new PrefixMinusOperator()),
-          Map.entry("+", new InfixPlusOperator()),
-          Map.entry("-", new InfixMinusOperator()),
-          Map.entry("*", new InfixMultiplicationOperator()),
-          Map.entry("/", new InfixDivisionOperator()),
-          Map.entry("^", new InfixPowerOfOperator()),
-          Map.entry("%", new InfixModuloOperator()),
-          // booleans
-          Map.entry("=", new InfixEqualsOperator()),
-          Map.entry("==", new InfixEqualsOperator()),
-          Map.entry("!=", new InfixNotEqualsOperator()),
-          Map.entry("<>", new InfixNotEqualsOperator()),
-          Map.entry(">", new InfixGreaterOperator()),
-          Map.entry(">=", new InfixGreaterEqualsOperator()),
-          Map.entry("<", new InfixLessOperator()),
-          Map.entry("<=", new InfixLessEqualsOperator()),
-          Map.entry("&&", new InfixAndOperator()),
-          Map.entry("||", new InfixOrOperator()),
-          Map.entry("!", new PrefixNotOperator()));
+  private final OperatorDictionary operatorDictionary =
+      getStandardOperators(() -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)).build();
 
   /** The function dictionary holds all functions that will be allowed in an expression. */
   @Builder.Default
-  @SuppressWarnings("unchecked")
-  private final FunctionDictionaryIfc functionDictionary =
-      MapBasedFunctionDictionary.ofFunctions(
-          // basic functions
-          Map.entry("ABS", new AbsFunction()),
-          Map.entry("AVERAGE", new AverageFunction()),
-          Map.entry("CEILING", new CeilingFunction()),
-          Map.entry("COALESCE", new CoalesceFunction()),
-          Map.entry("FACT", new FactFunction()),
-          Map.entry("FLOOR", new FloorFunction()),
-          Map.entry("IF", new IfFunction()),
-          Map.entry("LOG", new LogFunction()),
-          Map.entry("LOG10", new Log10Function()),
-          Map.entry("MAX", new MaxFunction()),
-          Map.entry("MIN", new MinFunction()),
-          Map.entry("NOT", new NotFunction()),
-          Map.entry("RANDOM", new RandomFunction()),
-          Map.entry("ROUND", new RoundFunction()),
-          Map.entry("SQRT", new SqrtFunction()),
-          Map.entry("SUM", new SumFunction()),
-          Map.entry("SWITCH", new SwitchFunction()),
-          // trigonometric
-          Map.entry("ACOS", new AcosFunction()),
-          Map.entry("ACOSH", new AcosHFunction()),
-          Map.entry("ACOSR", new AcosRFunction()),
-          Map.entry("ACOT", new AcotFunction()),
-          Map.entry("ACOTH", new AcotHFunction()),
-          Map.entry("ACOTR", new AcotRFunction()),
-          Map.entry("ASIN", new AsinFunction()),
-          Map.entry("ASINH", new AsinHFunction()),
-          Map.entry("ASINR", new AsinRFunction()),
-          Map.entry("ATAN", new AtanFunction()),
-          Map.entry("ATAN2", new Atan2Function()),
-          Map.entry("ATAN2R", new Atan2RFunction()),
-          Map.entry("ATANH", new AtanHFunction()),
-          Map.entry("ATANR", new AtanRFunction()),
-          Map.entry("COS", new CosFunction()),
-          Map.entry("COSH", new CosHFunction()),
-          Map.entry("COSR", new CosRFunction()),
-          Map.entry("COT", new CotFunction()),
-          Map.entry("COTH", new CotHFunction()),
-          Map.entry("COTR", new CotRFunction()),
-          Map.entry("CSC", new CscFunction()),
-          Map.entry("CSCH", new CscHFunction()),
-          Map.entry("CSCR", new CscRFunction()),
-          Map.entry("DEG", new DegFunction()),
-          Map.entry("RAD", new RadFunction()),
-          Map.entry("SIN", new SinFunction()),
-          Map.entry("SINH", new SinHFunction()),
-          Map.entry("SINR", new SinRFunction()),
-          Map.entry("SEC", new SecFunction()),
-          Map.entry("SECH", new SecHFunction()),
-          Map.entry("SECR", new SecRFunction()),
-          Map.entry("TAN", new TanFunction()),
-          Map.entry("TANH", new TanHFunction()),
-          Map.entry("TANR", new TanRFunction()),
-          // string functions
-          Map.entry("STR_CONTAINS", new StringContains()),
-          Map.entry("STR_ENDS_WITH", new StringEndsWithFunction()),
-          Map.entry("STR_FORMAT", new StringFormatFunction()),
-          Map.entry("STR_LOWER", new StringLowerFunction()),
-          Map.entry("STR_STARTS_WITH", new StringStartsWithFunction()),
-          Map.entry("STR_TRIM", new StringTrimFunction()),
-          Map.entry("STR_UPPER", new StringUpperFunction()),
-          // date time functions
-          Map.entry("DT_DATE_NEW", new DateTimeNewFunction()),
-          Map.entry("DT_DATE_PARSE", new DateTimeParseFunction()),
-          Map.entry("DT_DATE_FORMAT", new DateTimeFormatFunction()),
-          Map.entry("DT_DATE_TO_EPOCH", new DateTimeToEpochFunction()),
-          Map.entry("DT_DURATION_NEW", new DurationNewFunction()),
-          Map.entry("DT_DURATION_FROM_MILLIS", new DurationFromMillisFunction()),
-          Map.entry("DT_DURATION_TO_MILLIS", new DurationToMillisFunction()),
-          Map.entry("DT_DURATION_PARSE", new DurationParseFunction()),
-          Map.entry("DT_NOW", new DateTimeNowFunction()),
-          Map.entry("DT_TODAY", new DateTimeTodayFunction()));
+  private final FunctionDictionary functionDictionary =
+      getStandardFunctions(() -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)).build();
 
   /** The math context to use. */
   @Builder.Default private final MathContext mathContext = DEFAULT_MATH_CONTEXT;
 
   /**
    * The data accessor is responsible for accessing variable and constant values in an expression.
-   * The supplier will be called once for each new expression, the default is to create a new {@link
-   * MapBasedDataAccessor} instance for each expression, providing a new storage for each
+   * The supplier will be called once for each new expression providing a new storage for each
    * expression.
    */
   @Builder.Default private final Supplier<DataAccessorIfc> dataAccessorSupplier = () -> null;
@@ -218,7 +115,8 @@ public class ExpressionConfiguration {
    * evaluation.
    */
   @Builder.Default
-  private final Map<String, EvaluationValue> defaultConstants = getStandardConstants();
+  private final Map<String, EvaluationValue> defaultConstants =
+      getStandardConstants(() -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
 
   /** Support for arrays in expressions are allowed or not. */
   @Builder.Default private final boolean arraysAllowed = true;
@@ -301,54 +199,116 @@ public class ExpressionConfiguration {
    * @return A configuration with default settings.
    */
   public static ExpressionConfiguration defaultConfiguration() {
-    return ExpressionConfiguration.builder().build();
+    return DEFAULT;
   }
 
-  /**
-   * Adds additional operators to this configuration.
-   *
-   * @param operators variable number of arguments with a map entry holding the operator name and
-   *     implementation. <br>
-   *     Example: <code>
-   *        ExpressionConfiguration.defaultConfiguration()
-   *          .withAdditionalOperators(
-   *            Map.entry("++", new PrefixPlusPlusOperator()),
-   *            Map.entry("++", new PostfixPlusPlusOperator()));
-   *     </code>
-   * @return The modified configuration, to allow chaining of methods.
-   */
-  @SafeVarargs
-  public final ExpressionConfiguration withAdditionalOperators(
-      Map.Entry<String, OperatorIfc>... operators) {
-    Arrays.stream(operators)
-        .forEach(entry -> operatorDictionary.addOperator(entry.getKey(), entry.getValue()));
-    return this;
+  public static OperatorDictionary.Builder getStandardOperators(
+      Supplier<Map<String, OperatorIfc>> supplier) {
+    return OperatorDictionary.builder(supplier)
+        // arithmetic
+        .prefix("+", new PrefixPlusOperator())
+        .prefix("-", new PrefixMinusOperator())
+        .infix("+", new InfixPlusOperator())
+        .infix("-", new InfixMinusOperator())
+        .infix("*", new InfixMultiplicationOperator())
+        .infix("/", new InfixDivisionOperator())
+        .infix("^", new InfixPowerOfOperator())
+        .infix("%", new InfixModuloOperator())
+        // booleans
+        .infix("=", new InfixEqualsOperator())
+        .infix("==", new InfixEqualsOperator())
+        .infix("!=", new InfixNotEqualsOperator())
+        .infix("<>", new InfixNotEqualsOperator())
+        .infix(">", new InfixGreaterOperator())
+        .infix(">=", new InfixGreaterEqualsOperator())
+        .infix("<", new InfixLessOperator())
+        .infix("<=", new InfixLessEqualsOperator())
+        .infix("&&", new InfixAndOperator())
+        .infix("||", new InfixOrOperator())
+        .prefix("!", new PrefixNotOperator());
   }
 
-  /**
-   * Adds additional functions to this configuration.
-   *
-   * @param functions variable number of arguments with a map entry holding the functions name and
-   *     implementation. <br>
-   *     Example: <code>
-   *        ExpressionConfiguration.defaultConfiguration()
-   *          .withAdditionalFunctions(
-   *            Map.entry("save", new SaveFunction()),
-   *            Map.entry("update", new UpdateFunction()));
-   *     </code>
-   * @return The modified configuration, to allow chaining of methods.
-   */
-  @SafeVarargs
-  public final ExpressionConfiguration withAdditionalFunctions(
-      Map.Entry<String, FunctionIfc>... functions) {
-    Arrays.stream(functions)
-        .forEach(entry -> functionDictionary.addFunction(entry.getKey(), entry.getValue()));
-    return this;
+  public static FunctionDictionary.Builder getStandardFunctions(
+      Supplier<Map<String, FunctionIfc>> supplier) {
+    return FunctionDictionary.builder(supplier)
+        // basic functions
+        .add("ABS", new AbsFunction())
+        .add("AVERAGE", new AverageFunction())
+        .add("CEILING", new CeilingFunction())
+        .add("COALESCE", new CoalesceFunction())
+        .add("FACT", new FactFunction())
+        .add("FLOOR", new FloorFunction())
+        .add("IF", new IfFunction())
+        .add("LOG", new LogFunction())
+        .add("LOG10", new Log10Function())
+        .add("MAX", new MaxFunction())
+        .add("MIN", new MinFunction())
+        .add("NOT", new NotFunction())
+        .add("RANDOM", new RandomFunction())
+        .add("ROUND", new RoundFunction())
+        .add("SQRT", new SqrtFunction())
+        .add("SUM", new SumFunction())
+        .add("SWITCH", new SwitchFunction())
+        // trigonometric
+        .add("ACOS", new AcosFunction())
+        .add("ACOSH", new AcosHFunction())
+        .add("ACOSR", new AcosRFunction())
+        .add("ACOT", new AcotFunction())
+        .add("ACOTH", new AcotHFunction())
+        .add("ACOTR", new AcotRFunction())
+        .add("ASIN", new AsinFunction())
+        .add("ASINH", new AsinHFunction())
+        .add("ASINR", new AsinRFunction())
+        .add("ATAN", new AtanFunction())
+        .add("ATAN2", new Atan2Function())
+        .add("ATAN2R", new Atan2RFunction())
+        .add("ATANH", new AtanHFunction())
+        .add("ATANR", new AtanRFunction())
+        .add("COS", new CosFunction())
+        .add("COSH", new CosHFunction())
+        .add("COSR", new CosRFunction())
+        .add("COT", new CotFunction())
+        .add("COTH", new CotHFunction())
+        .add("COTR", new CotRFunction())
+        .add("CSC", new CscFunction())
+        .add("CSCH", new CscHFunction())
+        .add("CSCR", new CscRFunction())
+        .add("DEG", new DegFunction())
+        .add("RAD", new RadFunction())
+        .add("SIN", new SinFunction())
+        .add("SINH", new SinHFunction())
+        .add("SINR", new SinRFunction())
+        .add("SEC", new SecFunction())
+        .add("SECH", new SecHFunction())
+        .add("SECR", new SecRFunction())
+        .add("TAN", new TanFunction())
+        .add("TANH", new TanHFunction())
+        .add("TANR", new TanRFunction())
+        // string functions
+        .add("STR_CONTAINS", new StringContains())
+        .add("STR_ENDS_WITH", new StringEndsWithFunction())
+        .add("STR_FORMAT", new StringFormatFunction())
+        .add("STR_LOWER", new StringLowerFunction())
+        .add("STR_STARTS_WITH", new StringStartsWithFunction())
+        .add("STR_TRIM", new StringTrimFunction())
+        .add("STR_UPPER", new StringUpperFunction())
+        // date time functions
+        .add("DT_DATE_NEW", new DateTimeNewFunction())
+        .add("DT_DATE_PARSE", new DateTimeParseFunction())
+        .add("DT_DATE_FORMAT", new DateTimeFormatFunction())
+        .add("DT_DATE_TO_EPOCH", new DateTimeToEpochFunction())
+        .add("DT_DURATION_NEW", new DurationNewFunction())
+        .add("DT_DURATION_FROM_MILLIS", new DurationFromMillisFunction())
+        .add("DT_DURATION_TO_MILLIS", new DurationToMillisFunction())
+        .add("DT_DURATION_PARSE", new DurationParseFunction())
+        .add("DT_NOW", new DateTimeNowFunction())
+        .add("DT_TODAY", new DateTimeTodayFunction());
   }
 
-  private static Map<String, EvaluationValue> getStandardConstants() {
+  private static Map<String, EvaluationValue> getStandardConstants(
+      Supplier<Map<String, EvaluationValue>> supplier) {
 
-    Map<String, EvaluationValue> constants = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    Map<String, EvaluationValue> constants = supplier.get();
 
     constants.put("TRUE", EvaluationValue.TRUE);
     constants.put("FALSE", EvaluationValue.FALSE);

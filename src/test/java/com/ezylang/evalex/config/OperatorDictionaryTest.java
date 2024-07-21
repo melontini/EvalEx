@@ -21,10 +21,10 @@ import com.ezylang.evalex.config.TestConfigurationProvider.PostfixQuestionOperat
 import com.ezylang.evalex.config.TestConfigurationProvider.PrefixPlusPlusOperator;
 import com.ezylang.evalex.operators.OperatorIfc;
 import com.ezylang.evalex.operators.arithmetic.InfixModuloOperator;
-import java.util.Map;
+import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
 
-class MapBasedOperatorDictionaryTest {
+class OperatorDictionaryTest {
 
   @Test
   void testCreationOfOperators() {
@@ -32,10 +32,12 @@ class MapBasedOperatorDictionaryTest {
     OperatorIfc postfix = new PostfixQuestionOperator();
     OperatorIfc infix = new InfixModuloOperator();
 
-    @SuppressWarnings({"unchecked", "varargs"})
-    OperatorDictionaryIfc dictionary =
-        MapBasedOperatorDictionary.ofOperators(
-            Map.entry("++", prefix), Map.entry("?", postfix), Map.entry("%", infix));
+    OperatorDictionary dictionary =
+        OperatorDictionary.builder(() -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER))
+            .prefix("++", prefix)
+            .postfix("?", postfix)
+            .infix("%", infix)
+            .build();
 
     assertThat(dictionary.hasPrefixOperator("++")).isTrue();
     assertThat(dictionary.hasPostfixOperator("?")).isTrue();
@@ -56,12 +58,12 @@ class MapBasedOperatorDictionaryTest {
     OperatorIfc postfix = new PostfixQuestionOperator();
     OperatorIfc infix = new InfixModuloOperator();
 
-    @SuppressWarnings({"unchecked", "varargs"})
-    OperatorDictionaryIfc dictionary =
-        MapBasedOperatorDictionary.ofOperators(
-            Map.entry("PlusPlus", prefix),
-            Map.entry("Question", postfix),
-            Map.entry("Percent", infix));
+    OperatorDictionary dictionary =
+        OperatorDictionary.builder(() -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER))
+            .prefix("PlusPlus", prefix)
+            .postfix("Question", postfix)
+            .infix("Percent", infix)
+            .build();
 
     assertThat(dictionary.hasPrefixOperator("PlusPlus")).isTrue();
     assertThat(dictionary.hasPrefixOperator("plusplus")).isTrue();

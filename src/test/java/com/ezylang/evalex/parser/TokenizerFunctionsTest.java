@@ -19,13 +19,19 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ezylang.evalex.config.TestConfigurationProvider.DummyFunction;
 import com.ezylang.evalex.parser.Token.TokenType;
+import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
 
 class TokenizerFunctionsTest extends BaseParserTest {
 
   @Test
   void testSimple() throws ParseException {
-    configuration.getFunctionDictionary().addFunction("f", new DummyFunction());
+    configuration =
+        configuration.withFunctionDictionary(
+            configuration.getFunctionDictionary().toBuilder(
+                    () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER))
+                .add("f", new DummyFunction())
+                .build());
     assertAllTokensParsedCorrectly(
         "f(x)",
         new Token(1, "f", TokenType.FUNCTION),
@@ -36,7 +42,12 @@ class TokenizerFunctionsTest extends BaseParserTest {
 
   @Test
   void testBlanks() throws ParseException {
-    configuration.getFunctionDictionary().addFunction("f", new DummyFunction());
+    configuration =
+        configuration.withFunctionDictionary(
+            configuration.getFunctionDictionary().toBuilder(
+                    () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER))
+                .add("f", new DummyFunction())
+                .build());
     assertAllTokensParsedCorrectly(
         "f (x)",
         new Token(1, "f", TokenType.FUNCTION),
@@ -47,7 +58,12 @@ class TokenizerFunctionsTest extends BaseParserTest {
 
   @Test
   void testUnderscores() throws ParseException {
-    configuration.getFunctionDictionary().addFunction("_f_x_", new DummyFunction());
+    configuration =
+        configuration.withFunctionDictionary(
+            configuration.getFunctionDictionary().toBuilder(
+                    () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER))
+                .add("_f_x_", new DummyFunction())
+                .build());
     assertAllTokensParsedCorrectly(
         "_f_x_(x)",
         new Token(1, "_f_x_", TokenType.FUNCTION),
@@ -58,7 +74,12 @@ class TokenizerFunctionsTest extends BaseParserTest {
 
   @Test
   void testWithNumbers() throws ParseException {
-    configuration.getFunctionDictionary().addFunction("f1x2", new DummyFunction());
+    configuration =
+        configuration.withFunctionDictionary(
+            configuration.getFunctionDictionary().toBuilder(
+                    () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER))
+                .add("f1x2", new DummyFunction())
+                .build());
     assertAllTokensParsedCorrectly(
         "f1x2(x)",
         new Token(1, "f1x2", TokenType.FUNCTION),

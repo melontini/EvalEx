@@ -27,6 +27,7 @@ import java.math.MathContext;
 import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -38,10 +39,8 @@ class ExpressionConfigurationTest {
 
     assertThat(configuration.getMathContext())
         .isEqualTo(ExpressionConfiguration.DEFAULT_MATH_CONTEXT);
-    assertThat(configuration.getOperatorDictionary())
-        .isInstanceOf(MapBasedOperatorDictionary.class);
-    assertThat(configuration.getFunctionDictionary())
-        .isInstanceOf(MapBasedFunctionDictionary.class);
+    assertThat(configuration.getOperatorDictionary()).isInstanceOf(OperatorDictionary.class);
+    assertThat(configuration.getFunctionDictionary()).isInstanceOf(FunctionDictionary.class);
     assertThat(configuration.getDataAccessorSupplier().get()).isEqualTo(null);
     assertThat(configuration.isArraysAllowed()).isTrue();
     assertThat(configuration.isStructuresAllowed()).isTrue();
@@ -62,10 +61,14 @@ class ExpressionConfigurationTest {
   @Test
   void testWithAdditionalOperators() {
     ExpressionConfiguration configuration =
-        ExpressionConfiguration.defaultConfiguration()
-            .withAdditionalOperators(
-                Map.entry("ADDED1", new InfixPlusOperator()),
-                Map.entry("ADDED2", new InfixPlusOperator()));
+        ExpressionConfiguration.builder()
+            .operatorDictionary(
+                ExpressionConfiguration.getStandardOperators(
+                        () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER))
+                    .infix("ADDED1", new InfixPlusOperator())
+                    .infix("ADDED2", new InfixPlusOperator())
+                    .build())
+            .build();
 
     assertThat(configuration.getOperatorDictionary().hasInfixOperator("ADDED1")).isTrue();
     assertThat(configuration.getOperatorDictionary().hasInfixOperator("ADDED2")).isTrue();
@@ -74,9 +77,14 @@ class ExpressionConfigurationTest {
   @Test
   void testWithAdditionalFunctions() {
     ExpressionConfiguration configuration =
-        ExpressionConfiguration.defaultConfiguration()
-            .withAdditionalFunctions(
-                Map.entry("ADDED1", new DummyFunction()), Map.entry("ADDED2", new DummyFunction()));
+        ExpressionConfiguration.builder()
+            .functionDictionary(
+                ExpressionConfiguration.getStandardFunctions(
+                        () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER))
+                    .add("ADDED1", new DummyFunction())
+                    .add("ADDED2", new DummyFunction())
+                    .build())
+            .build();
 
     assertThat(configuration.getFunctionDictionary().hasFunction("ADDED1")).isTrue();
     assertThat(configuration.getFunctionDictionary().hasFunction("ADDED2")).isTrue();
@@ -92,7 +100,7 @@ class ExpressionConfigurationTest {
 
   @Test
   void testCustomOperatorDictionary() {
-    OperatorDictionaryIfc mockedOperatorDictionary = Mockito.mock(OperatorDictionaryIfc.class);
+    OperatorDictionary mockedOperatorDictionary = Mockito.mock(OperatorDictionary.class);
 
     ExpressionConfiguration configuration =
         ExpressionConfiguration.builder().operatorDictionary(mockedOperatorDictionary).build();
@@ -102,7 +110,7 @@ class ExpressionConfigurationTest {
 
   @Test
   void testCustomFunctionDictionary() {
-    FunctionDictionaryIfc mockedFunctionDictionary = Mockito.mock(FunctionDictionaryIfc.class);
+    FunctionDictionary mockedFunctionDictionary = Mockito.mock(FunctionDictionary.class);
 
     ExpressionConfiguration configuration =
         ExpressionConfiguration.builder().functionDictionary(mockedFunctionDictionary).build();

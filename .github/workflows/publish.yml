@@ -16,6 +16,8 @@ jobs:
           java-version: '11'
           distribution: 'corretto'
           cache: gradle
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
       - name: build artifact
         run: ./gradlew check build publish
       - name: Create release

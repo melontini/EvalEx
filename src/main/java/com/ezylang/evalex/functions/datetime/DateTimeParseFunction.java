@@ -20,6 +20,7 @@ import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.data.conversion.DateTimeConverter;
+import com.ezylang.evalex.data.types.DateTimeValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
@@ -30,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Parses a date-time string to a {@link EvaluationValue.DataType#DATE_TIME} value.
+ * Parses a date-time string to a {@link DateTimeValue} value.
  *
  * <p>Optional arguments are the time zone and a list of {@link java.time.format.DateTimeFormatter}
  * patterns. Each pattern will be tried to convert the string to a date-time. The first matching
@@ -79,6 +80,6 @@ public class DateTimeParseFunction extends AbstractFunction {
       throw new EvaluationException(
           functionToken, String.format("Unable to parse date-time string '%s'", value));
     }
-    return EvaluationValue.dateTimeValue(instant);
+    return DateTimeValue.of(instant);
   }
 }

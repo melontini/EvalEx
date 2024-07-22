@@ -251,7 +251,7 @@ class DateTimeFunctionsTest extends BaseEvaluationTest {
                     .parse("DT_DATE_FORMAT(value)")
                     .evaluate(builder -> builder.parameter("value", 23)))
         .isInstanceOf(EvaluationException.class)
-        .hasMessage("Unable to format a 'NUMBER' type as a date-time");
+        .hasMessage("Unable to format a 'NumberValue' type as a date-time");
   }
 
   @ParameterizedTest

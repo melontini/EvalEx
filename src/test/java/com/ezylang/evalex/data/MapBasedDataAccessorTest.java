@@ -18,6 +18,9 @@ package com.ezylang.evalex.data;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ezylang.evalex.EvaluationException;
+import com.ezylang.evalex.data.types.BooleanValue;
+import com.ezylang.evalex.data.types.NumberValue;
+import com.ezylang.evalex.data.types.StringValue;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,9 +34,9 @@ class MapBasedDataAccessorTest {
     Map<String, EvaluationValue> variables = new HashMap<>();
     DataAccessorIfc dataAccessor = (variable, token, context) -> variables.get(variable);
 
-    EvaluationValue num = EvaluationValue.numberValue(new BigDecimal("123"));
-    EvaluationValue string = EvaluationValue.stringValue("hello");
-    EvaluationValue bool = EvaluationValue.booleanValue(true);
+    EvaluationValue num = NumberValue.of(new BigDecimal("123"));
+    EvaluationValue string = StringValue.of("hello");
+    EvaluationValue bool = BooleanValue.of(true);
 
     variables.put("num", num);
     variables.put("string", string);
@@ -49,7 +52,7 @@ class MapBasedDataAccessorTest {
     Map<String, EvaluationValue> variables = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     DataAccessorIfc dataAccessor = (variable, token, context) -> variables.get(variable);
 
-    EvaluationValue num = EvaluationValue.numberValue(new BigDecimal("123"));
+    EvaluationValue num = NumberValue.of(new BigDecimal("123"));
     variables.put("Hello", num);
 
     assertThat(dataAccessor.getData("Hello", null, null)).isEqualTo(num);

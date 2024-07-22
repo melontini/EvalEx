@@ -17,12 +17,13 @@ package com.ezylang.evalex.data.conversion;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.BooleanValue;
 
 /** Converter to convert to the BOOLEAN data type. */
 public class BooleanConverter implements ConverterIfc {
   @Override
   public EvaluationValue convert(Object object, ExpressionConfiguration configuration) {
-    return EvaluationValue.booleanValue((Boolean) object);
+    return BooleanValue.of((Boolean) object);
   }
 
   @Override

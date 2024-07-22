@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.DataAccessorIfc;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.StringValue;
 import com.ezylang.evalex.parser.ASTNode;
 import com.ezylang.evalex.parser.ExpressionParser;
 import com.ezylang.evalex.parser.ParseException;
@@ -143,7 +144,7 @@ class ExpressionTest {
                           @Override
                           public EvaluationValue getData(
                               String variable, Token token, EvaluationContext context) {
-                            return EvaluationValue.stringValue(variable);
+                            return StringValue.of(variable);
                           }
                         })
                 .build();

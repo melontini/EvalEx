@@ -15,10 +15,9 @@
 */
 package com.ezylang.evalex.data.conversion;
 
-import static com.ezylang.evalex.data.EvaluationValue.numberValue;
-
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.NumberValue;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -27,16 +26,16 @@ public class NumberConverter implements ConverterIfc {
 
   @Override
   public EvaluationValue convert(Object object, ExpressionConfiguration configuration) {
-    if (object instanceof BigDecimal decimal) return numberValue(decimal);
+    if (object instanceof BigDecimal decimal) return NumberValue.of(decimal);
     if (object instanceof BigInteger integer)
-      return numberValue(new BigDecimal(integer, configuration.getMathContext()));
+      return NumberValue.of(new BigDecimal(integer, configuration.getMathContext()));
     if (object instanceof Double d)
-      return numberValue(new BigDecimal(Double.toString(d), configuration.getMathContext()));
-    if (object instanceof Float f) return numberValue(BigDecimal.valueOf(f));
-    if (object instanceof Integer i) return numberValue(BigDecimal.valueOf(i));
-    if (object instanceof Long l) return numberValue(BigDecimal.valueOf(l));
-    if (object instanceof Short s) return numberValue(BigDecimal.valueOf(s));
-    if (object instanceof Byte b) return numberValue(BigDecimal.valueOf(b));
+      return NumberValue.of(new BigDecimal(Double.toString(d), configuration.getMathContext()));
+    if (object instanceof Float f) return NumberValue.of(BigDecimal.valueOf(f));
+    if (object instanceof Integer i) return NumberValue.of(BigDecimal.valueOf(i));
+    if (object instanceof Long l) return NumberValue.of(BigDecimal.valueOf(l));
+    if (object instanceof Short s) return NumberValue.of(BigDecimal.valueOf(s));
+    if (object instanceof Byte b) return NumberValue.of(BigDecimal.valueOf(b));
     throw illegalArgument(object);
   }
 

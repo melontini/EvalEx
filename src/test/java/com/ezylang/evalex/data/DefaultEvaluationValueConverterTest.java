@@ -16,10 +16,11 @@
 package com.ezylang.evalex.data;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.conversion.DefaultEvaluationValueConverter;
+import com.ezylang.evalex.data.types.NullValue;
+import com.ezylang.evalex.data.types.StringValue;
 import org.junit.jupiter.api.Test;
 
 class DefaultEvaluationValueConverterTest {
@@ -32,37 +33,15 @@ class DefaultEvaluationValueConverterTest {
   void testNull() {
     EvaluationValue converted = converter.convertObject(null, defaultConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.NULL);
+    assertThat(converted).isInstanceOf(NullValue.class);
   }
 
   @Test
   void testNestedEvaluationValueNull() {
     EvaluationValue converted =
-        converter.convertObject(EvaluationValue.stringValue("Hello"), defaultConfiguration);
+        converter.convertObject(StringValue.of("Hello"), defaultConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.STRING);
+    assertThat(converted).isInstanceOf(StringValue.class);
     assertThat(converted.getStringValue()).isEqualTo("Hello");
-  }
-
-  @Test
-  void testDefaultEvaluationWithBinaryAllowed() {
-    ExpressionConfiguration configuration =
-        ExpressionConfiguration.builder().binaryAllowed(true).build();
-    final Object rawValue = new Object();
-    EvaluationValue converted = converter.convertObject(rawValue, configuration);
-
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.BINARY);
-    assertThat(converted.isBinaryValue()).isTrue();
-    assertThat(converted.getValue()).isSameAs(rawValue);
-  }
-
-  @Test
-  void testExceptionWithBinaryNotAllowed() {
-    ExpressionConfiguration configuration =
-        ExpressionConfiguration.builder().binaryAllowed(false).build();
-    final Error error = new Error();
-    assertThatThrownBy(() -> converter.convertObject(error, configuration))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("Unsupported data type 'java.lang.Error'");
   }
 }

@@ -20,6 +20,10 @@ import com.ezylang.evalex.data.DataAccessorIfc;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.data.conversion.DefaultEvaluationValueConverter;
 import com.ezylang.evalex.data.conversion.EvaluationValueConverterIfc;
+import com.ezylang.evalex.data.types.BooleanValue;
+import com.ezylang.evalex.data.types.NullValue;
+import com.ezylang.evalex.data.types.NumberValue;
+import com.ezylang.evalex.data.types.StringValue;
 import com.ezylang.evalex.functions.FunctionIfc;
 import com.ezylang.evalex.functions.basic.*;
 import com.ezylang.evalex.functions.datetime.*;
@@ -132,13 +136,6 @@ public class ExpressionConfiguration {
 
   /** Support for structures in expressions are allowed or not. */
   @Builder.Default private final boolean structuresAllowed = true;
-
-  /**
-   * Support for the binary (undefined) data type is allowed or not.
-   *
-   * @since 3.3.0
-   */
-  @Builder.Default private final boolean binaryAllowed = false;
 
   /** Support for implicit multiplication, like in (a+b)(b+c) are allowed or not. */
   @Builder.Default private final boolean implicitMultiplicationAllowed = true;
@@ -328,26 +325,24 @@ public class ExpressionConfiguration {
 
     Map<String, EvaluationValue> constants = supplier.get();
 
-    constants.put("TRUE", EvaluationValue.TRUE);
-    constants.put("FALSE", EvaluationValue.FALSE);
+    constants.put("TRUE", BooleanValue.TRUE);
+    constants.put("FALSE", BooleanValue.FALSE);
     constants.put(
         "PI",
-        EvaluationValue.numberValue(
+        NumberValue.of(
             new BigDecimal(
                 "3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679")));
     constants.put(
         "E",
-        EvaluationValue.numberValue(
+        NumberValue.of(
             new BigDecimal(
                 "2.71828182845904523536028747135266249775724709369995957496696762772407663")));
-    constants.put("NULL", EvaluationValue.NULL_VALUE);
+    constants.put("NULL", NullValue.of());
 
     constants.put(
-        "DT_FORMAT_ISO_DATE_TIME",
-        EvaluationValue.stringValue("yyyy-MM-dd'T'HH:mm:ss[.SSS][XXX]['['VV']']"));
-    constants.put(
-        "DT_FORMAT_LOCAL_DATE_TIME", EvaluationValue.stringValue("yyyy-MM-dd'T'HH:mm:ss[.SSS]"));
-    constants.put("DT_FORMAT_LOCAL_DATE", EvaluationValue.stringValue("yyyy-MM-dd"));
+        "DT_FORMAT_ISO_DATE_TIME", StringValue.of("yyyy-MM-dd'T'HH:mm:ss[.SSS][XXX]['['VV']']"));
+    constants.put("DT_FORMAT_LOCAL_DATE_TIME", StringValue.of("yyyy-MM-dd'T'HH:mm:ss[.SSS]"));
+    constants.put("DT_FORMAT_LOCAL_DATE", StringValue.of("yyyy-MM-dd"));
 
     return constants;
   }

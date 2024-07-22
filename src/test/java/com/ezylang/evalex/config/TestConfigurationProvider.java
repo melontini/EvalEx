@@ -17,6 +17,8 @@ package com.ezylang.evalex.config;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.NumberValue;
+import com.ezylang.evalex.data.types.StringValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.operators.AbstractOperator;
@@ -80,7 +82,7 @@ public class TestConfigurationProvider {
         EvaluationContext context, Token operatorToken, EvaluationValue... operands) {
       // dummy implementation
       EvaluationValue operand = operands[0];
-      return EvaluationValue.numberValue(operand.getNumberValue().add(BigDecimal.ONE));
+      return NumberValue.of(operand.getNumberValue().add(BigDecimal.ONE));
     }
   }
 
@@ -91,7 +93,7 @@ public class TestConfigurationProvider {
         EvaluationContext context, Token operatorToken, EvaluationValue... operands) {
       // dummy implementation
       EvaluationValue operand = operands[0];
-      return EvaluationValue.numberValue(operand.getNumberValue().add(BigDecimal.ONE));
+      return NumberValue.of(operand.getNumberValue().add(BigDecimal.ONE));
     }
   }
 
@@ -101,7 +103,7 @@ public class TestConfigurationProvider {
     public EvaluationValue evaluate(
         EvaluationContext context, Token operatorToken, EvaluationValue... operands) {
       // dummy implementation
-      return EvaluationValue.stringValue("?");
+      return StringValue.of("?");
     }
   }
 }

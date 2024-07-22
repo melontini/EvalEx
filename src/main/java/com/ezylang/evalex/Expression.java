@@ -18,6 +18,7 @@ package com.ezylang.evalex;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.DataAccessorIfc;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.NumberValue;
 import com.ezylang.evalex.functions.FunctionIfc;
 import com.ezylang.evalex.operators.OperatorIfc;
 import com.ezylang.evalex.parser.*;
@@ -78,7 +79,7 @@ public class Expression {
         bigDecimal = bigDecimal.stripTrailingZeros();
       }
 
-      result = EvaluationValue.numberValue(bigDecimal);
+      result = NumberValue.of(bigDecimal);
     }
 
     return result;
@@ -127,7 +128,7 @@ public class Expression {
     if (value.isNumberValue()
         && configuration.getDecimalPlacesRounding()
             != ExpressionConfiguration.DECIMAL_PLACES_ROUNDING_UNLIMITED) {
-      return EvaluationValue.numberValue(
+      return NumberValue.of(
           roundValue(value.getNumberValue(), configuration.getDecimalPlacesRounding()));
     }
     return value;
@@ -248,7 +249,7 @@ public class Expression {
    * java.math.MathContext}.
    *
    * @param value The double value to covert.
-   * @return An {@link EvaluationValue} of type {@link EvaluationValue.DataType#NUMBER}.
+   * @return An {@link EvaluationValue} of type {@link NumberValue}.
    */
   public EvaluationValue convertDoubleValue(double value) {
     return convertValue(value);

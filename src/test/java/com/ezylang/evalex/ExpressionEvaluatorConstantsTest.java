@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.NumberValue;
 import com.ezylang.evalex.parser.ExpressionParser;
 import com.ezylang.evalex.parser.ParseException;
 import java.math.BigDecimal;
@@ -57,8 +58,8 @@ class ExpressionEvaluatorConstantsTest extends BaseExpressionEvaluatorTest {
     Map<String, EvaluationValue> constants = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     constants.putAll(
         Map.of(
-            "A", EvaluationValue.numberValue(new BigDecimal("2.5")),
-            "B", EvaluationValue.numberValue(new BigDecimal("3.9"))));
+            "A", NumberValue.of(new BigDecimal("2.5")),
+            "B", NumberValue.of(new BigDecimal("3.9"))));
 
     ExpressionParser parser =
         new ExpressionParser(ExpressionConfiguration.builder().constants(constants).build());

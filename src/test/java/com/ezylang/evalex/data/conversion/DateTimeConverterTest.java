@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.DateTimeValue;
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.Calendar;
@@ -42,7 +43,7 @@ class DateTimeConverterTest {
 
     EvaluationValue converted = converter.convert(now, cetConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.DATE_TIME);
+    assertThat(converted).isInstanceOf(DateTimeValue.class);
     assertThat(converted.getValue()).isEqualTo(now);
   }
 
@@ -52,7 +53,7 @@ class DateTimeConverterTest {
 
     EvaluationValue converted = converter.convert(now, cetConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.DATE_TIME);
+    assertThat(converted).isInstanceOf(DateTimeValue.class);
     assertThat(converted.getValue()).isEqualTo(now.toInstant());
   }
 
@@ -62,7 +63,7 @@ class DateTimeConverterTest {
 
     EvaluationValue converted = converter.convert(now, cetConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.DATE_TIME);
+    assertThat(converted).isInstanceOf(DateTimeValue.class);
     assertThat(converted.getValue()).isEqualTo(now.toInstant());
   }
 
@@ -72,7 +73,7 @@ class DateTimeConverterTest {
 
     EvaluationValue converted = EvaluationValue.of(localDate, cetConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.DATE_TIME);
+    assertThat(converted).isInstanceOf(DateTimeValue.class);
     assertThat(converted.getValue().toString()).hasToString("2022-10-19T22:00:00Z");
   }
 
@@ -82,7 +83,7 @@ class DateTimeConverterTest {
 
     EvaluationValue converted = EvaluationValue.of(localDate, cetConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.DATE_TIME);
+    assertThat(converted).isInstanceOf(DateTimeValue.class);
     assertThat(converted.getValue().toString()).hasToString("2022-11-19T23:00:00Z");
   }
 
@@ -92,7 +93,7 @@ class DateTimeConverterTest {
 
     EvaluationValue converted = EvaluationValue.of(localDateTime, cetConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.DATE_TIME);
+    assertThat(converted).isInstanceOf(DateTimeValue.class);
     assertThat(converted.getValue().toString()).hasToString("2022-10-20T09:21:30Z");
   }
 
@@ -102,7 +103,7 @@ class DateTimeConverterTest {
 
     EvaluationValue converted = EvaluationValue.of(localDateTime, cetConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.DATE_TIME);
+    assertThat(converted).isInstanceOf(DateTimeValue.class);
     assertThat(converted.getValue().toString()).hasToString("2022-11-20T10:21:30Z");
   }
 
@@ -112,7 +113,7 @@ class DateTimeConverterTest {
 
     EvaluationValue converted = converter.convert(now, cetConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.DATE_TIME);
+    assertThat(converted).isInstanceOf(DateTimeValue.class);
     assertThat(converted.getValue()).isEqualTo(now.toInstant());
   }
 
@@ -122,7 +123,7 @@ class DateTimeConverterTest {
 
     EvaluationValue converted = converter.convert(now, cetConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.DATE_TIME);
+    assertThat(converted).isInstanceOf(DateTimeValue.class);
     assertThat(converted.getValue()).isEqualTo(now.toInstant());
   }
 

@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.StructureValue;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,7 +43,7 @@ class StructureConverterTest {
 
     EvaluationValue converted = converter.convert(testMap, defaultConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.STRUCTURE);
+    assertThat(converted).isInstanceOf(StructureValue.class);
     assertThat(converted.getStructureValue()).hasSize(3);
 
     assertThat(converted.getStructureValue().get("key1").isStringValue()).isTrue();

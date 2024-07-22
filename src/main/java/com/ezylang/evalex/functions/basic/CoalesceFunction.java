@@ -17,14 +17,12 @@ package com.ezylang.evalex.functions.basic;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.NullValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
 
-/**
- * Returns the first non-null parameter, or {@link EvaluationValue#NULL_VALUE} if all parameters are
- * null.
- */
+/** Returns the first non-null parameter, or {@link NullValue#of()} if all parameters are null. */
 @FunctionParameter(name = "value", isVarArg = true)
 public class CoalesceFunction extends AbstractFunction {
   @Override
@@ -35,6 +33,6 @@ public class CoalesceFunction extends AbstractFunction {
         return parameter;
       }
     }
-    return EvaluationValue.NULL_VALUE;
+    return NullValue.of();
   }
 }

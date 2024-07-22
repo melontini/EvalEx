@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.StringValue;
 import com.ezylang.evalex.parser.Token;
 import org.junit.jupiter.api.Test;
 
@@ -67,7 +68,7 @@ class FunctionTest {
     @Override
     public EvaluationValue evaluate(
         EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
-      return EvaluationValue.stringValue("OK");
+      return StringValue.of("OK");
     }
   }
 
@@ -78,7 +79,7 @@ class FunctionTest {
     @Override
     public EvaluationValue evaluate(
         EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
-      return EvaluationValue.stringValue("OK");
+      return StringValue.of("OK");
     }
   }
 }

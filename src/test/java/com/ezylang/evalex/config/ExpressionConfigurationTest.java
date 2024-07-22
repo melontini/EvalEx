@@ -21,6 +21,7 @@ import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.config.TestConfigurationProvider.DummyFunction;
 import com.ezylang.evalex.data.DataAccessorIfc;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.StringValue;
 import com.ezylang.evalex.operators.OperatorIfc;
 import com.ezylang.evalex.operators.arithmetic.InfixPlusOperator;
 import com.ezylang.evalex.parser.Token;
@@ -140,7 +141,7 @@ class ExpressionConfigurationTest {
                       @Override
                       public EvaluationValue getData(
                           String variable, Token token, EvaluationContext context) {
-                        return EvaluationValue.stringValue(variable);
+                        return StringValue.of(variable);
                       }
                     })
             .build();
@@ -155,8 +156,8 @@ class ExpressionConfigurationTest {
   void testCustomConstants() {
     Map<String, EvaluationValue> constants =
         Map.of(
-            "A", EvaluationValue.stringValue("a"),
-            "B", EvaluationValue.stringValue("b"));
+            "A", StringValue.of("a"),
+            "B", StringValue.of("b"));
     ExpressionConfiguration configuration =
         ExpressionConfiguration.builder().constants(constants).build();
 
@@ -177,14 +178,6 @@ class ExpressionConfigurationTest {
         ExpressionConfiguration.builder().structuresAllowed(false).build();
 
     assertThat(configuration.isStructuresAllowed()).isFalse();
-  }
-
-  @Test
-  void testBinaryAllowed() {
-    ExpressionConfiguration configuration =
-        ExpressionConfiguration.builder().binaryAllowed(true).build();
-
-    assertThat(configuration.isArraysAllowed()).isTrue();
   }
 
   @Test

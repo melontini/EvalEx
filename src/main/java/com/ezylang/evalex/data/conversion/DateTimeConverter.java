@@ -15,10 +15,9 @@
 */
 package com.ezylang.evalex.data.conversion;
 
-import static com.ezylang.evalex.data.EvaluationValue.dateTimeValue;
-
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.DateTimeValue;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
@@ -32,15 +31,16 @@ public class DateTimeConverter implements ConverterIfc {
 
   @Override
   public EvaluationValue convert(Object object, ExpressionConfiguration configuration) {
-    if (object instanceof Instant instant) return dateTimeValue(instant);
-    if (object instanceof ZonedDateTime dateTime) return dateTimeValue(dateTime.toInstant());
-    if (object instanceof OffsetDateTime dateTime) return dateTimeValue(dateTime.toInstant());
+    if (object instanceof Instant instant) return DateTimeValue.of(instant);
+    if (object instanceof ZonedDateTime dateTime) return DateTimeValue.of(dateTime.toInstant());
+    if (object instanceof OffsetDateTime dateTime) return DateTimeValue.of(dateTime.toInstant());
     if (object instanceof LocalDate localDate)
-      return dateTimeValue(localDate.atStartOfDay().atZone(configuration.getZoneId()).toInstant());
+      return DateTimeValue.of(
+          localDate.atStartOfDay().atZone(configuration.getZoneId()).toInstant());
     if (object instanceof LocalDateTime dateTime)
-      return dateTimeValue(dateTime.atZone(configuration.getZoneId()).toInstant());
-    if (object instanceof Date date) return dateTimeValue(date.toInstant());
-    if (object instanceof Calendar calendar) return dateTimeValue(calendar.toInstant());
+      return DateTimeValue.of(dateTime.atZone(configuration.getZoneId()).toInstant());
+    if (object instanceof Date date) return DateTimeValue.of(date.toInstant());
+    if (object instanceof Calendar calendar) return DateTimeValue.of(calendar.toInstant());
     throw illegalArgument(object);
   }
 

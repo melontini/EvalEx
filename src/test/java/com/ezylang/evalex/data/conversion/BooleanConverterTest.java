@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.NumberValue;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 
@@ -59,7 +60,7 @@ class BooleanConverterTest {
 
   @Test
   void testNumberToBoolean() {
-    EvaluationValue value = EvaluationValue.numberValue(new BigDecimal("0.0"));
+    EvaluationValue value = NumberValue.of(new BigDecimal("0.0"));
 
     assertThat(value.getBooleanValue()).isFalse();
   }

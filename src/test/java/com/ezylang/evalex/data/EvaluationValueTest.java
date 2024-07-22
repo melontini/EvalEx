@@ -17,11 +17,13 @@ package com.ezylang.evalex.data;
 
 import static com.ezylang.evalex.config.ExpressionConfiguration.defaultConfiguration;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.config.ExpressionConfiguration;
+import com.ezylang.evalex.data.types.BooleanValue;
+import com.ezylang.evalex.data.types.NullValue;
+import com.ezylang.evalex.data.types.NumberValue;
 import com.ezylang.evalex.parser.ASTNode;
 import com.ezylang.evalex.parser.ParseException;
 import com.ezylang.evalex.parser.Token;
@@ -35,32 +37,6 @@ import org.junit.jupiter.api.Test;
 class EvaluationValueTest {
 
   @Test
-  void testUnsupportedDataTypeWithBinaryNotAllowed() {
-    final ExpressionConfiguration configuration =
-        ExpressionConfiguration.builder().binaryAllowed(false).build();
-    assertThatThrownBy(() -> EvaluationValue.of(Locale.FRANCE, configuration))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("Unsupported data type 'java.util.Locale'");
-  }
-
-  @Test
-  void testUnsupportedDataTypeWithBinaryAllowed() {
-    final ExpressionConfiguration configuration =
-        ExpressionConfiguration.builder().binaryAllowed(true).build();
-    Object rawValue = new Object();
-    EvaluationValue value = EvaluationValue.of(rawValue, configuration);
-    assertThat(value.isStringValue()).isFalse();
-    assertThat(value.isNumberValue()).isFalse();
-    assertThat(value.isBooleanValue()).isFalse();
-    assertThat(value.isStructureValue()).isFalse();
-    assertThat(value.isArrayValue()).isFalse();
-    assertThat(value.isExpressionNode()).isFalse();
-    assertThat(value.isNullValue()).isFalse();
-    assertThat(value.isBinaryValue()).isTrue();
-    assertThat(value.getValue()).isSameAs(rawValue);
-  }
-
-  @Test
   void testString() {
     EvaluationValue value = EvaluationValue.of("Hello World", defaultConfiguration());
 
@@ -71,7 +47,6 @@ class EvaluationValueTest {
     assertThat(value.isArrayValue()).isFalse();
     assertThat(value.isExpressionNode()).isFalse();
     assertThat(value.isNullValue()).isFalse();
-    assertThat(value.isBinaryValue()).isFalse();
     assertDataIsCorrect(
         value, "Hello World", BigDecimal.ZERO, false, Instant.EPOCH, Duration.ZERO, String.class);
   }
@@ -112,7 +87,6 @@ class EvaluationValueTest {
     assertThat(value.isArrayValue()).isFalse();
     assertThat(value.isExpressionNode()).isFalse();
     assertThat(value.isNullValue()).isFalse();
-    assertThat(value.isBinaryValue()).isFalse();
     assertDataIsCorrect(
         value, "true", BigDecimal.ONE, true, Instant.EPOCH, Duration.ZERO, Boolean.class);
   }
@@ -146,12 +120,12 @@ class EvaluationValueTest {
 
   @Test
   void testBooleanValueSameInstances() {
-    assertThat(EvaluationValue.booleanValue(Boolean.TRUE)).isSameAs(EvaluationValue.TRUE);
-    assertThat(EvaluationValue.booleanValue(true)).isSameAs(EvaluationValue.TRUE);
+    assertThat(BooleanValue.of(Boolean.TRUE)).isSameAs(BooleanValue.TRUE);
+    assertThat(BooleanValue.of(true)).isSameAs(BooleanValue.TRUE);
 
-    assertThat(EvaluationValue.booleanValue(Boolean.FALSE)).isSameAs(EvaluationValue.FALSE);
-    assertThat(EvaluationValue.booleanValue(false)).isSameAs(EvaluationValue.FALSE);
-    assertThat(EvaluationValue.booleanValue(null)).isSameAs(EvaluationValue.FALSE);
+    assertThat(BooleanValue.of(Boolean.FALSE)).isSameAs(BooleanValue.FALSE);
+    assertThat(BooleanValue.of(false)).isSameAs(BooleanValue.FALSE);
+    assertThat(BooleanValue.of(null)).isSameAs(BooleanValue.FALSE);
   }
 
   @Test
@@ -427,7 +401,6 @@ class EvaluationValueTest {
     assertThat(value.isStringValue()).isFalse();
     assertThat(value.isExpressionNode()).isFalse();
     assertThat(value.isNullValue()).isFalse();
-    assertThat(value.isBinaryValue()).isFalse();
 
     assertThat(value.getArrayValue()).hasSize(2);
     assertThat(value.getArrayValue().get(0).getStringValue()).isEqualTo("1");
@@ -464,7 +437,6 @@ class EvaluationValueTest {
     assertThat(value.isArrayValue()).isFalse();
     assertThat(value.isExpressionNode()).isFalse();
     assertThat(value.isNullValue()).isFalse();
-    assertThat(value.isBinaryValue()).isFalse();
 
     assertThat(value.getStructureValue()).hasSize(2);
     assertThat(value.getStructureValue().get("a").getStringValue()).isEqualTo("Hello");
@@ -498,7 +470,6 @@ class EvaluationValueTest {
     assertThat(value.isArrayValue()).isFalse();
     assertThat(value.isStringValue()).isFalse();
     assertThat(value.isNullValue()).isFalse();
-    assertThat(value.isBinaryValue()).isFalse();
 
     assertDataIsCorrect(
         value,
@@ -518,11 +489,11 @@ class EvaluationValueTest {
 
   @Test
   void testNumberOfString() {
-    EvaluationValue value = EvaluationValue.numberOfString("123.987", MathContext.DECIMAL128);
+    EvaluationValue value = NumberValue.ofString("123.987", MathContext.DECIMAL128);
 
     assertThat(value.isNumberValue()).isTrue();
     assertThat(value.getNumberValue()).isEqualTo(new BigDecimal("123.987", MathContext.DECIMAL128));
-    assertThat(value).hasToString("EvaluationValue(value=123.987, dataType=NUMBER)");
+    assertThat(value).hasToString("NumberValue(value=123.987)");
   }
 
   @Test
@@ -560,25 +531,13 @@ class EvaluationValueTest {
     assertThat(value.isArrayValue()).isFalse();
     assertThat(value.isExpressionNode()).isFalse();
     assertThat(value.isNullValue()).isTrue();
-    assertThat(value.isBinaryValue()).isFalse();
     assertDataIsCorrect(value, null, null, null);
   }
 
   @Test
-  @SuppressWarnings("removal")
-  void testDeprecatedConstructor() {
-    ExpressionConfiguration expressionConfiguration =
-        ExpressionConfiguration.builder().mathContext(new MathContext(3)).build();
-    EvaluationValue evaluationValue =
-        new EvaluationValue(3.9876, expressionConfiguration); // NOSONAR - deprecated
-    assertThat(evaluationValue.getNumberValue()).isEqualByComparingTo("3.99");
-  }
-
-  @Test
-  @SuppressWarnings("removal")
   void testNullValueSameInstance() {
-    EvaluationValue nullValue1 = EvaluationValue.nullValue(); // NOSONAR - deprecated
-    EvaluationValue nullValue2 = EvaluationValue.nullValue(); // NOSONAR - deprecated
+    EvaluationValue nullValue1 = NullValue.of(); // NOSONAR - deprecated
+    EvaluationValue nullValue2 = NullValue.of(); // NOSONAR - deprecated
     assertThat(nullValue1).isSameAs(nullValue2);
   }
 

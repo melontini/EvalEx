@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.ExpressionNodeValue;
 import com.ezylang.evalex.parser.ASTNode;
 import com.ezylang.evalex.parser.Token;
 import java.math.BigDecimal;
@@ -39,7 +40,7 @@ class ExpressionNodeConverterTest {
 
     EvaluationValue converted = converter.convert(testNode, defaultConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.EXPRESSION_NODE);
+    assertThat(converted).isInstanceOf(ExpressionNodeValue.class);
     assertThat(converted.getExpressionNode().toJSON()).isEqualTo(testNode.toJSON());
   }
 

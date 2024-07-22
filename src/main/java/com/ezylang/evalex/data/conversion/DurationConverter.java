@@ -17,13 +17,14 @@ package com.ezylang.evalex.data.conversion;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.DurationValue;
 import java.time.Duration;
 
 /** Converter to convert to the DURATION data type. */
 public class DurationConverter implements ConverterIfc {
   @Override
   public EvaluationValue convert(Object object, ExpressionConfiguration configuration) {
-    return EvaluationValue.durationValue((Duration) object);
+    return DurationValue.of((Duration) object);
   }
 
   @Override

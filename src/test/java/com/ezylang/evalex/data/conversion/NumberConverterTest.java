@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.NumberValue;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ class NumberConverterTest {
 
     EvaluationValue converted = converter.convert(value, defaultConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.NUMBER);
+    assertThat(converted).isInstanceOf(NumberValue.class);
     assertThat(converted.getValue()).isEqualTo(value);
   }
 
@@ -47,7 +48,7 @@ class NumberConverterTest {
 
     EvaluationValue converted = converter.convert(value, defaultConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.NUMBER);
+    assertThat(converted).isInstanceOf(NumberValue.class);
     assertThat(converted.getNumberValue().toPlainString()).isEqualTo("23");
   }
 
@@ -57,7 +58,7 @@ class NumberConverterTest {
 
     EvaluationValue converted = converter.convert(value, defaultConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.NUMBER);
+    assertThat(converted).isInstanceOf(NumberValue.class);
     assertThat(converted.getNumberValue().toPlainString()).isEqualTo("2.5");
   }
 
@@ -67,7 +68,7 @@ class NumberConverterTest {
 
     EvaluationValue converted = converter.convert(value, defaultConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.NUMBER);
+    assertThat(converted).isInstanceOf(NumberValue.class);
     assertThat(converted.getNumberValue().toPlainString()).isEqualTo("3.5");
   }
 
@@ -75,7 +76,7 @@ class NumberConverterTest {
   void testInteger() {
     EvaluationValue converted = converter.convert(5, defaultConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.NUMBER);
+    assertThat(converted).isInstanceOf(NumberValue.class);
     assertThat(converted.getNumberValue().toPlainString()).isEqualTo("5");
   }
 
@@ -83,7 +84,7 @@ class NumberConverterTest {
   void testLong() {
     EvaluationValue converted = converter.convert(949345345343345673L, defaultConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.NUMBER);
+    assertThat(converted).isInstanceOf(NumberValue.class);
     assertThat(converted.getNumberValue().toPlainString()).isEqualTo("949345345343345673");
   }
 
@@ -93,7 +94,7 @@ class NumberConverterTest {
 
     EvaluationValue converted = converter.convert(value, defaultConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.NUMBER);
+    assertThat(converted).isInstanceOf(NumberValue.class);
     assertThat(converted.getNumberValue().toPlainString()).isEqualTo("7.0");
   }
 
@@ -103,7 +104,7 @@ class NumberConverterTest {
 
     EvaluationValue converted = converter.convert(value, defaultConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.NUMBER);
+    assertThat(converted).isInstanceOf(NumberValue.class);
     assertThat(converted.getNumberValue().toPlainString()).isEqualTo("4.0");
   }
 

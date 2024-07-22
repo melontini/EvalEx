@@ -13,25 +13,35 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package com.ezylang.evalex.data.conversion;
+package com.ezylang.evalex.data.types;
 
-import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import java.util.Map;
+import lombok.*;
 
-/**
- * Converter to convert to the BINARY data type.
- *
- * @author oswaldobapvicjr
- * @since 3.3.0
- */
-public class BinaryConverter implements ConverterIfc {
-  @Override
-  public EvaluationValue convert(Object object, ExpressionConfiguration configuration) {
-    return EvaluationValue.binaryValue(object);
+@ToString()
+@EqualsAndHashCode(callSuper = false)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+public final class StructureValue extends EvaluationValue {
+
+  private final Map<String, EvaluationValue> value;
+
+  public static StructureValue of(@NonNull Map<String, EvaluationValue> struct) {
+    return new StructureValue(struct);
   }
 
   @Override
-  public boolean canConvert(Object object) {
+  public Object getValue() {
+    return value;
+  }
+
+  @Override
+  public boolean isStructureValue() {
     return true;
+  }
+
+  @Override
+  public Map<String, EvaluationValue> getStructureValue() {
+    return value;
   }
 }

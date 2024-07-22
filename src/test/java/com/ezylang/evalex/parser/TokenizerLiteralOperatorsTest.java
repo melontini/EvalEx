@@ -20,6 +20,7 @@ import static com.ezylang.evalex.operators.OperatorIfc.OPERATOR_PRECEDENCE_OR;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.BooleanValue;
 import com.ezylang.evalex.operators.AbstractOperator;
 import com.ezylang.evalex.operators.InfixOperator;
 import com.ezylang.evalex.operators.PostfixOperator;
@@ -67,8 +68,7 @@ class TokenizerLiteralOperatorsTest extends BaseParserTest {
     @Override
     public EvaluationValue evaluate(
         EvaluationContext context, Token operatorToken, EvaluationValue... operands) {
-      return EvaluationValue.booleanValue(
-          operands[0].getBooleanValue() && operands[1].getBooleanValue());
+      return BooleanValue.of(operands[0].getBooleanValue() && operands[1].getBooleanValue());
     }
   }
 
@@ -77,8 +77,7 @@ class TokenizerLiteralOperatorsTest extends BaseParserTest {
     @Override
     public EvaluationValue evaluate(
         EvaluationContext context, Token operatorToken, EvaluationValue... operands) {
-      return EvaluationValue.booleanValue(
-          operands[0].getBooleanValue() || operands[1].getBooleanValue());
+      return BooleanValue.of(operands[0].getBooleanValue() || operands[1].getBooleanValue());
     }
   }
 
@@ -87,7 +86,7 @@ class TokenizerLiteralOperatorsTest extends BaseParserTest {
     @Override
     public EvaluationValue evaluate(
         EvaluationContext context, Token operatorToken, EvaluationValue... operands) {
-      return EvaluationValue.booleanValue(!operands[0].getBooleanValue());
+      return BooleanValue.of(!operands[0].getBooleanValue());
     }
   }
 
@@ -96,7 +95,7 @@ class TokenizerLiteralOperatorsTest extends BaseParserTest {
     @Override
     public EvaluationValue evaluate(
         EvaluationContext context, Token operatorToken, EvaluationValue... operands) {
-      return EvaluationValue.booleanValue(!operands[0].getBooleanValue());
+      return BooleanValue.of(!operands[0].getBooleanValue());
     }
   }
 }

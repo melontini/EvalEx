@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.DurationValue;
 import java.math.BigDecimal;
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,7 @@ class DurationConverterTest {
 
     EvaluationValue converted = converter.convert(duration, defaultConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.DURATION);
+    assertThat(converted).isInstanceOf(DurationValue.class);
     assertThat(converted.getValue()).isEqualTo(duration);
   }
 

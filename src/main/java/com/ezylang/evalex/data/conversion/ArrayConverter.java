@@ -15,10 +15,9 @@
 */
 package com.ezylang.evalex.data.conversion;
 
-import static com.ezylang.evalex.data.EvaluationValue.arrayValue;
-
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.ArrayValue;
 import com.ezylang.evalex.data.util.LazyArrayWrapper;
 import com.ezylang.evalex.data.util.LazyListWrapper;
 import java.util.List;
@@ -27,8 +26,9 @@ import java.util.List;
 public class ArrayConverter implements ConverterIfc {
   @Override
   public EvaluationValue convert(Object object, ExpressionConfiguration configuration) {
-    if (object.getClass().isArray()) return arrayValue(convertArray(object, configuration));
-    if (object instanceof List<?> list) return arrayValue(new LazyListWrapper(list, configuration));
+    if (object.getClass().isArray()) return ArrayValue.of(convertArray(object, configuration));
+    if (object instanceof List<?> list)
+      return ArrayValue.of(new LazyListWrapper(list, configuration));
     throw illegalArgument(object);
   }
 

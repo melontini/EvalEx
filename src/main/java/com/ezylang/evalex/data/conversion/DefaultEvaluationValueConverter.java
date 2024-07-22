@@ -17,6 +17,7 @@ package com.ezylang.evalex.data.conversion;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.NullValue;
 import java.util.Arrays;
 import java.util.List;
 
@@ -69,7 +70,7 @@ public class DefaultEvaluationValueConverter implements EvaluationValueConverter
   @Override
   public EvaluationValue convertObject(Object object, ExpressionConfiguration configuration) {
 
-    if (object == null) return EvaluationValue.NULL_VALUE;
+    if (object == null) return NullValue.of();
 
     if (object instanceof EvaluationValue value) return value;
 
@@ -77,10 +78,6 @@ public class DefaultEvaluationValueConverter implements EvaluationValueConverter
       if (converter.canConvert(object)) {
         return converter.convert(object, configuration);
       }
-    }
-
-    if (configuration.isBinaryAllowed()) {
-      return EvaluationValue.binaryValue(object);
     }
 
     throw new IllegalArgumentException(

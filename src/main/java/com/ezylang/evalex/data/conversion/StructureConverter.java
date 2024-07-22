@@ -17,6 +17,7 @@ package com.ezylang.evalex.data.conversion;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.StructureValue;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public class StructureConverter implements ConverterIfc {
       String name = entry.getKey().toString();
       structure.put(name, EvaluationValue.of(entry.getValue(), configuration));
     }
-    return EvaluationValue.structureValue(structure);
+    return StructureValue.of(structure);
   }
 
   @Override

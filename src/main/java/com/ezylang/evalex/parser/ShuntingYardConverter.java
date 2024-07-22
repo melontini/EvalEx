@@ -18,7 +18,8 @@ package com.ezylang.evalex.parser;
 import static com.ezylang.evalex.parser.Token.TokenType.*;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
-import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.NumberValue;
+import com.ezylang.evalex.data.types.StringValue;
 import com.ezylang.evalex.functions.FunctionIfc;
 import com.ezylang.evalex.operators.OperatorIfc;
 import com.ezylang.evalex.parser.Token.TokenType;
@@ -62,10 +63,9 @@ public class ShuntingYardConverter {
         case NUMBER_LITERAL -> context.operandStack.push(
             new InlinedASTNode(
                 currentToken,
-                EvaluationValue.numberOfString(
-                    currentToken.getValue(), configuration.getMathContext())));
+                NumberValue.ofString(currentToken.getValue(), configuration.getMathContext())));
         case STRING_LITERAL -> context.operandStack.push(
-            new InlinedASTNode(currentToken, EvaluationValue.stringValue(currentToken.getValue())));
+            new InlinedASTNode(currentToken, StringValue.of(currentToken.getValue())));
         case FUNCTION -> context.operatorStack.push(currentToken);
         case COMMA -> processOperatorsFromStackUntilTokenType(BRACE_OPEN, context);
         case INFIX_OPERATOR, PREFIX_OPERATOR, POSTFIX_OPERATOR -> processOperator(

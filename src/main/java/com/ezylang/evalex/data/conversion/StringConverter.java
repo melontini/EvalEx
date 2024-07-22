@@ -15,18 +15,17 @@
 */
 package com.ezylang.evalex.data.conversion;
 
-import static com.ezylang.evalex.data.EvaluationValue.stringValue;
-
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.StringValue;
 
 /** Converter to convert to the STRING data type. */
 public class StringConverter implements ConverterIfc {
 
   @Override
   public EvaluationValue convert(Object object, ExpressionConfiguration configuration) {
-    if (object instanceof CharSequence sequence) return stringValue(sequence.toString());
-    if (object instanceof Character character) return stringValue(character.toString());
+    if (object instanceof CharSequence sequence) return StringValue.of(sequence.toString());
+    if (object instanceof Character character) return StringValue.of(character.toString());
     throw illegalArgument(object);
   }
 

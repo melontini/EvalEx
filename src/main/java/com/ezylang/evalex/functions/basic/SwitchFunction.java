@@ -19,6 +19,7 @@ import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.NullValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
@@ -69,7 +70,7 @@ public class SwitchFunction extends AbstractFunction {
       EvaluationContext context, Token functionToken, EvaluationValue... parameterValues)
       throws EvaluationException {
 
-    EvaluationValue result = EvaluationValue.NULL_VALUE;
+    EvaluationValue result = NullValue.of();
 
     // First get the first parameter
     EvaluationValue value = parameterValues[0];

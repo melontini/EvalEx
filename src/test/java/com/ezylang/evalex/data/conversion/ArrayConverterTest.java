@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.DateTimeValue;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
@@ -66,8 +67,7 @@ class ArrayConverterTest {
   @Test
   void testArrayFromJavaArray() {
     Instant now = Instant.now();
-    Object[] array =
-        new Object[] {"1", 2, new BigDecimal(3), null, EvaluationValue.dateTimeValue(now)};
+    Object[] array = new Object[] {"1", 2, new BigDecimal(3), null, DateTimeValue.of(now)};
 
     EvaluationValue value = converter.convert(array, defaultConfiguration);
 

@@ -25,6 +25,7 @@ import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.config.TestConfigurationProvider;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.BooleanValue;
 import com.ezylang.evalex.parser.ParseException;
 import com.ezylang.evalex.parser.Token;
 import com.ezylang.evalex.parser.Token.TokenType;
@@ -243,17 +244,14 @@ class BasicFunctionsTest extends BaseEvaluationTest {
     Expression expressionMock = Mockito.mock(Expression.class);
     Mockito.when(expressionMock.getConfiguration())
         .thenReturn(ExpressionConfiguration.defaultConfiguration());
-    Mockito.when(expressionMock.convertValue(true)).thenReturn(EvaluationValue.booleanValue(true));
-    Mockito.when(expressionMock.convertValue(false))
-        .thenReturn(EvaluationValue.booleanValue(false));
+    Mockito.when(expressionMock.convertValue(true)).thenReturn(BooleanValue.of(true));
+    Mockito.when(expressionMock.convertValue(false)).thenReturn(BooleanValue.of(false));
     Token token = new Token(1, "NOT", TokenType.FUNCTION, notFunction);
 
     assertThat(
             notFunction
                 .evaluate(
-                    EvaluationContext.builder(expressionMock).build(),
-                    token,
-                    EvaluationValue.booleanValue(true))
+                    EvaluationContext.builder(expressionMock).build(), token, BooleanValue.of(true))
                 .getBooleanValue())
         .isFalse();
     assertThat(
@@ -261,7 +259,7 @@ class BasicFunctionsTest extends BaseEvaluationTest {
                 .evaluate(
                     EvaluationContext.builder(expressionMock).build(),
                     token,
-                    EvaluationValue.booleanValue(false))
+                    BooleanValue.of(false))
                 .getBooleanValue())
         .isTrue();
   }

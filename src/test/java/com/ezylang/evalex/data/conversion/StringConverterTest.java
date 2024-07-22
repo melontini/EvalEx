@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.StringValue;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +35,7 @@ class StringConverterTest {
   void testString() {
     EvaluationValue converted = converter.convert("Hello World!", defaultConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.STRING);
+    assertThat(converted).isInstanceOf(StringValue.class);
     assertThat(converted.getValue()).isEqualTo("Hello World!");
   }
 
@@ -42,7 +43,7 @@ class StringConverterTest {
   void testCharacter() {
     EvaluationValue converted = converter.convert('P', defaultConfiguration);
 
-    assertThat(converted.getDataType()).isEqualTo(EvaluationValue.DataType.STRING);
+    assertThat(converted).isInstanceOf(StringValue.class);
     assertThat(converted.getValue()).isEqualTo("P");
   }
 

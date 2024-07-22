@@ -68,7 +68,7 @@ public class DateTimeFormatFunction extends AbstractFunction {
           token,
           String.format(
               "Unable to format a '%s' type as a date-time",
-              parameterValues[0].getDataType().name()));
+              parameterValues[0].getClass().getSimpleName()));
     }
   }
 }

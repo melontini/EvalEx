@@ -45,7 +45,7 @@ public class EvaluationContext {
         expression.getConfiguration().getParameterMapSupplier().get();
     parameters.putAll(this.parameters);
     parameters.putAll(map);
-    return new EvaluationContext(expression, parameters, context);
+    return new EvaluationContext(expression, Collections.unmodifiableMap(parameters), context);
   }
 
   public static EvaluationContextBuilder builder(Expression expression) {
@@ -55,12 +55,11 @@ public class EvaluationContext {
   public static final class EvaluationContextBuilder {
 
     private final Expression expression;
-    private final Map<String, EvaluationValue> parameters;
+    private Map<String, EvaluationValue> parameters;
     private Object[] context;
 
     private EvaluationContextBuilder(Expression expression) {
       this.expression = expression;
-      this.parameters = expression.getConfiguration().getParameterMapSupplier().get();
     }
 
     public EvaluationContextBuilder parameter(String parameter, Object value) {
@@ -69,6 +68,9 @@ public class EvaluationContext {
           throw new UnsupportedOperationException(
               String.format("Can't set value for constant '%s'", parameter));
       }
+      if (this.parameters == null)
+        this.parameters = expression.getConfiguration().getParameterMapSupplier().get();
+
       this.parameters.put(parameter, expression.convertValue(value));
       return this;
     }
@@ -93,7 +95,11 @@ public class EvaluationContext {
 
     public EvaluationContext build() {
       return new EvaluationContext(
-          this.expression, Collections.unmodifiableMap(this.parameters), this.context);
+          this.expression,
+          this.parameters != null
+              ? Collections.unmodifiableMap(this.parameters)
+              : Collections.emptyMap(),
+          this.context);
     }
   }
 }

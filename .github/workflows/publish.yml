@@ -1,8 +1,7 @@
-name: Release and publish
-on:
-  push:
-    tags:
-      - '*'
+name: Publish
+
+on: [workflow_dispatch]
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -19,11 +18,4 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
       - name: build artifact
-        run: ./gradlew check build publish
-      - name: Create release
-        uses: ncipollo/release-action@v1
-        with:
-          allowUpdates: true
-          generateReleaseNotes: true
-          artifacts: "${{ github.workspace }}/build/libs/*.jar"
-          token: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew check publish

@@ -15,6 +15,8 @@
 */
 package com.ezylang.evalex.data.conversion;
 
+import static com.ezylang.evalex.data.EvaluationValue.stringValue;
+
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
 
@@ -23,13 +25,9 @@ public class StringConverter implements ConverterIfc {
 
   @Override
   public EvaluationValue convert(Object object, ExpressionConfiguration configuration) {
-    if (object instanceof CharSequence sequence) {
-      return EvaluationValue.stringValue(sequence.toString());
-    } else if (object instanceof Character character) {
-      return EvaluationValue.stringValue(character.toString());
-    } else {
-      throw illegalArgument(object);
-    }
+    if (object instanceof CharSequence sequence) return stringValue(sequence.toString());
+    if (object instanceof Character character) return stringValue(character.toString());
+    throw illegalArgument(object);
   }
 
   @Override

@@ -15,6 +15,8 @@
 */
 package com.ezylang.evalex.data.conversion;
 
+import static com.ezylang.evalex.data.EvaluationValue.numberValue;
+
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
 import java.math.BigDecimal;
@@ -25,26 +27,17 @@ public class NumberConverter implements ConverterIfc {
 
   @Override
   public EvaluationValue convert(Object object, ExpressionConfiguration configuration) {
-    if (object instanceof BigDecimal decimal) {
-      return EvaluationValue.numberValue(decimal);
-    } else if (object instanceof BigInteger integer) {
-      return EvaluationValue.numberValue(new BigDecimal(integer, configuration.getMathContext()));
-    } else if (object instanceof Double d) {
-      return EvaluationValue.numberValue(
-          new BigDecimal(Double.toString(d), configuration.getMathContext()));
-    } else if (object instanceof Float f) {
-      return EvaluationValue.numberValue(BigDecimal.valueOf(f));
-    } else if (object instanceof Integer i) {
-      return EvaluationValue.numberValue(BigDecimal.valueOf(i));
-    } else if (object instanceof Long l) {
-      return EvaluationValue.numberValue(BigDecimal.valueOf(l));
-    } else if (object instanceof Short s) {
-      return EvaluationValue.numberValue(BigDecimal.valueOf(s));
-    } else if (object instanceof Byte b) {
-      return EvaluationValue.numberValue(BigDecimal.valueOf(b));
-    } else {
-      throw illegalArgument(object);
-    }
+    if (object instanceof BigDecimal decimal) return numberValue(decimal);
+    if (object instanceof BigInteger integer)
+      return numberValue(new BigDecimal(integer, configuration.getMathContext()));
+    if (object instanceof Double d)
+      return numberValue(new BigDecimal(Double.toString(d), configuration.getMathContext()));
+    if (object instanceof Float f) return numberValue(BigDecimal.valueOf(f));
+    if (object instanceof Integer i) return numberValue(BigDecimal.valueOf(i));
+    if (object instanceof Long l) return numberValue(BigDecimal.valueOf(l));
+    if (object instanceof Short s) return numberValue(BigDecimal.valueOf(s));
+    if (object instanceof Byte b) return numberValue(BigDecimal.valueOf(b));
+    throw illegalArgument(object);
   }
 
   @Override

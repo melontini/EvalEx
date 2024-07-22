@@ -15,6 +15,8 @@
 */
 package com.ezylang.evalex.data.conversion;
 
+import static com.ezylang.evalex.data.EvaluationValue.dateTimeValue;
+
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
 import java.time.*;
@@ -30,25 +32,16 @@ public class DateTimeConverter implements ConverterIfc {
 
   @Override
   public EvaluationValue convert(Object object, ExpressionConfiguration configuration) {
-
-    if (object instanceof Instant instant) {
-      return EvaluationValue.dateTimeValue(instant);
-    } else if (object instanceof ZonedDateTime dateTime) {
-      return EvaluationValue.dateTimeValue(dateTime.toInstant());
-    } else if (object instanceof OffsetDateTime dateTime) {
-      return EvaluationValue.dateTimeValue(dateTime.toInstant());
-    } else if (object instanceof LocalDate localDate) {
-      return EvaluationValue.dateTimeValue(
-          localDate.atStartOfDay().atZone(configuration.getZoneId()).toInstant());
-    } else if (object instanceof LocalDateTime dateTime) {
-      return EvaluationValue.dateTimeValue(dateTime.atZone(configuration.getZoneId()).toInstant());
-    } else if (object instanceof Date date) {
-      return EvaluationValue.dateTimeValue(date.toInstant());
-    } else if (object instanceof Calendar calendar) {
-      return EvaluationValue.dateTimeValue(calendar.toInstant());
-    } else {
-      throw illegalArgument(object);
-    }
+    if (object instanceof Instant instant) return dateTimeValue(instant);
+    if (object instanceof ZonedDateTime dateTime) return dateTimeValue(dateTime.toInstant());
+    if (object instanceof OffsetDateTime dateTime) return dateTimeValue(dateTime.toInstant());
+    if (object instanceof LocalDate localDate)
+      return dateTimeValue(localDate.atStartOfDay().atZone(configuration.getZoneId()).toInstant());
+    if (object instanceof LocalDateTime dateTime)
+      return dateTimeValue(dateTime.atZone(configuration.getZoneId()).toInstant());
+    if (object instanceof Date date) return dateTimeValue(date.toInstant());
+    if (object instanceof Calendar calendar) return dateTimeValue(calendar.toInstant());
+    throw illegalArgument(object);
   }
 
   /**
@@ -62,13 +55,12 @@ public class DateTimeConverter implements ConverterIfc {
    * @return A parsed {@link Instant} if parsing was successful, else <code>null</code>.
    */
   public Instant parseDateTime(String value, ZoneId zoneId, List<DateTimeFormatter> formatters) {
-    for (DateTimeFormatter formatter : formatters) {
+    for (DateTimeFormatter formatter : formatters)
       try {
         return parseToInstant(value, zoneId, formatter);
       } catch (DateTimeException ignored) {
         // ignore
       }
-    }
     return null;
   }
 
@@ -78,9 +70,7 @@ public class DateTimeConverter implements ConverterIfc {
     if (parsedZoneId == null) {
       LocalDate parsedDate = ta.query(TemporalQueries.localDate());
       LocalTime parsedTime = ta.query(TemporalQueries.localTime());
-      if (parsedTime == null) {
-        parsedTime = parsedDate.atStartOfDay().toLocalTime();
-      }
+      if (parsedTime == null) parsedTime = parsedDate.atStartOfDay().toLocalTime();
       ta = ZonedDateTime.of(parsedDate, parsedTime, zoneId);
     }
     return Instant.from(ta);

@@ -1,0 +1,17 @@
+version: 2
+registries:
+  gradle-plugins:
+    url: "https://plugins.gradle.org/m2/"
+    type: maven-repository
+  maven-central:
+    url: "https://repo1.maven.org/maven2/"
+    type: maven-repository
+
+updates:
+  - package-ecosystem: gradle
+    registries:
+      - gradle-plugins
+      - maven-central
+    directory: /
+    schedule:
+      interval: weekly

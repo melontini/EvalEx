@@ -114,8 +114,7 @@ public class ExpressionConfiguration {
   private final Supplier<Map<String, EvaluationValue>> parameterMapSupplier =
       () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-  @Builder.Default
-  private final char[] additionalAllowedIdentifierChars = new char[0];
+  @Builder.Default private final char[] additionalAllowedIdentifierChars = new char[0];
 
   /**
    * Default constants will be added automatically to each expression and can be used in expression

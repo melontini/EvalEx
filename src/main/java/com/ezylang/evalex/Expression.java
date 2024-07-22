@@ -103,28 +103,24 @@ public class Expression {
       return tryRoundValue(((InlinedASTNode) startNode).value()); // All primitives go here.
 
     Token token = startNode.getToken();
-    EvaluationValue result;
-    switch (token.getType()) {
-      case NUMBER_LITERAL -> result =
-          EvaluationValue.numberOfString(token.getValue(), configuration.getMathContext());
-      case STRING_LITERAL -> result = EvaluationValue.stringValue(token.getValue());
-      case VARIABLE_OR_CONSTANT -> {
-        result = getVariableOrConstant(token, context);
-        if (result.isExpressionNode()) {
-          result = evaluateSubtree(result.getExpressionNode(), context);
-        }
-      }
-      case PREFIX_OPERATOR, POSTFIX_OPERATOR -> result =
-          token
+    return tryRoundValue(
+        switch (token.getType()) {
+          case VARIABLE_OR_CONSTANT -> {
+            var result = getVariableOrConstant(token, context);
+            if (result.isExpressionNode()) {
+              yield evaluateSubtree(result.getExpressionNode(), context);
+            }
+            yield result;
+          }
+          case PREFIX_OPERATOR, POSTFIX_OPERATOR -> token
               .getOperatorDefinition()
               .evaluate(context, token, evaluateSubtree(startNode.getParameters().get(0), context));
-      case INFIX_OPERATOR -> result = evaluateInfixOperator(startNode, token, context);
-      case ARRAY_INDEX -> result = evaluateArrayIndex(startNode, context);
-      case STRUCTURE_SEPARATOR -> result = evaluateStructureSeparator(startNode, context);
-      case FUNCTION -> result = evaluateFunction(startNode, token, context);
-      default -> throw new EvaluationException(token, "Unexpected evaluation token: " + token);
-    }
-    return tryRoundValue(result);
+          case INFIX_OPERATOR -> evaluateInfixOperator(startNode, token, context);
+          case ARRAY_INDEX -> evaluateArrayIndex(startNode, context);
+          case STRUCTURE_SEPARATOR -> evaluateStructureSeparator(startNode, context);
+          case FUNCTION -> evaluateFunction(startNode, token, context);
+          default -> throw new EvaluationException(token, "Unexpected evaluation token: " + token);
+        });
   }
 
   public EvaluationValue tryRoundValue(EvaluationValue value) {

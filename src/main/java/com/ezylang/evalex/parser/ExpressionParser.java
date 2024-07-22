@@ -90,18 +90,17 @@ public final class ExpressionParser {
       return node;
     }
 
-    List<ASTNode> rawParameters = new ArrayList<>();
+    List<ASTNode> parameters = new ArrayList<>();
     for (ASTNode astNode : node.getParameters()) {
       ASTNode inlineASTNode = inlineASTNode(owner, astNode);
-      rawParameters.add(inlineASTNode);
+      parameters.add(inlineASTNode);
     }
-    boolean allMatch = rawParameters.stream().allMatch(node1 -> node1 instanceof InlinedASTNode);
+    boolean allMatch = parameters.stream().allMatch(node1 -> node1 instanceof InlinedASTNode);
 
     switch (token.getType()) {
       case POSTFIX_OPERATOR, PREFIX_OPERATOR, INFIX_OPERATOR -> {
         var operator = token.getOperatorDefinition();
         if (!allMatch && !operator.forceInline()) return node;
-        List<InlinedASTNode> parameters = (List<InlinedASTNode>) (Object) rawParameters;
         var result = operator.inlineOperator(owner, token, parameters);
         if (result != null)
           return new InlinedASTNode(
@@ -109,7 +108,6 @@ public final class ExpressionParser {
       }
       case FUNCTION -> {
         var function = token.getFunctionDefinition();
-        List<InlinedASTNode> parameters = (List<InlinedASTNode>) (Object) rawParameters;
         if (!allMatch && !function.forceInline()) return node;
         var result = function.inlineFunction(owner, token, parameters);
         if (result != null)

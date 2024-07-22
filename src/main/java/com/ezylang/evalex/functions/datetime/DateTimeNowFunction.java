@@ -19,7 +19,7 @@ import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
-import com.ezylang.evalex.parser.InlinedASTNode;
+import com.ezylang.evalex.parser.ASTNode;
 import com.ezylang.evalex.parser.Token;
 import java.time.Instant;
 import java.util.List;
@@ -49,7 +49,7 @@ public class DateTimeNowFunction extends AbstractFunction {
 
   @Override
   public @Nullable EvaluationValue inlineFunction(
-      Expression expression, Token token, List<InlinedASTNode> parameters) {
+      Expression expression, Token token, List<ASTNode> parameters) {
     return null;
   }
 }

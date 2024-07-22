@@ -550,9 +550,14 @@ public class Tokenizer {
   }
 
   private boolean isAtIdentifierChar(Context context) {
-    return Character.isLetter(context.currentChar)
+    if (Character.isLetter(context.currentChar)
         || Character.isDigit(context.currentChar)
-        || context.currentChar == '_';
+        || context.currentChar == '_') return true;
+
+    for (char character : configuration.getAdditionalAllowedIdentifierChars()) {
+      if (character == context.currentChar) return true;
+    }
+    return false;
   }
 
   private boolean isAtStringLiteralStart(Context context) {

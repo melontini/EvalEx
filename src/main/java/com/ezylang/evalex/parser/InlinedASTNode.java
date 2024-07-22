@@ -20,15 +20,17 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 
 @Getter
+@Accessors(fluent = true)
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class InlinedASTNode extends ASTNode {
+public final class InlinedASTNode extends ASTNode {
 
-  EvaluationValue value;
+  private final EvaluationValue value;
 
   public InlinedASTNode(Token token, EvaluationValue value, ASTNode... parameters) {
     super(token, parameters);

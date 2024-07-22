@@ -100,45 +100,29 @@ public class Expression {
   public EvaluationValue evaluateSubtree(ASTNode startNode, EvaluationContext context)
       throws EvaluationException {
     if (startNode instanceof InlinedASTNode)
-      return tryRoundValue(((InlinedASTNode) startNode).getValue()); // All primitives go here.
+      return tryRoundValue(((InlinedASTNode) startNode).value()); // All primitives go here.
 
     Token token = startNode.getToken();
     EvaluationValue result;
     switch (token.getType()) {
-      case NUMBER_LITERAL:
-        result = EvaluationValue.numberOfString(token.getValue(), configuration.getMathContext());
-        break;
-      case STRING_LITERAL:
-        result = EvaluationValue.stringValue(token.getValue());
-        break;
-      case VARIABLE_OR_CONSTANT:
+      case NUMBER_LITERAL -> result =
+          EvaluationValue.numberOfString(token.getValue(), configuration.getMathContext());
+      case STRING_LITERAL -> result = EvaluationValue.stringValue(token.getValue());
+      case VARIABLE_OR_CONSTANT -> {
         result = getVariableOrConstant(token, context);
         if (result.isExpressionNode()) {
           result = evaluateSubtree(result.getExpressionNode(), context);
         }
-        break;
-      case PREFIX_OPERATOR:
-      case POSTFIX_OPERATOR:
-        result =
-            token
-                .getOperatorDefinition()
-                .evaluate(
-                    context, token, evaluateSubtree(startNode.getParameters().get(0), context));
-        break;
-      case INFIX_OPERATOR:
-        result = evaluateInfixOperator(startNode, token, context);
-        break;
-      case ARRAY_INDEX:
-        result = evaluateArrayIndex(startNode, context);
-        break;
-      case STRUCTURE_SEPARATOR:
-        result = evaluateStructureSeparator(startNode, context);
-        break;
-      case FUNCTION:
-        result = evaluateFunction(startNode, token, context);
-        break;
-      default:
-        throw new EvaluationException(token, "Unexpected evaluation token: " + token);
+      }
+      case PREFIX_OPERATOR, POSTFIX_OPERATOR -> result =
+          token
+              .getOperatorDefinition()
+              .evaluate(context, token, evaluateSubtree(startNode.getParameters().get(0), context));
+      case INFIX_OPERATOR -> result = evaluateInfixOperator(startNode, token, context);
+      case ARRAY_INDEX -> result = evaluateArrayIndex(startNode, context);
+      case STRUCTURE_SEPARATOR -> result = evaluateStructureSeparator(startNode, context);
+      case FUNCTION -> result = evaluateFunction(startNode, token, context);
+      default -> throw new EvaluationException(token, "Unexpected evaluation token: " + token);
     }
     return tryRoundValue(result);
   }

@@ -69,13 +69,9 @@ public class DefaultEvaluationValueConverter implements EvaluationValueConverter
   @Override
   public EvaluationValue convertObject(Object object, ExpressionConfiguration configuration) {
 
-    if (object == null) {
-      return EvaluationValue.NULL_VALUE;
-    }
+    if (object == null) return EvaluationValue.NULL_VALUE;
 
-    if (object instanceof EvaluationValue) {
-      return (EvaluationValue) object;
-    }
+    if (object instanceof EvaluationValue value) return value;
 
     for (ConverterIfc converter : converters) {
       if (converter.canConvert(object)) {

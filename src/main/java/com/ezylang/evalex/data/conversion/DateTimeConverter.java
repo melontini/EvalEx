@@ -31,26 +31,24 @@ public class DateTimeConverter implements ConverterIfc {
   @Override
   public EvaluationValue convert(Object object, ExpressionConfiguration configuration) {
 
-    Instant instant;
-
-    if (object instanceof Instant) {
-      instant = (Instant) object;
-    } else if (object instanceof ZonedDateTime) {
-      instant = ((ZonedDateTime) object).toInstant();
-    } else if (object instanceof OffsetDateTime) {
-      instant = ((OffsetDateTime) object).toInstant();
-    } else if (object instanceof LocalDate) {
-      instant = ((LocalDate) object).atStartOfDay().atZone(configuration.getZoneId()).toInstant();
-    } else if (object instanceof LocalDateTime) {
-      instant = ((LocalDateTime) object).atZone(configuration.getZoneId()).toInstant();
-    } else if (object instanceof Date) {
-      instant = ((Date) object).toInstant();
-    } else if (object instanceof Calendar) {
-      instant = ((Calendar) object).toInstant();
+    if (object instanceof Instant instant) {
+      return EvaluationValue.dateTimeValue(instant);
+    } else if (object instanceof ZonedDateTime dateTime) {
+      return EvaluationValue.dateTimeValue(dateTime.toInstant());
+    } else if (object instanceof OffsetDateTime dateTime) {
+      return EvaluationValue.dateTimeValue(dateTime.toInstant());
+    } else if (object instanceof LocalDate localDate) {
+      return EvaluationValue.dateTimeValue(
+          localDate.atStartOfDay().atZone(configuration.getZoneId()).toInstant());
+    } else if (object instanceof LocalDateTime dateTime) {
+      return EvaluationValue.dateTimeValue(dateTime.atZone(configuration.getZoneId()).toInstant());
+    } else if (object instanceof Date date) {
+      return EvaluationValue.dateTimeValue(date.toInstant());
+    } else if (object instanceof Calendar calendar) {
+      return EvaluationValue.dateTimeValue(calendar.toInstant());
     } else {
       throw illegalArgument(object);
     }
-    return EvaluationValue.dateTimeValue(instant);
   }
 
   /**

@@ -25,29 +25,26 @@ public class NumberConverter implements ConverterIfc {
 
   @Override
   public EvaluationValue convert(Object object, ExpressionConfiguration configuration) {
-    BigDecimal bigDecimal;
-
-    if (object instanceof BigDecimal) {
-      bigDecimal = (BigDecimal) object;
-    } else if (object instanceof BigInteger) {
-      bigDecimal = new BigDecimal((BigInteger) object, configuration.getMathContext());
-    } else if (object instanceof Double) {
-      bigDecimal = new BigDecimal(Double.toString((double) object), configuration.getMathContext());
-    } else if (object instanceof Float) {
-      bigDecimal = BigDecimal.valueOf((float) object);
-    } else if (object instanceof Integer) {
-      bigDecimal = BigDecimal.valueOf((int) object);
-    } else if (object instanceof Long) {
-      bigDecimal = BigDecimal.valueOf((long) object);
-    } else if (object instanceof Short) {
-      bigDecimal = BigDecimal.valueOf((short) object);
-    } else if (object instanceof Byte) {
-      bigDecimal = BigDecimal.valueOf((byte) object);
+    if (object instanceof BigDecimal decimal) {
+      return EvaluationValue.numberValue(decimal);
+    } else if (object instanceof BigInteger integer) {
+      return EvaluationValue.numberValue(new BigDecimal(integer, configuration.getMathContext()));
+    } else if (object instanceof Double d) {
+      return EvaluationValue.numberValue(
+          new BigDecimal(Double.toString(d), configuration.getMathContext()));
+    } else if (object instanceof Float f) {
+      return EvaluationValue.numberValue(BigDecimal.valueOf(f));
+    } else if (object instanceof Integer i) {
+      return EvaluationValue.numberValue(BigDecimal.valueOf(i));
+    } else if (object instanceof Long l) {
+      return EvaluationValue.numberValue(BigDecimal.valueOf(l));
+    } else if (object instanceof Short s) {
+      return EvaluationValue.numberValue(BigDecimal.valueOf(s));
+    } else if (object instanceof Byte b) {
+      return EvaluationValue.numberValue(BigDecimal.valueOf(b));
     } else {
       throw illegalArgument(object);
     }
-
-    return EvaluationValue.numberValue(bigDecimal);
   }
 
   @Override

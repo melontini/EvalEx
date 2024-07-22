@@ -16,24 +16,19 @@
 package com.ezylang.evalex;
 
 import com.ezylang.evalex.data.EvaluationValue;
+import com.github.bsideup.jabel.Desugar;
+import java.util.Collections;
 import java.util.Map;
-import lombok.Value;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.Nullable;
 
-@Value
+@Desugar
 @Accessors(fluent = true)
-public class EvaluationContext {
-  Expression expression;
-  Map<String, EvaluationValue> parameters;
-  Object @Nullable [] context;
+public record EvaluationContext(
+    Expression expression, Map<String, EvaluationValue> parameters, Object @Nullable [] context) {
 
   public EvaluationContext withParameter(String parameter, EvaluationValue value) {
-    Map<String, EvaluationValue> parameters =
-        expression.getConfiguration().getParameterMapSupplier().get();
-    parameters.putAll(this.parameters);
-    parameters.put(parameter, value);
-    return new EvaluationContext(expression, parameters, context);
+    return this.withParameters(Collections.singletonMap(parameter, value));
   }
 
   public EvaluationContext withParameters(Map<String, EvaluationValue> map) {
@@ -88,7 +83,8 @@ public class EvaluationContext {
     }
 
     public EvaluationContext build() {
-      return new EvaluationContext(this.expression, this.parameters, this.context);
+      return new EvaluationContext(
+          this.expression, Collections.unmodifiableMap(this.parameters), this.context);
     }
   }
 }

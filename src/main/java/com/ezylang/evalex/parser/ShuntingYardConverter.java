@@ -58,50 +58,25 @@ public class ShuntingYardConverter {
     Token previousToken = null;
     for (Token currentToken : expressionTokens) {
       switch (currentToken.getType()) {
-        case VARIABLE_OR_CONSTANT:
-          context.operandStack.push(new ASTNode(currentToken));
-          break;
-        case NUMBER_LITERAL:
-          context.operandStack.push(
-              new InlinedASTNode(
-                  currentToken,
-                  EvaluationValue.numberOfString(
-                      currentToken.getValue(), configuration.getMathContext())));
-          break;
-        case STRING_LITERAL:
-          context.operandStack.push(
-              new InlinedASTNode(
-                  currentToken, EvaluationValue.stringValue(currentToken.getValue())));
-          break;
-        case FUNCTION:
-          context.operatorStack.push(currentToken);
-          break;
-        case COMMA:
-          processOperatorsFromStackUntilTokenType(BRACE_OPEN, context);
-          break;
-        case INFIX_OPERATOR:
-        case PREFIX_OPERATOR:
-        case POSTFIX_OPERATOR:
-          processOperator(currentToken, context);
-          break;
-        case BRACE_OPEN:
-          processBraceOpen(previousToken, currentToken, context);
-          break;
-        case BRACE_CLOSE:
-          processBraceClose(context);
-          break;
-        case ARRAY_OPEN:
-          processArrayOpen(currentToken, context);
-          break;
-        case ARRAY_CLOSE:
-          processArrayClose(context);
-          break;
-        case STRUCTURE_SEPARATOR:
-          processStructureSeparator(currentToken, context);
-          break;
-        default:
-          throw new ParseException(
-              currentToken, "Unexpected token of type '" + currentToken.getType() + "'");
+        case VARIABLE_OR_CONSTANT -> context.operandStack.push(new ASTNode(currentToken));
+        case NUMBER_LITERAL -> context.operandStack.push(
+            new InlinedASTNode(
+                currentToken,
+                EvaluationValue.numberOfString(
+                    currentToken.getValue(), configuration.getMathContext())));
+        case STRING_LITERAL -> context.operandStack.push(
+            new InlinedASTNode(currentToken, EvaluationValue.stringValue(currentToken.getValue())));
+        case FUNCTION -> context.operatorStack.push(currentToken);
+        case COMMA -> processOperatorsFromStackUntilTokenType(BRACE_OPEN, context);
+        case INFIX_OPERATOR, PREFIX_OPERATOR, POSTFIX_OPERATOR -> processOperator(
+            currentToken, context);
+        case BRACE_OPEN -> processBraceOpen(previousToken, currentToken, context);
+        case BRACE_CLOSE -> processBraceClose(context);
+        case ARRAY_OPEN -> processArrayOpen(currentToken, context);
+        case ARRAY_CLOSE -> processArrayClose(context);
+        case STRUCTURE_SEPARATOR -> processStructureSeparator(currentToken, context);
+        default -> throw new ParseException(
+            currentToken, "Unexpected token of type '" + currentToken.getType() + "'");
       }
       previousToken = currentToken;
     }
@@ -283,14 +258,9 @@ public class ShuntingYardConverter {
       return false;
     }
     TokenType tokenType = token.getType();
-    switch (tokenType) {
-      case INFIX_OPERATOR:
-      case PREFIX_OPERATOR:
-      case POSTFIX_OPERATOR:
-      case STRUCTURE_SEPARATOR:
-        return true;
-      default:
-        return false;
-    }
+    return switch (tokenType) {
+      case INFIX_OPERATOR, PREFIX_OPERATOR, POSTFIX_OPERATOR, STRUCTURE_SEPARATOR -> true;
+      default -> false;
+    };
   }
 }

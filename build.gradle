@@ -14,7 +14,6 @@ def local = !System.getenv().containsKey("GITHUB_RUN_NUMBER")
 group = 'me.melontini'
 version = "${project.version}-${local ? 'local' : "build.${System.getenv("GITHUB_RUN_NUMBER")}"}"
 description = 'EvalEx'
-java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenCentral()
@@ -22,11 +21,32 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains:annotations:24.1.0"
+    annotationProcessor libs.jabel
+    compileOnly libs.jabel
 
     testImplementation platform(libs.junit.bom)
     testImplementation libs.junit.jupiter
     testImplementation libs.assertj.core
     testImplementation libs.mockito.core
+}
+
+configure([tasks.compileJava]) {
+    sourceCompatibility = 16
+    options.release = 11
+
+    javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+compileTestJava {
+    sourceCompatibility = targetCompatibility = 11
+}
+
+test {
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
 }
 
 test {
@@ -47,7 +67,7 @@ sourcesJar {
 spotless {
     java {
         removeUnusedImports()
-        googleJavaFormat("1.15.0").style("GOOGLE").reflowLongStrings()
+        googleJavaFormat("1.17.0").style("GOOGLE").reflowLongStrings()
         licenseHeaderFile("spotless/header.txt")
     }
 }

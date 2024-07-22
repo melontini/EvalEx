@@ -100,7 +100,7 @@ public interface FunctionIfc {
       Expression expression, Token token, List<InlinedASTNode> parameters)
       throws EvaluationException {
     EvaluationValue[] parsed =
-        parameters.stream().map(InlinedASTNode::getValue).toArray(EvaluationValue[]::new);
+        parameters.stream().map(InlinedASTNode::value).toArray(EvaluationValue[]::new);
     this.validatePreEvaluation(token, parsed);
     return this.evaluate(EvaluationContext.builder(expression).build(), token, parsed);
   }

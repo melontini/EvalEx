@@ -121,14 +121,10 @@ public class Tokenizer {
   }
 
   private boolean invalidTokenAfterInfixOperator(Token token) {
-    switch (token.getType()) {
-      case INFIX_OPERATOR:
-      case BRACE_CLOSE:
-      case COMMA:
-        return true;
-      default:
-        return false;
-    }
+    return switch (token.getType()) {
+      case INFIX_OPERATOR, BRACE_CLOSE, COMMA -> true;
+      default -> false;
+    };
   }
 
   private Token getNextToken(Context context) throws ParseException {
@@ -269,15 +265,10 @@ public class Tokenizer {
       return true;
     }
 
-    switch (previousToken.getType()) {
-      case BRACE_CLOSE:
-      case VARIABLE_OR_CONSTANT:
-      case ARRAY_CLOSE:
-      case STRING_LITERAL:
-        return false;
-      default:
-        return true;
-    }
+    return switch (previousToken.getType()) {
+      case BRACE_CLOSE, VARIABLE_OR_CONSTANT, ARRAY_CLOSE, STRING_LITERAL -> false;
+      default -> true;
+    };
   }
 
   private boolean arrayCloseAllowed(Context context) {
@@ -287,17 +278,10 @@ public class Tokenizer {
       return false;
     }
 
-    switch (previousToken.getType()) {
-      case BRACE_OPEN:
-      case INFIX_OPERATOR:
-      case PREFIX_OPERATOR:
-      case FUNCTION:
-      case COMMA:
-      case ARRAY_OPEN:
-        return false;
-      default:
-        return true;
-    }
+    return switch (previousToken.getType()) {
+      case BRACE_OPEN, INFIX_OPERATOR, PREFIX_OPERATOR, FUNCTION, COMMA, ARRAY_OPEN -> false;
+      default -> true;
+    };
   }
 
   private boolean prefixOperatorAllowed(Context context) {
@@ -307,16 +291,10 @@ public class Tokenizer {
       return true;
     }
 
-    switch (previousToken.getType()) {
-      case BRACE_OPEN:
-      case INFIX_OPERATOR:
-      case COMMA:
-      case PREFIX_OPERATOR:
-      case ARRAY_OPEN:
-        return true;
-      default:
-        return false;
-    }
+    return switch (previousToken.getType()) {
+      case BRACE_OPEN, INFIX_OPERATOR, COMMA, PREFIX_OPERATOR, ARRAY_OPEN -> true;
+      default -> false;
+    };
   }
 
   private boolean postfixOperatorAllowed(Context context) {
@@ -326,15 +304,10 @@ public class Tokenizer {
       return false;
     }
 
-    switch (previousToken.getType()) {
-      case BRACE_CLOSE:
-      case NUMBER_LITERAL:
-      case VARIABLE_OR_CONSTANT:
-      case STRING_LITERAL:
-        return true;
-      default:
-        return false;
-    }
+    return switch (previousToken.getType()) {
+      case BRACE_CLOSE, NUMBER_LITERAL, VARIABLE_OR_CONSTANT, STRING_LITERAL -> true;
+      default -> false;
+    };
   }
 
   private boolean infixOperatorAllowed(Context context) {
@@ -344,17 +317,15 @@ public class Tokenizer {
       return false;
     }
 
-    switch (previousToken.getType()) {
-      case BRACE_CLOSE:
-      case VARIABLE_OR_CONSTANT:
-      case STRING_LITERAL:
-      case POSTFIX_OPERATOR:
-      case NUMBER_LITERAL:
-      case ARRAY_CLOSE:
-        return true;
-      default:
-        return false;
-    }
+    return switch (previousToken.getType()) {
+      case BRACE_CLOSE,
+          VARIABLE_OR_CONSTANT,
+          STRING_LITERAL,
+          POSTFIX_OPERATOR,
+          NUMBER_LITERAL,
+          ARRAY_CLOSE -> true;
+      default -> false;
+    };
   }
 
   private Token parseNumberLiteral(Context context) throws ParseException {
@@ -493,27 +464,18 @@ public class Tokenizer {
   }
 
   private char escapeCharacter(int character, Context context) throws ParseException {
-    switch (character) {
-      case '\'':
-        return '\'';
-      case '"':
-        return '"';
-      case '\\':
-        return '\\';
-      case 'n':
-        return '\n';
-      case 'r':
-        return '\r';
-      case 't':
-        return '\t';
-      case 'b':
-        return '\b';
-      case 'f':
-        return '\f';
-      default:
-        throw new ParseException(
-            context.currentColumnIndex, 1, "\\" + (char) character, "Unknown escape character");
-    }
+    return switch (character) {
+      case '\'' -> '\'';
+      case '"' -> '"';
+      case '\\' -> '\\';
+      case 'n' -> '\n';
+      case 'r' -> '\r';
+      case 't' -> '\t';
+      case 'b' -> '\b';
+      case 'f' -> '\f';
+      default -> throw new ParseException(
+          context.currentColumnIndex, 1, "\\" + (char) character, "Unknown escape character");
+    };
   }
 
   private boolean isAtNumberStart(Context context) {
@@ -556,33 +518,31 @@ public class Tokenizer {
   }
 
   private boolean isAtHexChar(Context context) {
-    switch (context.currentChar) {
-      case '0':
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-      case '6':
-      case '7':
-      case '8':
-      case '9':
-      case 'a':
-      case 'b':
-      case 'c':
-      case 'd':
-      case 'e':
-      case 'f':
-      case 'A':
-      case 'B':
-      case 'C':
-      case 'D':
-      case 'E':
-      case 'F':
-        return true;
-      default:
-        return false;
-    }
+    return switch (context.currentChar) {
+      case '0',
+          '1',
+          '2',
+          '3',
+          '4',
+          '5',
+          '6',
+          '7',
+          '8',
+          '9',
+          'a',
+          'b',
+          'c',
+          'd',
+          'e',
+          'f',
+          'A',
+          'B',
+          'C',
+          'D',
+          'E',
+          'F' -> true;
+      default -> false;
+    };
   }
 
   private boolean isAtIdentifierStart(Context context) {

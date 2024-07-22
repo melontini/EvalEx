@@ -28,7 +28,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-public class ExpressionParser {
+public final class ExpressionParser {
 
   private final ExpressionConfiguration configuration;
   private final Tokenizer tokenizer;

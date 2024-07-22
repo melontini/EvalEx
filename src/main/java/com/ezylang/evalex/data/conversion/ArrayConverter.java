@@ -25,17 +25,13 @@ import java.util.stream.Collectors;
 public class ArrayConverter implements ConverterIfc {
   @Override
   public EvaluationValue convert(Object object, ExpressionConfiguration configuration) {
-    List<EvaluationValue> list;
-
     if (object.getClass().isArray()) {
-      list = convertArray(object, configuration);
-    } else if (object instanceof List) {
-      list = convertList((List<?>) object, configuration);
-    } else {
-      throw illegalArgument(object);
+      return EvaluationValue.arrayValue(convertArray(object, configuration));
     }
-
-    return EvaluationValue.arrayValue(list);
+    if (object instanceof List<?> list) {
+      return EvaluationValue.arrayValue(convertList(list, configuration));
+    }
+    throw illegalArgument(object);
   }
 
   @Override
@@ -51,22 +47,22 @@ public class ArrayConverter implements ConverterIfc {
   }
 
   private List<EvaluationValue> convertArray(Object array, ExpressionConfiguration configuration) {
-    if (array instanceof int[]) {
-      return convertIntArray((int[]) array, configuration);
-    } else if (array instanceof long[]) {
-      return convertLongArray((long[]) array, configuration);
-    } else if (array instanceof double[]) {
-      return convertDoubleArray((double[]) array, configuration);
-    } else if (array instanceof float[]) {
-      return convertFloatArray((float[]) array, configuration);
-    } else if (array instanceof short[]) {
-      return convertShortArray((short[]) array, configuration);
-    } else if (array instanceof char[]) {
-      return convertCharArray((char[]) array, configuration);
-    } else if (array instanceof byte[]) {
-      return convertByteArray((byte[]) array, configuration);
-    } else if (array instanceof boolean[]) {
-      return convertBooleanArray((boolean[]) array, configuration);
+    if (array instanceof int[] arr) {
+      return convertIntArray(arr, configuration);
+    } else if (array instanceof long[] arr) {
+      return convertLongArray(arr, configuration);
+    } else if (array instanceof double[] arr) {
+      return convertDoubleArray(arr, configuration);
+    } else if (array instanceof float[] arr) {
+      return convertFloatArray(arr, configuration);
+    } else if (array instanceof short[] arr) {
+      return convertShortArray(arr, configuration);
+    } else if (array instanceof char[] arr) {
+      return convertCharArray(arr, configuration);
+    } else if (array instanceof byte[] arr) {
+      return convertByteArray(arr, configuration);
+    } else if (array instanceof boolean[] arr) {
+      return convertBooleanArray(arr, configuration);
     } else {
       return convertObjectArray((Object[]) array, configuration);
     }

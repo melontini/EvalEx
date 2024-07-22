@@ -142,11 +142,11 @@ public interface OperatorIfc {
       Expression expression, Token token, List<InlinedASTNode> parameters)
       throws EvaluationException {
     if (isPostfix() || isPrefix()) {
-      EvaluationValue operand = parameters.get(0).getValue();
+      EvaluationValue operand = parameters.get(0).value();
       return this.evaluate(EvaluationContext.builder(expression).build(), token, operand);
     } else {
-      EvaluationValue left = parameters.get(0).getValue();
-      EvaluationValue right = parameters.get(1).getValue();
+      EvaluationValue left = parameters.get(0).value();
+      EvaluationValue right = parameters.get(1).value();
       return this.evaluate(EvaluationContext.builder(expression).build(), token, left, right);
     }
   }

@@ -23,17 +23,13 @@ public class StringConverter implements ConverterIfc {
 
   @Override
   public EvaluationValue convert(Object object, ExpressionConfiguration configuration) {
-    String string;
-
-    if (object instanceof CharSequence) {
-      string = ((CharSequence) object).toString();
-    } else if (object instanceof Character) {
-      string = ((Character) object).toString();
+    if (object instanceof CharSequence sequence) {
+      return EvaluationValue.stringValue(sequence.toString());
+    } else if (object instanceof Character character) {
+      return EvaluationValue.stringValue(character.toString());
     } else {
       throw illegalArgument(object);
     }
-
-    return EvaluationValue.stringValue(string);
   }
 
   @Override

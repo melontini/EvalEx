@@ -134,6 +134,10 @@ public interface OperatorIfc {
       EvaluationContext context, Token operatorToken, EvaluationValue... operands)
       throws EvaluationException;
 
+  default boolean forceInline() {
+    return false;
+  }
+
   default @Nullable EvaluationValue inlineOperator(
       Expression expression, Token token, List<InlinedASTNode> parameters)
       throws EvaluationException {

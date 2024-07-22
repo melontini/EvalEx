@@ -73,53 +73,49 @@ public class ExpressionParser {
    */
   public @NotNull ASTNode inlineASTNode(Expression owner, ASTNode node) throws EvaluationException {
     if (node instanceof InlinedASTNode) return node;
+    var token = node.getToken();
 
     if (node.getParameters().isEmpty()) {
-      if (node.getToken().getType() == Token.TokenType.VARIABLE_OR_CONSTANT) {
+      if (token.getType() == Token.TokenType.VARIABLE_OR_CONSTANT) {
         if (!owner.getConfiguration().isAllowOverwriteConstants()) {
-          EvaluationValue constant =
-              owner.getConfiguration().getConstants().get(node.getToken().getValue());
-          if (constant != null)
-            return new InlinedASTNode(node.getToken(), owner.tryRoundValue(constant));
+          EvaluationValue constant = owner.getConfiguration().getConstants().get(token.getValue());
+          if (constant != null) return new InlinedASTNode(token, owner.tryRoundValue(constant));
         }
-      } else if (node.getToken().getType() == Token.TokenType.FUNCTION) {
+      } else if (token.getType() == Token.TokenType.FUNCTION
+          && token.getFunctionDefinition().forceInline()) {
         EvaluationValue function =
-            node.getToken()
-                .getFunctionDefinition()
-                .inlineFunction(owner, node.getToken(), Collections.emptyList());
-        if (function != null)
-          return new InlinedASTNode(node.getToken(), owner.tryRoundValue(function));
+            token.getFunctionDefinition().inlineFunction(owner, token, Collections.emptyList());
+        if (function != null) return new InlinedASTNode(token, owner.tryRoundValue(function));
       }
       return node;
     }
 
-    List<ASTNode> result = new ArrayList<>();
+    List<ASTNode> rawParameters = new ArrayList<>();
     for (ASTNode astNode : node.getParameters()) {
       ASTNode inlineASTNode = inlineASTNode(owner, astNode);
-      result.add(inlineASTNode);
+      rawParameters.add(inlineASTNode);
     }
-    if (!result.stream().allMatch(node1 -> node1 instanceof InlinedASTNode)) return node;
-    List<InlinedASTNode> parameters = (List<InlinedASTNode>) (Object) result;
+    boolean allMatch = rawParameters.stream().allMatch(node1 -> node1 instanceof InlinedASTNode);
 
-    switch (node.getToken().getType()) {
-      case POSTFIX_OPERATOR:
-      case PREFIX_OPERATOR:
-      case INFIX_OPERATOR:
-        EvaluationValue operator =
-            node.getToken()
-                .getOperatorDefinition()
-                .inlineOperator(owner, node.getToken(), parameters);
-        if (operator != null)
+    switch (token.getType()) {
+      case POSTFIX_OPERATOR, PREFIX_OPERATOR, INFIX_OPERATOR -> {
+        var operator = token.getOperatorDefinition();
+        if (!allMatch && !operator.forceInline()) return node;
+        List<InlinedASTNode> parameters = (List<InlinedASTNode>) (Object) rawParameters;
+        var result = operator.inlineOperator(owner, token, parameters);
+        if (result != null)
           return new InlinedASTNode(
-              node.getToken(), owner.tryRoundValue(operator), parameters.toArray(ASTNode[]::new));
-      case FUNCTION:
-        EvaluationValue function =
-            node.getToken()
-                .getFunctionDefinition()
-                .inlineFunction(owner, node.getToken(), parameters);
-        if (function != null)
+              token, owner.tryRoundValue(result), parameters.toArray(ASTNode[]::new));
+      }
+      case FUNCTION -> {
+        var function = token.getFunctionDefinition();
+        List<InlinedASTNode> parameters = (List<InlinedASTNode>) (Object) rawParameters;
+        if (!allMatch && !function.forceInline()) return node;
+        var result = function.inlineFunction(owner, token, parameters);
+        if (result != null)
           return new InlinedASTNode(
-              node.getToken(), owner.tryRoundValue(function), parameters.toArray(ASTNode[]::new));
+              token, owner.tryRoundValue(result), parameters.toArray(ASTNode[]::new));
+      }
     }
     return node;
   }

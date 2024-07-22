@@ -92,6 +92,10 @@ public interface FunctionIfc {
     return hasVarArgs() ? numOfParameters - 1 : numOfParameters;
   }
 
+  default boolean forceInline() {
+    return false;
+  }
+
   default @Nullable EvaluationValue inlineFunction(
       Expression expression, Token token, List<InlinedASTNode> parameters)
       throws EvaluationException {

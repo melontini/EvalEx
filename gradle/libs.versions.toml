@@ -5,7 +5,7 @@
 
 [libraries]
 junit-bom = { module = "org.junit:junit-bom", version = "5.10.0" }
-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version = "5.10.0" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version = "5.10.3" }
 assertj-core = { module = "org.assertj:assertj-core", version = "3.23.1" }
 mockito-core = { module = "org.mockito:mockito-core", version = "4.8.0" }
 jabel = { module = "com.pkware.jabel:jabel-javac-plugin", version = "1.0.1-1" }

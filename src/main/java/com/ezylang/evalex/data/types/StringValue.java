@@ -45,7 +45,14 @@ public final class StringValue extends EvaluationValue {
 
   @Override
   public BigDecimal getNumberValue() {
-    return Boolean.parseBoolean(value) ? BigDecimal.ONE : BigDecimal.ZERO;
+    if ("true".equalsIgnoreCase(value)) return BigDecimal.ONE;
+    if ("false".equalsIgnoreCase(value)) return BigDecimal.ZERO;
+
+    try {
+      return new BigDecimal(value);
+    } catch (NumberFormatException e) {
+      return BigDecimal.ZERO;
+    }
   }
 
   @Override

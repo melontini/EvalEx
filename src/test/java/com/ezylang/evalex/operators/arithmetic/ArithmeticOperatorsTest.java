@@ -39,7 +39,6 @@ class ArithmeticOperatorsTest extends BaseEvaluationTest {
         "3%\"string\"",
         "\"string\"%3",
         "3*\"string\"",
-        "\"string\"*3",
         "3^\"string\"",
         "\"string\"^3",
         "-\"string\"",

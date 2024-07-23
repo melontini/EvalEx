@@ -17,9 +17,11 @@ package com.ezylang.evalex.functions.datetime;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.NumberValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
+import java.math.BigDecimal;
 
 /** Function to convert a DATE_TIME value to milliseconds in the epoch of 1970-01-01T00:00:00Z. */
 @FunctionParameter(name = "value")
@@ -27,6 +29,6 @@ public class DateTimeToEpochFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
       EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
-    return context.expression().convertValue(parameterValues[0].getDateTimeValue().toEpochMilli());
+    return NumberValue.of(BigDecimal.valueOf(parameterValues[0].getDateTimeValue().toEpochMilli()));
   }
 }

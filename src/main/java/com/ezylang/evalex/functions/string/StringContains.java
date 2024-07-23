@@ -17,6 +17,7 @@ package com.ezylang.evalex.functions.string;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.BooleanValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
@@ -30,8 +31,6 @@ public class StringContains extends AbstractFunction {
       EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
     String string = parameterValues[0].getStringValue();
     String substring = parameterValues[1].getStringValue();
-    return context
-        .expression()
-        .convertValue(string.toUpperCase().contains(substring.toUpperCase()));
+    return BooleanValue.of(string.toUpperCase().contains(substring.toUpperCase()));
   }
 }

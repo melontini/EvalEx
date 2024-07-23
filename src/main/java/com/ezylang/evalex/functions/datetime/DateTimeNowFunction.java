@@ -18,6 +18,7 @@ package com.ezylang.evalex.functions.datetime;
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.DateTimeValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.parser.ASTNode;
 import com.ezylang.evalex.parser.Token;
@@ -44,7 +45,7 @@ public class DateTimeNowFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
       EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
-    return context.expression().convertValue(Instant.now());
+    return DateTimeValue.of(Instant.now());
   }
 
   @Override

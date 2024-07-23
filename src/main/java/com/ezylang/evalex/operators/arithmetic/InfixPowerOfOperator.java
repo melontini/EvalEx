@@ -21,6 +21,7 @@ import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.NumberValue;
 import com.ezylang.evalex.operators.AbstractOperator;
 import com.ezylang.evalex.operators.InfixOperator;
 import com.ezylang.evalex.parser.Token;
@@ -66,7 +67,7 @@ public class InfixPowerOfOperator extends AbstractOperator {
       if (signOf2 == -1) {
         result = BigDecimal.ONE.divide(result, mathContext.getPrecision(), RoundingMode.HALF_UP);
       }
-      return context.expression().convertValue(result);
+      return NumberValue.of(result);
     } else {
       throw EvaluationException.ofUnsupportedDataTypeInOperation(operatorToken);
     }

@@ -17,6 +17,7 @@ package com.ezylang.evalex.functions.basic;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.NumberValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
@@ -37,6 +38,6 @@ public class FactFunction extends AbstractFunction {
               new BigDecimal(i, context.expression().getConfiguration().getMathContext()),
               context.expression().getConfiguration().getMathContext());
     }
-    return context.expression().convertValue(factorial);
+    return NumberValue.of(factorial);
   }
 }

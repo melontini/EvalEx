@@ -18,6 +18,7 @@ package com.ezylang.evalex;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.DataAccessorIfc;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.ExpressionNodeValue;
 import com.ezylang.evalex.data.types.NumberValue;
 import com.ezylang.evalex.functions.FunctionIfc;
 import com.ezylang.evalex.operators.OperatorIfc;
@@ -155,7 +156,7 @@ public class Expression {
     List<EvaluationValue> parameterResults = new ArrayList<>();
     for (int i = 0; i < startNode.getParameters().size(); i++) {
       if (token.getFunctionDefinition().isParameterLazy(i)) {
-        parameterResults.add(convertValue(startNode.getParameters().get(i)));
+        parameterResults.add(ExpressionNodeValue.of(startNode.getParameters().get(i)));
       } else {
         parameterResults.add(evaluateSubtree(startNode.getParameters().get(i), context));
       }
@@ -214,8 +215,8 @@ public class Expression {
 
     OperatorIfc op = token.getOperatorDefinition();
     if (op.isOperandLazy()) {
-      left = convertValue(startNode.getParameters().get(0));
-      right = convertValue(startNode.getParameters().get(1));
+      left = ExpressionNodeValue.of(startNode.getParameters().get(0));
+      right = ExpressionNodeValue.of(startNode.getParameters().get(1));
     } else {
       left = evaluateSubtree(startNode.getParameters().get(0), context);
       right = evaluateSubtree(startNode.getParameters().get(1), context);

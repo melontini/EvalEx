@@ -19,6 +19,10 @@ import static com.ezylang.evalex.operators.OperatorIfc.OPERATOR_PRECEDENCE_ADDIT
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.DateTimeValue;
+import com.ezylang.evalex.data.types.DurationValue;
+import com.ezylang.evalex.data.types.NumberValue;
+import com.ezylang.evalex.data.types.StringValue;
 import com.ezylang.evalex.operators.AbstractOperator;
 import com.ezylang.evalex.operators.InfixOperator;
 import com.ezylang.evalex.parser.Token;
@@ -37,33 +41,23 @@ public class InfixPlusOperator extends AbstractOperator {
     EvaluationValue rightOperand = operands[1];
 
     if (leftOperand.isNumberValue() && rightOperand.isNumberValue()) {
-      return context
-          .expression()
-          .convertValue(
-              leftOperand
-                  .getNumberValue()
-                  .add(
-                      rightOperand.getNumberValue(),
-                      context.expression().getConfiguration().getMathContext()));
+      return NumberValue.of(
+          leftOperand
+              .getNumberValue()
+              .add(
+                  rightOperand.getNumberValue(),
+                  context.expression().getConfiguration().getMathContext()));
     } else if (leftOperand.isDateTimeValue() && rightOperand.isDurationValue()) {
-      return context
-          .expression()
-          .convertValue(leftOperand.getDateTimeValue().plus(rightOperand.getDurationValue()));
+      return DateTimeValue.of(leftOperand.getDateTimeValue().plus(rightOperand.getDurationValue()));
     } else if (leftOperand.isDurationValue() && rightOperand.isDurationValue()) {
-      return context
-          .expression()
-          .convertValue(leftOperand.getDurationValue().plus(rightOperand.getDurationValue()));
+      return DurationValue.of(leftOperand.getDurationValue().plus(rightOperand.getDurationValue()));
     } else if (leftOperand.isDateTimeValue() && rightOperand.isNumberValue()) {
-      return context
-          .expression()
-          .convertValue(
-              leftOperand
-                  .getDateTimeValue()
-                  .plus(Duration.ofMillis(rightOperand.getNumberValue().longValue())));
+      return DateTimeValue.of(
+          leftOperand
+              .getDateTimeValue()
+              .plus(Duration.ofMillis(rightOperand.getNumberValue().longValue())));
     } else {
-      return context
-          .expression()
-          .convertValue(leftOperand.getStringValue() + rightOperand.getStringValue());
+      return StringValue.of(leftOperand.getStringValue() + rightOperand.getStringValue());
     }
   }
 }

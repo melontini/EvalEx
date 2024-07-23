@@ -17,6 +17,7 @@ package com.ezylang.evalex.functions.datetime;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.DurationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
@@ -30,6 +31,6 @@ public class DurationFromMillisFunction extends AbstractFunction {
   public EvaluationValue evaluate(
       EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
     BigDecimal millis = parameterValues[0].getNumberValue();
-    return context.expression().convertValue(Duration.ofMillis(millis.longValue()));
+    return DurationValue.of(Duration.ofMillis(millis.longValue()));
   }
 }

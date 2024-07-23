@@ -17,6 +17,7 @@ package com.ezylang.evalex.functions.string;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.StringValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
@@ -27,6 +28,6 @@ public class StringUpperFunction extends AbstractFunction {
   @Override
   public EvaluationValue evaluate(
       EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
-    return context.expression().convertValue(parameterValues[0].getStringValue().toUpperCase());
+    return StringValue.of(parameterValues[0].getStringValue().toUpperCase());
   }
 }

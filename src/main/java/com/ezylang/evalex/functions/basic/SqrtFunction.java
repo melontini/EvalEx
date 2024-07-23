@@ -17,6 +17,7 @@ package com.ezylang.evalex.functions.basic;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.NumberValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
@@ -31,11 +32,9 @@ public class SqrtFunction extends AbstractFunction {
   public EvaluationValue evaluate(
       EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
 
-    return context
-        .expression()
-        .convertValue(
-            parameterValues[0]
-                .getNumberValue()
-                .sqrt(context.expression().getConfiguration().getMathContext()));
+    return NumberValue.of(
+        parameterValues[0]
+            .getNumberValue()
+            .sqrt(context.expression().getConfiguration().getMathContext()));
   }
 }

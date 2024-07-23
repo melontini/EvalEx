@@ -17,6 +17,7 @@ package com.ezylang.evalex.functions.datetime;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.DurationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
@@ -51,6 +52,6 @@ public class DurationNewFunction extends AbstractFunction {
             .plusMillis(millis)
             .plusNanos(nanos);
 
-    return context.expression().convertValue(duration);
+    return DurationValue.of(duration);
   }
 }

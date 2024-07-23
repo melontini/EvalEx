@@ -20,6 +20,7 @@ import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.DateTimeValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.ASTNode;
@@ -55,7 +56,7 @@ public class DateTimeTodayFunction extends AbstractFunction {
       throws EvaluationException {
     ZoneId zoneId = parseZoneId(context.expression(), functionToken, parameterValues);
     Instant today = LocalDate.now().atStartOfDay(zoneId).toInstant();
-    return context.expression().convertValue(today);
+    return DateTimeValue.of(today);
   }
 
   private ZoneId parseZoneId(

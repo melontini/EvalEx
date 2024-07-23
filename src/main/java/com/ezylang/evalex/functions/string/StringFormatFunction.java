@@ -18,6 +18,7 @@ package com.ezylang.evalex.functions.string;
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.StringValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
@@ -51,10 +52,8 @@ public class StringFormatFunction extends AbstractFunction {
     String format = parameterValues[0].getStringValue();
     Object[] arguments =
         getFormatArguments(parameterValues, context.expression().getConfiguration());
-    return context
-        .expression()
-        .convertValue(
-            String.format(context.expression().getConfiguration().getLocale(), format, arguments));
+    return StringValue.of(
+        String.format(context.expression().getConfiguration().getLocale(), format, arguments));
   }
 
   private Object[] getFormatArguments(

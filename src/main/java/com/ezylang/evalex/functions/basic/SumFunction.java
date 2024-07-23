@@ -18,6 +18,7 @@ package com.ezylang.evalex.functions.basic;
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.NumberValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
@@ -36,7 +37,7 @@ public class SumFunction extends AbstractFunction {
               recursiveSum(parameter, context.expression()),
               context.expression().getConfiguration().getMathContext());
     }
-    return context.expression().convertValue(sum);
+    return NumberValue.of(sum);
   }
 
   private BigDecimal recursiveSum(EvaluationValue parameter, Expression expression) {

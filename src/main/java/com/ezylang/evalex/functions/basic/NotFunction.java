@@ -17,6 +17,7 @@ package com.ezylang.evalex.functions.basic;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.BooleanValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
@@ -31,6 +32,6 @@ public class NotFunction extends AbstractFunction {
 
     boolean result = parameterValues[0].getBooleanValue();
 
-    return context.expression().convertValue(!result);
+    return BooleanValue.of(!result);
   }
 }

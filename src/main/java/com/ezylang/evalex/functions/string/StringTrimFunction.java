@@ -18,6 +18,7 @@ package com.ezylang.evalex.functions.string;
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.StringValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
@@ -33,6 +34,6 @@ public class StringTrimFunction extends AbstractFunction {
   public EvaluationValue evaluate(
       EvaluationContext context, Token functionToken, EvaluationValue... parameterValues)
       throws EvaluationException {
-    return context.expression().convertValue(parameterValues[0].getStringValue().trim());
+    return StringValue.of(parameterValues[0].getStringValue().trim());
   }
 }

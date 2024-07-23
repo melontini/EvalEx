@@ -17,6 +17,7 @@ package com.ezylang.evalex.functions.basic;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.NumberValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
@@ -35,13 +36,11 @@ public class RoundFunction extends AbstractFunction {
     EvaluationValue value = parameterValues[0];
     EvaluationValue precision = parameterValues[1];
 
-    return context
-        .expression()
-        .convertValue(
-            value
-                .getNumberValue()
-                .setScale(
-                    precision.getNumberValue().intValue(),
-                    context.expression().getConfiguration().getMathContext().getRoundingMode()));
+    return NumberValue.of(
+        value
+            .getNumberValue()
+            .setScale(
+                precision.getNumberValue().intValue(),
+                context.expression().getConfiguration().getMathContext().getRoundingMode()));
   }
 }

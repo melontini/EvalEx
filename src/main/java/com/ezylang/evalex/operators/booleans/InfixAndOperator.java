@@ -20,6 +20,7 @@ import static com.ezylang.evalex.operators.OperatorIfc.OPERATOR_PRECEDENCE_AND;
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.BooleanValue;
 import com.ezylang.evalex.operators.AbstractOperator;
 import com.ezylang.evalex.operators.InfixOperator;
 import com.ezylang.evalex.parser.Token;
@@ -32,16 +33,14 @@ public class InfixAndOperator extends AbstractOperator {
   public EvaluationValue evaluate(
       EvaluationContext context, Token operatorToken, EvaluationValue... operands)
       throws EvaluationException {
-    return context
-        .expression()
-        .convertValue(
-            context
-                    .expression()
-                    .evaluateSubtree(operands[0].getExpressionNode(), context)
-                    .getBooleanValue()
-                && context
-                    .expression()
-                    .evaluateSubtree(operands[1].getExpressionNode(), context)
-                    .getBooleanValue());
+    return BooleanValue.of(
+        context
+                .expression()
+                .evaluateSubtree(operands[0].getExpressionNode(), context)
+                .getBooleanValue()
+            && context
+                .expression()
+                .evaluateSubtree(operands[1].getExpressionNode(), context)
+                .getBooleanValue());
   }
 }

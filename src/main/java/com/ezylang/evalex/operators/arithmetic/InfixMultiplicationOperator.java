@@ -20,6 +20,7 @@ import static com.ezylang.evalex.operators.OperatorIfc.OPERATOR_PRECEDENCE_MULTI
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.NumberValue;
 import com.ezylang.evalex.operators.AbstractOperator;
 import com.ezylang.evalex.operators.InfixOperator;
 import com.ezylang.evalex.parser.Token;
@@ -36,14 +37,12 @@ public class InfixMultiplicationOperator extends AbstractOperator {
     EvaluationValue rightOperand = operands[1];
 
     if (leftOperand.isNumberValue() && rightOperand.isNumberValue()) {
-      return context
-          .expression()
-          .convertValue(
-              leftOperand
-                  .getNumberValue()
-                  .multiply(
-                      rightOperand.getNumberValue(),
-                      context.expression().getConfiguration().getMathContext()));
+      return NumberValue.of(
+          leftOperand
+              .getNumberValue()
+              .multiply(
+                  rightOperand.getNumberValue(),
+                  context.expression().getConfiguration().getMathContext()));
     } else {
       throw EvaluationException.ofUnsupportedDataTypeInOperation(operatorToken);
     }

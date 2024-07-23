@@ -37,6 +37,6 @@ public class InfixEqualsOperator extends AbstractOperator {
     if (operands[0].isNullValue() && operands[1].isNullValue()) {
       return BooleanValue.TRUE;
     }
-    return context.expression().convertValue(operands[0].compareTo(operands[1]) == 0);
+    return BooleanValue.of(operands[0].compareTo(operands[1]) == 0);
   }
 }

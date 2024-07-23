@@ -18,6 +18,7 @@ package com.ezylang.evalex.operators.arithmetic;
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.NumberValue;
 import com.ezylang.evalex.operators.AbstractOperator;
 import com.ezylang.evalex.operators.PrefixOperator;
 import com.ezylang.evalex.parser.Token;
@@ -33,12 +34,8 @@ public class PrefixPlusOperator extends AbstractOperator {
     EvaluationValue operator = operands[0];
 
     if (operator.isNumberValue()) {
-      return context
-          .expression()
-          .convertValue(
-              operator
-                  .getNumberValue()
-                  .plus(context.expression().getConfiguration().getMathContext()));
+      return NumberValue.of(
+          operator.getNumberValue().plus(context.expression().getConfiguration().getMathContext()));
     } else {
       throw EvaluationException.ofUnsupportedDataTypeInOperation(operatorToken);
     }

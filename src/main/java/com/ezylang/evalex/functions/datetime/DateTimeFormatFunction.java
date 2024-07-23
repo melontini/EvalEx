@@ -18,6 +18,7 @@ package com.ezylang.evalex.functions.datetime;
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.StringValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
@@ -51,9 +52,7 @@ public class DateTimeFormatFunction extends AbstractFunction {
       zoneId = ZoneIdConverter.convert(functionToken, parameterValues[2].getStringValue());
     }
 
-    return context
-        .expression()
-        .convertValue(parameterValues[0].getDateTimeValue().atZone(zoneId).format(formatter));
+    return StringValue.of(parameterValues[0].getDateTimeValue().atZone(zoneId).format(formatter));
   }
 
   @Override

@@ -17,6 +17,7 @@ package com.ezylang.evalex.functions.basic;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.NumberValue;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
 import java.math.BigDecimal;
@@ -41,6 +42,6 @@ public class AverageFunction extends AbstractMinMaxFunction {
             .reduce(BigDecimal.ZERO, BigDecimal::add);
     BigDecimal count = BigDecimal.valueOf(parameterValues.length);
     BigDecimal average = sum.divide(count, mathContext);
-    return context.expression().convertValue(average);
+    return NumberValue.of(average);
   }
 }

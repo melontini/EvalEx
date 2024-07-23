@@ -17,6 +17,7 @@ package com.ezylang.evalex.operators.booleans;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.BooleanValue;
 import com.ezylang.evalex.operators.AbstractOperator;
 import com.ezylang.evalex.operators.PrefixOperator;
 import com.ezylang.evalex.parser.Token;
@@ -28,6 +29,6 @@ public class PrefixNotOperator extends AbstractOperator {
   @Override
   public EvaluationValue evaluate(
       EvaluationContext context, Token operatorToken, EvaluationValue... operands) {
-    return context.expression().convertValue(!operands[0].getBooleanValue());
+    return BooleanValue.of(!operands[0].getBooleanValue());
   }
 }

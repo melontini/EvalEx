@@ -21,7 +21,6 @@ import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
 import com.ezylang.evalex.parser.Token;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.MathContext;
 
 /** Square root function, uses the standard {@link BigDecimal#sqrt(MathContext)} implementation. */
@@ -32,30 +31,11 @@ public class SqrtFunction extends AbstractFunction {
   public EvaluationValue evaluate(
       EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
 
-    /*
-     * From The Java Programmers Guide To numerical Computing
-     * (Ronald Mak, 2003)
-     */
-    BigDecimal x = parameterValues[0].getNumberValue();
-    MathContext mathContext = context.expression().getConfiguration().getMathContext();
-
-    if (x.compareTo(BigDecimal.ZERO) == 0) {
-      return context.expression().convertValue(BigDecimal.ZERO);
-    }
-    BigInteger n = x.movePointRight(mathContext.getPrecision() << 1).toBigInteger();
-
-    int bits = (n.bitLength() + 1) >> 1;
-    BigInteger ix = n.shiftRight(bits);
-    BigInteger ixPrev;
-    BigInteger test;
-    do {
-      ixPrev = ix;
-      ix = ix.add(n.divide(ix)).shiftRight(1);
-      // Give other threads a chance to work
-      Thread.yield();
-      test = ix.subtract(ixPrev).abs();
-    } while (test.compareTo(BigInteger.ZERO) != 0 && test.compareTo(BigInteger.ONE) != 0);
-
-    return context.expression().convertValue(new BigDecimal(ix, mathContext.getPrecision()));
+    return context
+        .expression()
+        .convertValue(
+            parameterValues[0]
+                .getNumberValue()
+                .sqrt(context.expression().getConfiguration().getMathContext()));
   }
 }

@@ -1,20 +1,28 @@
 EvalEx - Java Expression Evaluator
 ==========
 
-This is a personal fork of EvalEx with lots of incompatible changes. 
+This is a personal fork of EvalEx with lots of incompatible and unstable changes. 
 
 Please check out the original repo here on [GitHub](https://github.com/ezylang/EvalEx).
 
 Changes over upstream:
 
 - Inlining of simple and constant expressions.
+- Lazy array and list conversions.
+- String multiplication and number conversion.
+```
+"Hello" * 3 => "HelloHelloHello"
+```
+- `DataAccessorIfc` data type.
 - Immutable contexts and expressions.
 - Replaced expression-wide variables with `evaluate` only parameters.
 - `Object[]` in various places to allow passing arbitrary objects to data accessors and custom functions.
 - Constant are no longer copied to each expression.
 - Data accessors can now throw EvaluationExceptions.
+- Custom identifier characters.
 - Removed dictionary interfaces.
 - Switched from maven to gradle.
+- And more...
 
 ## Author and License
 

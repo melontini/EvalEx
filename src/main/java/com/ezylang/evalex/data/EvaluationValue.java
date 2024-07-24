@@ -75,6 +75,10 @@ public abstract class EvaluationValue implements Comparable<EvaluationValue> {
     return false;
   }
 
+  public boolean isDataAccessorValue() {
+    return false;
+  }
+
   public boolean isExpressionNode() {
     return false;
   }
@@ -182,6 +186,10 @@ public abstract class EvaluationValue implements Comparable<EvaluationValue> {
    */
   public Map<String, EvaluationValue> getStructureValue() {
     return Collections.emptyMap();
+  }
+
+  public DataAccessorIfc getDataAccessorValue() {
+    return null;
   }
 
   /**

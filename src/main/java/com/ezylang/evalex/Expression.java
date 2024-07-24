@@ -186,9 +186,8 @@ public class Expression {
                 index.getNumberValue().intValue(), array.getArrayValue().size()));
       }
       return array.getArrayValue().get(index.getNumberValue().intValue());
-    } else {
-      throw EvaluationException.ofUnsupportedDataTypeInOperation(startNode.getToken());
     }
+    throw EvaluationException.ofUnsupportedDataTypeInOperation(startNode.getToken());
   }
 
   private EvaluationValue evaluateStructureSeparator(ASTNode startNode, EvaluationContext context)
@@ -197,15 +196,22 @@ public class Expression {
     Token nameToken = startNode.getParameters().get(1).getToken();
     String name = nameToken.getValue();
 
+    if (structure.isDataAccessorValue()) {
+      var result = structure.getDataAccessorValue().getData(name, nameToken, context);
+      if (result == null)
+        throw new EvaluationException(
+            nameToken, String.format("Field '%s' not found in structure", name));
+      return result;
+    }
+
     if (structure.isStructureValue()) {
       if (!structure.getStructureValue().containsKey(name)) {
         throw new EvaluationException(
             nameToken, String.format("Field '%s' not found in structure", name));
       }
       return structure.getStructureValue().get(name);
-    } else {
-      throw EvaluationException.ofUnsupportedDataTypeInOperation(startNode.getToken());
     }
+    throw EvaluationException.ofUnsupportedDataTypeInOperation(startNode.getToken());
   }
 
   private EvaluationValue evaluateInfixOperator(

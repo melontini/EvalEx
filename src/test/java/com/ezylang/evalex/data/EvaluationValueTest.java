@@ -24,6 +24,7 @@ import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.types.BooleanValue;
 import com.ezylang.evalex.data.types.NullValue;
 import com.ezylang.evalex.data.types.NumberValue;
+import com.ezylang.evalex.data.types.StringValue;
 import com.ezylang.evalex.parser.ASTNode;
 import com.ezylang.evalex.parser.ParseException;
 import com.ezylang.evalex.parser.Token;
@@ -421,6 +422,18 @@ class EvaluationValueTest {
     EvaluationValue value = EvaluationValue.of(null, defaultConfiguration());
 
     assertThat(value.getArrayValue()).isNull();
+  }
+
+  @Test
+  void testDataAccessor() throws EvaluationException {
+    EvaluationValue value =
+        EvaluationValue.of(
+            (DataAccessorIfc) (variable, token, context) -> StringValue.of("Hi!"),
+            defaultConfiguration());
+
+    assertThat(value.getDataAccessorValue()).isNotNull();
+    assertThat(value.getDataAccessorValue().getData("", null, null))
+        .isEqualTo(StringValue.of("Hi!"));
   }
 
   @Test

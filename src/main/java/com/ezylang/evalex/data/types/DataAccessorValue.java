@@ -15,20 +15,26 @@
 */
 package com.ezylang.evalex.data.types;
 
+import com.ezylang.evalex.data.DataAccessorIfc;
 import com.ezylang.evalex.data.EvaluationValue;
-import java.util.Map;
 import lombok.*;
 
+/**
+ * This value type allows passing custom data accessors to expressions. Unlike structures, which
+ * require implementing a handful of methods, this type does not. So, it can act like a proxy for
+ * complex objects e.g. through reflection.
+ *
+ * @author melontini
+ */
 @ToString()
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class StructureValue extends EvaluationValue {
+public class DataAccessorValue extends EvaluationValue {
 
-  private final Map<String, EvaluationValue> value;
+  private final DataAccessorIfc value;
 
-  // The map must support all immutable AbstractMap methods.
-  public static StructureValue of(@NonNull Map<String, EvaluationValue> struct) {
-    return new StructureValue(struct);
+  public static DataAccessorValue of(@NonNull DataAccessorIfc value) {
+    return new DataAccessorValue(value);
   }
 
   @Override
@@ -37,12 +43,12 @@ public final class StructureValue extends EvaluationValue {
   }
 
   @Override
-  public boolean isStructureValue() {
+  public boolean isDataAccessorValue() {
     return true;
   }
 
   @Override
-  public Map<String, EvaluationValue> getStructureValue() {
+  public DataAccessorIfc getDataAccessorValue() {
     return value;
   }
 }

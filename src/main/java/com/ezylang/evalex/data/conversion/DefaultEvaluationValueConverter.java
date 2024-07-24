@@ -47,7 +47,7 @@ import java.util.List;
  *   <tr><td>OffsetDateTime</td><td>DateTimeConverter</td></tr>
  *   <tr><td>Duration</td><td>DurationConverter</td></tr>
  *   <tr><td>ASTNode</td><td>ASTNode</td></tr>
- *   <tr><td>List&lt;?&gt;</td><td>ArrayConverter - each entry will be converted</td></tr>
+ *   <tr><td>List&lt;?&gt;</td><td>ArrayConverter - each entry will be lazily converted</td></tr>
  *   <tr><td>Map&lt?,?&gt;</td><td>StructureConverter - each entry will be converted</td></tr>
  * </table>
  *
@@ -65,6 +65,7 @@ public class DefaultEvaluationValueConverter implements EvaluationValueConverter
           new DurationConverter(),
           new ExpressionNodeConverter(),
           new ArrayConverter(),
+          new DataAccessorConverter(),
           new StructureConverter());
 
   @Override

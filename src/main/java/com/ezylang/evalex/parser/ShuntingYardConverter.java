@@ -23,10 +23,7 @@ import com.ezylang.evalex.data.types.StringValue;
 import com.ezylang.evalex.functions.FunctionIfc;
 import com.ezylang.evalex.operators.OperatorIfc;
 import com.ezylang.evalex.parser.Token.TokenType;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -59,13 +56,13 @@ public class ShuntingYardConverter {
     Token previousToken = null;
     for (Token currentToken : expressionTokens) {
       switch (currentToken.getType()) {
-        case VARIABLE_OR_CONSTANT -> context.operandStack.push(new ASTNode(currentToken));
+        case VARIABLE_OR_CONSTANT -> context.operandStack.push(ASTNode.of(currentToken));
         case NUMBER_LITERAL -> context.operandStack.push(
-            new InlinedASTNode(
+            InlinedASTNode.of(
                 currentToken,
                 NumberValue.ofString(currentToken.getValue(), configuration.getMathContext())));
         case STRING_LITERAL -> context.operandStack.push(
-            new InlinedASTNode(currentToken, StringValue.of(currentToken.getValue())));
+            InlinedASTNode.of(currentToken, StringValue.of(currentToken.getValue())));
         case FUNCTION -> context.operatorStack.push(currentToken);
         case COMMA -> processOperatorsFromStackUntilTokenType(BRACE_OPEN, context);
         case INFIX_OPERATOR, PREFIX_OPERATOR, POSTFIX_OPERATOR -> processOperator(
@@ -116,7 +113,7 @@ public class ShuntingYardConverter {
               currentToken.getStartPosition(),
               currentToken.getValue(),
               TokenType.FUNCTION_PARAM_START);
-      context.operandStack.push(new ASTNode(paramStart));
+      context.operandStack.push(ASTNode.of(paramStart));
     }
     context.operatorStack.push(currentToken);
   }
@@ -136,7 +133,7 @@ public class ShuntingYardConverter {
         parameters.add(0, node);
       }
       validateFunctionParameters(functionToken, parameters);
-      context.operandStack.push(new ASTNode(functionToken, parameters.toArray(new ASTNode[0])));
+      context.operandStack.push(ASTNode.trusted(functionToken, parameters));
     }
   }
 
@@ -194,7 +191,7 @@ public class ShuntingYardConverter {
     ASTNode array = context.operandStack.pop();
     operands.add(0, array);
 
-    context.operandStack.push(new ASTNode(arrayToken, operands.toArray(new ASTNode[0])));
+    context.operandStack.push(ASTNode.trusted(arrayToken, operands));
   }
 
   private void processOperatorsFromStackUntilTokenType(TokenType untilTokenType, Context context)
@@ -215,13 +212,13 @@ public class ShuntingYardConverter {
 
     if (token.getType() == TokenType.PREFIX_OPERATOR
         || token.getType() == TokenType.POSTFIX_OPERATOR) {
-      context.operandStack.push(new ASTNode(token, operand1));
+      context.operandStack.push(ASTNode.of(token, List.of(operand1)));
     } else {
       if (context.operandStack.isEmpty()) {
         throw new ParseException(token, "Missing second operand for operator");
       }
       ASTNode operand2 = context.operandStack.pop();
-      context.operandStack.push(new ASTNode(token, operand2, operand1));
+      context.operandStack.push(ASTNode.trusted(token, List.of(operand2, operand1)));
     }
   }
 

@@ -33,7 +33,7 @@ class ExpressionNodeConverterTest {
   private final ExpressionNodeConverter converter = new ExpressionNodeConverter();
 
   private final ASTNode testNode =
-      new ASTNode(new Token(1, "a", Token.TokenType.VARIABLE_OR_CONSTANT));
+      ASTNode.of(new Token(1, "a", Token.TokenType.VARIABLE_OR_CONSTANT));
 
   @Test
   void testDuration() {

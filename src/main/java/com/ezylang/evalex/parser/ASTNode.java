@@ -15,7 +15,7 @@
 */
 package com.ezylang.evalex.parser;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.*;
@@ -47,9 +47,21 @@ public class ASTNode {
   /** The token associated with this tree node. */
   Token token;
 
-  public ASTNode(Token token, ASTNode... parameters) {
+  protected ASTNode(Token token, List<ASTNode> parameters) {
     this.token = token;
-    this.parameters = Arrays.asList(parameters);
+    this.parameters = parameters;
+  }
+
+  public static ASTNode of(Token token) {
+    return new ASTNode(token, Collections.emptyList());
+  }
+
+  public static ASTNode of(Token token, List<ASTNode> nodes) {
+    return new ASTNode(token, List.copyOf(nodes));
+  }
+
+  static ASTNode trusted(Token token, List<ASTNode> nodes) {
+    return new ASTNode(token, Collections.unmodifiableList(nodes));
   }
 
   /**

@@ -33,7 +33,7 @@ class ExpressionEvaluationExceptionsTest {
 
     assertThatThrownBy(
             () -> {
-              ASTNode node = new ASTNode(new Token(1, "(", TokenType.BRACE_OPEN));
+              ASTNode node = ASTNode.of(new Token(1, "(", TokenType.BRACE_OPEN));
               expression.evaluateSubtree(node, UnaryOperator.identity());
             })
         .isInstanceOf(EvaluationException.class)

@@ -473,7 +473,7 @@ class EvaluationValueTest {
 
   @Test
   void testExpressionNode() {
-    ASTNode node = new ASTNode(new Token(1, "a", TokenType.VARIABLE_OR_CONSTANT));
+    ASTNode node = ASTNode.of(new Token(1, "a", TokenType.VARIABLE_OR_CONSTANT));
     EvaluationValue value = EvaluationValue.of(node, defaultConfiguration());
 
     assertThat(value.isExpressionNode()).isTrue();

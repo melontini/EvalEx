@@ -79,13 +79,13 @@ public final class ExpressionParser {
       if (token.getType() == Token.TokenType.VARIABLE_OR_CONSTANT) {
         if (!owner.getConfiguration().isAllowOverwriteConstants()) {
           EvaluationValue constant = owner.getConfiguration().getConstants().get(token.getValue());
-          if (constant != null) return new InlinedASTNode(token, owner.tryRoundValue(constant));
+          if (constant != null) return InlinedASTNode.of(token, owner.tryRoundValue(constant));
         }
       } else if (token.getType() == Token.TokenType.FUNCTION
           && token.getFunctionDefinition().forceInline()) {
         EvaluationValue function =
             token.getFunctionDefinition().inlineFunction(owner, token, Collections.emptyList());
-        if (function != null) return new InlinedASTNode(token, owner.tryRoundValue(function));
+        if (function != null) return InlinedASTNode.of(token, owner.tryRoundValue(function));
       }
       return node;
     }
@@ -100,21 +100,25 @@ public final class ExpressionParser {
     switch (token.getType()) {
       case POSTFIX_OPERATOR, PREFIX_OPERATOR, INFIX_OPERATOR -> {
         var operator = token.getOperatorDefinition();
-        if (!allMatch && !operator.forceInline()) return node;
+        if (!allMatch && !operator.forceInline()) return withParameters(node, parameters);
         var result = operator.inlineOperator(owner, token, parameters);
         if (result != null)
-          return new InlinedASTNode(
-              token, owner.tryRoundValue(result), parameters.toArray(ASTNode[]::new));
+          return InlinedASTNode.trusted(token, owner.tryRoundValue(result), parameters);
       }
       case FUNCTION -> {
         var function = token.getFunctionDefinition();
-        if (!allMatch && !function.forceInline()) return node;
+        if (!allMatch && !function.forceInline()) return withParameters(node, parameters);
         var result = function.inlineFunction(owner, token, parameters);
         if (result != null)
-          return new InlinedASTNode(
-              token, owner.tryRoundValue(result), parameters.toArray(ASTNode[]::new));
+          return InlinedASTNode.trusted(token, owner.tryRoundValue(result), parameters);
       }
     }
-    return node;
+    return withParameters(node, parameters);
+  }
+
+  private static ASTNode withParameters(ASTNode node, @NotNull List<ASTNode> parameters) {
+    return !node.getParameters().equals(parameters)
+        ? ASTNode.trusted(node.getToken(), parameters)
+        : node;
   }
 }

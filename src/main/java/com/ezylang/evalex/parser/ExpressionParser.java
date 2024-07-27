@@ -68,10 +68,9 @@ public final class ExpressionParser {
    * OperatorIfc#inlineOperator(Expression, Token, List)} and return null. Same with functions, but
    * {@link FunctionIfc#inlineFunction(Expression, Token, List)}.
    *
-   * @throws EvaluationException If there was an issue inlining the node value.
    * @return New {@link InlinedASTNode} or {@link ASTNode} if inlining was unsuccessful.
    */
-  public @NotNull ASTNode inlineASTNode(Expression owner, ASTNode node) throws EvaluationException {
+  public @NotNull ASTNode inlineASTNode(Expression owner, ASTNode node) {
     if (node instanceof InlinedASTNode) return node;
     var token = node.getToken();
 
@@ -83,9 +82,13 @@ public final class ExpressionParser {
         }
       } else if (token.getType() == Token.TokenType.FUNCTION
           && token.getFunctionDefinition().forceInline()) {
-        EvaluationValue function =
-            token.getFunctionDefinition().inlineFunction(owner, token, Collections.emptyList());
-        if (function != null) return InlinedASTNode.of(token, owner.tryRoundValue(function));
+        try {
+          EvaluationValue function =
+              token.getFunctionDefinition().inlineFunction(owner, token, Collections.emptyList());
+          if (function != null) return InlinedASTNode.of(token, owner.tryRoundValue(function));
+        } catch (Exception e) {
+          return node;
+        }
       }
       return node;
     }
@@ -101,16 +104,24 @@ public final class ExpressionParser {
       case POSTFIX_OPERATOR, PREFIX_OPERATOR, INFIX_OPERATOR -> {
         var operator = token.getOperatorDefinition();
         if (!allMatch && !operator.forceInline()) return withParameters(node, parameters);
-        var result = operator.inlineOperator(owner, token, parameters);
-        if (result != null)
-          return InlinedASTNode.trusted(token, owner.tryRoundValue(result), parameters);
+        try {
+          var result = operator.inlineOperator(owner, token, parameters);
+          if (result != null)
+            return InlinedASTNode.trusted(token, owner.tryRoundValue(result), parameters);
+        } catch (Exception e) {
+          return withParameters(node, parameters);
+        }
       }
       case FUNCTION -> {
         var function = token.getFunctionDefinition();
         if (!allMatch && !function.forceInline()) return withParameters(node, parameters);
-        var result = function.inlineFunction(owner, token, parameters);
-        if (result != null)
-          return InlinedASTNode.trusted(token, owner.tryRoundValue(result), parameters);
+        try {
+          var result = function.inlineFunction(owner, token, parameters);
+          if (result != null)
+            return InlinedASTNode.trusted(token, owner.tryRoundValue(result), parameters);
+        } catch (Exception e) {
+          return withParameters(node, parameters);
+        }
       }
     }
     return withParameters(node, parameters);

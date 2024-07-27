@@ -153,21 +153,17 @@ public class Expression {
 
   private EvaluationValue evaluateFunction(
       ASTNode startNode, Token token, EvaluationContext context) throws EvaluationException {
-    List<EvaluationValue> parameterResults = new ArrayList<>();
+    EvaluationValue[] parameters = new EvaluationValue[startNode.getParameters().size()];
     for (int i = 0; i < startNode.getParameters().size(); i++) {
       if (token.getFunctionDefinition().isParameterLazy(i)) {
-        parameterResults.add(ExpressionNodeValue.of(startNode.getParameters().get(i)));
+        parameters[i] = ExpressionNodeValue.of(startNode.getParameters().get(i));
       } else {
-        parameterResults.add(evaluateSubtree(startNode.getParameters().get(i), context));
+        parameters[i] = evaluateSubtree(startNode.getParameters().get(i), context);
       }
     }
 
-    EvaluationValue[] parameters = parameterResults.toArray(new EvaluationValue[0]);
-
     FunctionIfc function = token.getFunctionDefinition();
-
     function.validatePreEvaluation(token, parameters);
-
     return function.evaluate(context, token, parameters);
   }
 

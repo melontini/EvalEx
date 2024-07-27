@@ -19,6 +19,7 @@ import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.types.ExpressionNodeValue;
 import com.ezylang.evalex.parser.ASTNode;
 import com.ezylang.evalex.parser.InlinedASTNode;
 import com.ezylang.evalex.parser.Token;
@@ -99,11 +100,14 @@ public interface FunctionIfc {
 
   default @Nullable EvaluationValue inlineFunction(
       Expression expression, Token token, List<ASTNode> parameters) throws EvaluationException {
-    EvaluationValue[] parsed =
-        parameters.stream()
-            .map(InlinedASTNode.class::cast)
-            .map(InlinedASTNode::value)
-            .toArray(EvaluationValue[]::new);
+    EvaluationValue[] parsed = new EvaluationValue[parameters.size()];
+    for (int i = 0; i < parameters.size(); i++) {
+      if (token.getFunctionDefinition().isParameterLazy(i)) {
+        parsed[i] = ExpressionNodeValue.of(parameters.get(i));
+      } else {
+        parsed[i] = ((InlinedASTNode) parameters.get(i)).value();
+      }
+    }
     this.validatePreEvaluation(token, parsed);
     return this.evaluate(EvaluationContext.builder(expression).build(), token, parsed);
   }

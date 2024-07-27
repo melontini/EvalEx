@@ -39,16 +39,16 @@ public abstract class BaseEvaluationTest {
 
   protected EvaluationValue evaluate(String expressionString)
       throws EvaluationException, ParseException {
-    ;
     Expression expression =
-        TestConfigurationProvider.StandardParserWithAdditionalTestOperators.parse(expressionString);
+        TestConfigurationProvider.StandardParserWithAdditionalTestOperators.parseAndInline(
+            expressionString);
     return expression.evaluate(EvaluationContext.builder(expression).build());
   }
 
   private EvaluationValue evaluate(String expressionString, ExpressionConfiguration configuration)
       throws EvaluationException, ParseException {
     ExpressionParser parser = new ExpressionParser(configuration);
-    Expression expression = parser.parse(expressionString);
+    Expression expression = parser.parseAndInline(expressionString);
 
     return expression.evaluate(EvaluationContext.builder(expression).build());
   }

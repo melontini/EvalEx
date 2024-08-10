@@ -123,7 +123,8 @@ public class ShuntingYardConverter {
     context.operatorStack.pop(); // throw away the marker
     if (!context.operatorStack.isEmpty() && context.operatorStack.peek().getType() == FUNCTION) {
       Token functionToken = context.operatorStack.pop();
-      ArrayList<ASTNode> parameters = new ArrayList<>();
+      ArrayList<ASTNode> parameters =
+          new ArrayList<>(functionToken.getFunctionDefinition().getCountOfNonVarArgParameters());
       while (true) {
         // add all parameters in reverse order from stack to the parameter array
         ASTNode node = context.operandStack.pop();
@@ -133,7 +134,10 @@ public class ShuntingYardConverter {
         parameters.add(0, node);
       }
       validateFunctionParameters(functionToken, parameters);
-      context.operandStack.push(ASTNode.trusted(functionToken, parameters));
+      context.operandStack.push(
+          ASTNode.of(
+              functionToken,
+              parameters.isEmpty() ? ASTNode.EMPTY : parameters.toArray(ASTNode[]::new)));
     }
   }
 
@@ -180,18 +184,18 @@ public class ShuntingYardConverter {
     processOperatorsFromStackUntilTokenType(ARRAY_OPEN, context);
     context.operatorStack.pop(); // throw away the marker
     Token arrayToken = context.operatorStack.pop();
-    ArrayList<ASTNode> operands = new ArrayList<>();
+    ASTNode[] operands = new ASTNode[2];
 
     // second parameter of the "ARRAY_INDEX" function is the index (first on stack)
     ASTNode index = context.operandStack.pop();
-    operands.add(0, index);
+    operands[1] = index;
 
     // first parameter of the "ARRAY_INDEX" function is the array (name or evaluation result)
     // (second on stack)
     ASTNode array = context.operandStack.pop();
-    operands.add(0, array);
+    operands[0] = array;
 
-    context.operandStack.push(ASTNode.trusted(arrayToken, operands));
+    context.operandStack.push(ASTNode.of(arrayToken, operands));
   }
 
   private void processOperatorsFromStackUntilTokenType(TokenType untilTokenType, Context context)
@@ -212,13 +216,13 @@ public class ShuntingYardConverter {
 
     if (token.getType() == TokenType.PREFIX_OPERATOR
         || token.getType() == TokenType.POSTFIX_OPERATOR) {
-      context.operandStack.push(ASTNode.of(token, List.of(operand1)));
+      context.operandStack.push(ASTNode.of(token, operand1));
     } else {
       if (context.operandStack.isEmpty()) {
         throw new ParseException(token, "Missing second operand for operator");
       }
       ASTNode operand2 = context.operandStack.pop();
-      context.operandStack.push(ASTNode.trusted(token, List.of(operand2, operand1)));
+      context.operandStack.push(ASTNode.of(token, operand2, operand1));
     }
   }
 

@@ -170,7 +170,7 @@ class ExpressionEvaluatorArrayTest extends BaseExpressionEvaluatorTest {
   @Test
   void testThrowsUnsupportedDataTypeForArray() {
     assertThatThrownBy(
-            () -> createExpression("a[0]").evaluate(builder -> builder.parameter("a", "aString")))
+            () -> createExpression("a[0]").evaluate(builder -> builder.parameter("a", 125)))
         .isInstanceOf(EvaluationException.class)
         .hasMessage("Unsupported data types in operation");
   }

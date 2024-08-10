@@ -28,7 +28,6 @@ import com.ezylang.evalex.parser.Token;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.List;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -70,7 +69,7 @@ public class DateTimeTodayFunction extends AbstractFunction {
 
   @Override
   public @Nullable EvaluationValue inlineFunction(
-      Expression expression, Token token, List<ASTNode> parameters) {
+      Expression expression, Token token, ASTNode... parameters) {
     return null;
   }
 }

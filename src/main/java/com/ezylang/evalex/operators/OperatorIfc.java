@@ -24,7 +24,6 @@ import com.ezylang.evalex.data.types.ExpressionNodeValue;
 import com.ezylang.evalex.parser.ASTNode;
 import com.ezylang.evalex.parser.InlinedASTNode;
 import com.ezylang.evalex.parser.Token;
-import java.util.List;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -141,18 +140,18 @@ public interface OperatorIfc {
   }
 
   default @Nullable EvaluationValue inlineOperator(
-      Expression expression, Token token, List<ASTNode> parameters) throws EvaluationException {
+      Expression expression, Token token, ASTNode... parameters) throws EvaluationException {
     EvaluationValue left =
         this.isOperandLazy()
-            ? ExpressionNodeValue.of(parameters.get(0))
-            : ((InlinedASTNode) parameters.get(0)).value();
+            ? ExpressionNodeValue.of(parameters[0])
+            : ((InlinedASTNode) parameters[0]).value();
     if (isPostfix() || isPrefix()) {
       return this.evaluate(EvaluationContext.builder(expression).build(), token, left);
     } else {
       EvaluationValue right =
           this.isOperandLazy()
-              ? ExpressionNodeValue.of(parameters.get(1))
-              : ((InlinedASTNode) parameters.get(1)).value();
+              ? ExpressionNodeValue.of(parameters[1])
+              : ((InlinedASTNode) parameters[1]).value();
       return this.evaluate(EvaluationContext.builder(expression).build(), token, left, right);
     }
   }

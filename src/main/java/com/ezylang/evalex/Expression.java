@@ -117,7 +117,7 @@ public class Expression {
           }
           case PREFIX_OPERATOR, POSTFIX_OPERATOR -> token
               .getOperatorDefinition()
-              .evaluate(context, token, evaluateSubtree(startNode.getParameters().get(0), context));
+              .evaluate(context, token, evaluateSubtree(startNode.getParameters()[0], context));
           case INFIX_OPERATOR -> evaluateInfixOperator(startNode, token, context);
           case ARRAY_INDEX -> evaluateArrayIndex(startNode, context);
           case STRUCTURE_SEPARATOR -> evaluateStructureSeparator(startNode, context);
@@ -154,12 +154,18 @@ public class Expression {
 
   private EvaluationValue evaluateFunction(
       ASTNode startNode, Token token, EvaluationContext context) throws EvaluationException {
-    EvaluationValue[] parameters = new EvaluationValue[startNode.getParameters().size()];
-    for (int i = 0; i < startNode.getParameters().size(); i++) {
-      if (token.getFunctionDefinition().isParameterLazy(i)) {
-        parameters[i] = ExpressionNodeValue.of(startNode.getParameters().get(i));
-      } else {
-        parameters[i] = evaluateSubtree(startNode.getParameters().get(i), context);
+    EvaluationValue[] parameters;
+
+    if (startNode.getParameters().length == 0) {
+      parameters = EvaluationValue.EMPTY;
+    } else {
+      parameters = new EvaluationValue[startNode.getParameters().length];
+      for (int i = 0; i < startNode.getParameters().length; i++) {
+        if (token.getFunctionDefinition().isParameterLazy(i)) {
+          parameters[i] = ExpressionNodeValue.of(startNode.getParameters()[i]);
+        } else {
+          parameters[i] = evaluateSubtree(startNode.getParameters()[i], context);
+        }
       }
     }
 
@@ -170,8 +176,8 @@ public class Expression {
 
   private EvaluationValue evaluateArrayIndex(ASTNode startNode, EvaluationContext context)
       throws EvaluationException {
-    EvaluationValue array = evaluateSubtree(startNode.getParameters().get(0), context);
-    EvaluationValue index = evaluateSubtree(startNode.getParameters().get(1), context);
+    EvaluationValue array = evaluateSubtree(startNode.getParameters()[0], context);
+    EvaluationValue index = evaluateSubtree(startNode.getParameters()[1], context);
 
     if (array instanceof IndexedAccessor accessor && index.isNumberValue()) {
       var result = accessor.getIndexedData(index.getNumberValue(), startNode.getToken(), context);
@@ -188,8 +194,8 @@ public class Expression {
 
   private EvaluationValue evaluateStructureSeparator(ASTNode startNode, EvaluationContext context)
       throws EvaluationException {
-    EvaluationValue structure = evaluateSubtree(startNode.getParameters().get(0), context);
-    Token nameToken = startNode.getParameters().get(1).getToken();
+    EvaluationValue structure = evaluateSubtree(startNode.getParameters()[0], context);
+    Token nameToken = startNode.getParameters()[1].getToken();
     String name = nameToken.getValue();
 
     if (structure instanceof DataAccessorIfc accessor) {
@@ -211,11 +217,11 @@ public class Expression {
 
     OperatorIfc op = token.getOperatorDefinition();
     if (op.isOperandLazy()) {
-      left = ExpressionNodeValue.of(startNode.getParameters().get(0));
-      right = ExpressionNodeValue.of(startNode.getParameters().get(1));
+      left = ExpressionNodeValue.of(startNode.getParameters()[0]);
+      right = ExpressionNodeValue.of(startNode.getParameters()[1]);
     } else {
-      left = evaluateSubtree(startNode.getParameters().get(0), context);
-      right = evaluateSubtree(startNode.getParameters().get(1), context);
+      left = evaluateSubtree(startNode.getParameters()[0], context);
+      right = evaluateSubtree(startNode.getParameters()[1], context);
     }
     return op.evaluate(context, token, left, right);
   }

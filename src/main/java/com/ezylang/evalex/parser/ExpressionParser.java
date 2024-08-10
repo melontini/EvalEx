@@ -21,9 +21,7 @@ import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.FunctionIfc;
 import com.ezylang.evalex.operators.OperatorIfc;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,8 +63,8 @@ public final class ExpressionParser {
    * This method attempts to inline constant variables, functions and operators.
    *
    * <p>If an operator cannot be inlined, it must implement {@link
-   * OperatorIfc#inlineOperator(Expression, Token, List)} and return null. Same with functions, but
-   * {@link FunctionIfc#inlineFunction(Expression, Token, List)}.
+   * OperatorIfc#inlineOperator(Expression, Token, ASTNode...)} and return null. Same with
+   * functions, but {@link FunctionIfc#inlineFunction(Expression, Token, ASTNode...)}.
    *
    * @return New {@link InlinedASTNode} or {@link ASTNode} if inlining was unsuccessful.
    */
@@ -74,7 +72,7 @@ public final class ExpressionParser {
     if (node instanceof InlinedASTNode) return node;
     var token = node.getToken();
 
-    if (node.getParameters().isEmpty()) {
+    if (node.getParameters().length == 0) {
       if (token.getType() == Token.TokenType.VARIABLE_OR_CONSTANT) {
         if (!owner.getConfiguration().isAllowOverwriteConstants()) {
           EvaluationValue constant = owner.getConfiguration().getConstants().get(token.getValue());
@@ -83,8 +81,7 @@ public final class ExpressionParser {
       } else if (token.getType() == Token.TokenType.FUNCTION
           && token.getFunctionDefinition().forceInline()) {
         try {
-          EvaluationValue function =
-              token.getFunctionDefinition().inlineFunction(owner, token, Collections.emptyList());
+          EvaluationValue function = token.getFunctionDefinition().inlineFunction(owner, token);
           if (function != null) return InlinedASTNode.of(token, owner.tryRoundValue(function));
         } catch (Exception e) {
           return node;
@@ -93,43 +90,36 @@ public final class ExpressionParser {
       return node;
     }
 
-    List<ASTNode> parameters = new ArrayList<>();
-    for (ASTNode astNode : node.getParameters()) {
-      ASTNode inlineASTNode = inlineASTNode(owner, astNode);
-      parameters.add(inlineASTNode);
+    ASTNode[] parameters = node.getParameters();
+    for (int i = 0; i < node.getParameters().length; i++) {
+      parameters[i] = inlineASTNode(owner, parameters[i]);
     }
-    boolean allMatch = parameters.stream().allMatch(node1 -> node1 instanceof InlinedASTNode);
+    boolean allMatch = Arrays.stream(parameters).allMatch(node1 -> node1 instanceof InlinedASTNode);
 
     switch (token.getType()) {
       case POSTFIX_OPERATOR, PREFIX_OPERATOR, INFIX_OPERATOR -> {
         var operator = token.getOperatorDefinition();
-        if (!allMatch && !operator.forceInline()) return withParameters(node, parameters);
+        if (!allMatch && !operator.forceInline()) return node;
         try {
-          var result = operator.inlineOperator(owner, token, parameters);
+          var result = operator.inlineOperator(owner, token, parameters.clone());
           if (result != null)
-            return InlinedASTNode.trusted(token, owner.tryRoundValue(result), parameters);
+            return InlinedASTNode.of(token, owner.tryRoundValue(result), parameters);
         } catch (Exception e) {
-          return withParameters(node, parameters);
+          return node;
         }
       }
       case FUNCTION -> {
         var function = token.getFunctionDefinition();
-        if (!allMatch && !function.forceInline()) return withParameters(node, parameters);
+        if (!allMatch && !function.forceInline()) return node;
         try {
-          var result = function.inlineFunction(owner, token, parameters);
+          var result = function.inlineFunction(owner, token, parameters.clone());
           if (result != null)
-            return InlinedASTNode.trusted(token, owner.tryRoundValue(result), parameters);
+            return InlinedASTNode.of(token, owner.tryRoundValue(result), parameters);
         } catch (Exception e) {
-          return withParameters(node, parameters);
+          return node;
         }
       }
     }
-    return withParameters(node, parameters);
-  }
-
-  private static ASTNode withParameters(ASTNode node, @NotNull List<ASTNode> parameters) {
-    return !node.getParameters().equals(parameters)
-        ? ASTNode.trusted(node.getToken(), parameters)
-        : node;
+    return node;
   }
 }

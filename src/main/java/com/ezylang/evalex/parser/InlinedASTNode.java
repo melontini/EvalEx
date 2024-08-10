@@ -16,8 +16,6 @@
 package com.ezylang.evalex.parser;
 
 import com.ezylang.evalex.data.EvaluationValue;
-import java.util.Collections;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -34,20 +32,20 @@ public final class InlinedASTNode extends ASTNode {
 
   private final EvaluationValue value;
 
-  public InlinedASTNode(Token token, EvaluationValue value, List<ASTNode> parameters) {
+  public InlinedASTNode(Token token, EvaluationValue value, ASTNode... parameters) {
     super(token, parameters);
     this.value = value;
   }
 
   public static InlinedASTNode of(Token token, EvaluationValue constant) {
-    return new InlinedASTNode(token, constant, Collections.emptyList());
+    return new InlinedASTNode(token, constant, ASTNode.EMPTY);
   }
 
-  public static InlinedASTNode of(Token token, EvaluationValue constant, List<ASTNode> nodes) {
-    return new InlinedASTNode(token, constant, List.copyOf(nodes));
+  public static InlinedASTNode of(Token token, EvaluationValue constant, ASTNode... nodes) {
+    return new InlinedASTNode(token, constant, nodes);
   }
 
-  static InlinedASTNode trusted(Token token, EvaluationValue constant, List<ASTNode> nodes) {
-    return new InlinedASTNode(token, constant, Collections.unmodifiableList(nodes));
+  static InlinedASTNode trusted(Token token, EvaluationValue constant, ASTNode... nodes) {
+    return new InlinedASTNode(token, constant, nodes);
   }
 }

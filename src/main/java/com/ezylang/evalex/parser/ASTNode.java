@@ -15,8 +15,7 @@
 */
 package com.ezylang.evalex.parser;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -41,27 +40,25 @@ import lombok.experimental.FieldDefaults;
 @EqualsAndHashCode
 public class ASTNode {
 
+  public static final ASTNode[] EMPTY = new ASTNode[0];
+
   /** The children od the tree. */
-  List<ASTNode> parameters;
+  ASTNode[] parameters;
 
   /** The token associated with this tree node. */
   Token token;
 
-  protected ASTNode(Token token, List<ASTNode> parameters) {
+  protected ASTNode(Token token, ASTNode... parameters) {
     this.token = token;
     this.parameters = parameters;
   }
 
   public static ASTNode of(Token token) {
-    return new ASTNode(token, Collections.emptyList());
+    return new ASTNode(token, EMPTY);
   }
 
-  public static ASTNode of(Token token, List<ASTNode> nodes) {
-    return new ASTNode(token, List.copyOf(nodes));
-  }
-
-  static ASTNode trusted(Token token, List<ASTNode> nodes) {
-    return new ASTNode(token, Collections.unmodifiableList(nodes));
+  public static ASTNode of(Token token, ASTNode... nodes) {
+    return new ASTNode(token, nodes);
   }
 
   /**
@@ -70,12 +67,12 @@ public class ASTNode {
    * @return A JSON string of the tree structure starting at this node.
    */
   public String toJSON() {
-    if (parameters.isEmpty()) {
+    if (parameters.length == 0) {
       return String.format(
           "{" + "\"type\":\"%s\",\"value\":\"%s\"}", token.getType(), token.getValue());
     } else {
       String childrenJson =
-          parameters.stream().map(ASTNode::toJSON).collect(Collectors.joining(","));
+          Arrays.stream(parameters).map(ASTNode::toJSON).collect(Collectors.joining(","));
       return String.format(
           "{" + "\"type\":\"%s\",\"value\":\"%s\",\"children\":[%s]}",
           token.getType(), token.getValue(), childrenJson);

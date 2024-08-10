@@ -23,7 +23,6 @@ import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.parser.ASTNode;
 import com.ezylang.evalex.parser.Token;
 import java.time.Instant;
-import java.util.List;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -50,7 +49,7 @@ public class DateTimeNowFunction extends AbstractFunction {
 
   @Override
   public @Nullable EvaluationValue inlineFunction(
-      Expression expression, Token token, List<ASTNode> parameters) {
+      Expression expression, Token token, ASTNode... parameters) {
     return null;
   }
 }

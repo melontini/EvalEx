@@ -99,15 +99,22 @@ public interface FunctionIfc {
   }
 
   default @Nullable EvaluationValue inlineFunction(
-      Expression expression, Token token, List<ASTNode> parameters) throws EvaluationException {
-    EvaluationValue[] parsed = new EvaluationValue[parameters.size()];
-    for (int i = 0; i < parameters.size(); i++) {
-      if (token.getFunctionDefinition().isParameterLazy(i)) {
-        parsed[i] = ExpressionNodeValue.of(parameters.get(i));
-      } else {
-        parsed[i] = ((InlinedASTNode) parameters.get(i)).value();
+      Expression expression, Token token, ASTNode... parameters) throws EvaluationException {
+
+    EvaluationValue[] parsed;
+    if (parameters.length == 0) {
+      parsed = EvaluationValue.EMPTY;
+    } else {
+      parsed = new EvaluationValue[parameters.length];
+      for (int i = 0; i < parameters.length; i++) {
+        if (token.getFunctionDefinition().isParameterLazy(i)) {
+          parsed[i] = ExpressionNodeValue.of(parameters[i]);
+        } else {
+          parsed[i] = ((InlinedASTNode) parameters[i]).value();
+        }
       }
     }
+
     this.validatePreEvaluation(token, parsed);
     return this.evaluate(EvaluationContext.builder(expression).build(), token, parsed);
   }

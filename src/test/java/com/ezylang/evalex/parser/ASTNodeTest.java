@@ -21,7 +21,6 @@ import com.ezylang.evalex.functions.basic.MinFunction;
 import com.ezylang.evalex.operators.arithmetic.InfixPlusOperator;
 import com.ezylang.evalex.operators.arithmetic.PrefixMinusOperator;
 import com.ezylang.evalex.parser.Token.TokenType;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class ASTNodeTest {
@@ -38,7 +37,7 @@ class ASTNodeTest {
   @Test
   void testJSONPrefix() {
     Token token = new Token(1, "-", TokenType.PREFIX_OPERATOR, new PrefixMinusOperator());
-    ASTNode node = ASTNode.of(token, List.of(ASTNode.of(variable)));
+    ASTNode node = ASTNode.of(token, ASTNode.of(variable));
 
     assertThat(node.toJSON())
         .isEqualTo(
@@ -48,7 +47,7 @@ class ASTNodeTest {
   @Test
   void testJSONInfix() {
     Token token = new Token(1, "+", TokenType.INFIX_OPERATOR, new InfixPlusOperator());
-    ASTNode node = ASTNode.of(token, List.of(ASTNode.of(variable), ASTNode.of(variable)));
+    ASTNode node = ASTNode.of(token, ASTNode.of(variable), ASTNode.of(variable));
 
     assertThat(node.toJSON())
         .isEqualTo(
@@ -59,8 +58,7 @@ class ASTNodeTest {
   void testJSONFunction() {
     Token token = new Token(1, "+", TokenType.FUNCTION, new MinFunction());
     ASTNode node =
-        ASTNode.of(
-            token, List.of(ASTNode.of(variable), ASTNode.of(variable), ASTNode.of(variable)));
+        ASTNode.of(token, ASTNode.of(variable), ASTNode.of(variable), ASTNode.of(variable));
 
     assertThat(node.toJSON())
         .isEqualTo(

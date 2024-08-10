@@ -33,6 +33,8 @@ import java.util.Objects;
  */
 public interface EvaluationValue extends Comparable<EvaluationValue> {
 
+  EvaluationValue[] EMPTY = new EvaluationValue[0];
+
   /**
    * Creates a new evaluation value by using the configured converter and configuration.
    *

@@ -22,7 +22,6 @@ import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.parser.ASTNode;
 import com.ezylang.evalex.parser.Token;
 import java.security.SecureRandom;
-import java.util.List;
 import org.jetbrains.annotations.Nullable;
 
 /** Random function produces a random value between 0 and 1. */
@@ -39,7 +38,7 @@ public class RandomFunction extends AbstractFunction {
 
   @Override
   public @Nullable EvaluationValue inlineFunction(
-      Expression expression, Token token, List<ASTNode> parameters) {
+      Expression expression, Token token, ASTNode... parameters) {
     return null;
   }
 }

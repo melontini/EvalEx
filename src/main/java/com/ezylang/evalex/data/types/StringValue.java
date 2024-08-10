@@ -15,17 +15,22 @@
 */
 package com.ezylang.evalex.data.types;
 
+import com.ezylang.evalex.EvaluationContext;
+import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.IndexedAccessor;
+import com.ezylang.evalex.parser.Token;
 import java.math.BigDecimal;
 import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.Instant;
 import lombok.*;
+import org.jetbrains.annotations.Nullable;
 
 @ToString()
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class StringValue extends EvaluationValue {
+public final class StringValue implements EvaluationValue, IndexedAccessor {
 
   private final String value;
 
@@ -86,5 +91,15 @@ public final class StringValue extends EvaluationValue {
   @Override
   public int compareTo(EvaluationValue toCompare) {
     return value.compareTo(toCompare.getStringValue());
+  }
+
+  @Override
+  public @Nullable EvaluationValue getIndexedData(
+      BigDecimal index, Token token, EvaluationContext context) throws EvaluationException {
+    int intIndex = index.intValue();
+    if (intIndex < 0 || intIndex >= value.length()) {
+      return null;
+    }
+    return StringValue.of(String.valueOf(value.charAt(intIndex)));
   }
 }

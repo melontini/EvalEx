@@ -18,6 +18,7 @@ package com.ezylang.evalex;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.DataAccessorIfc;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.IndexedAccessor;
 import com.ezylang.evalex.data.types.ExpressionNodeValue;
 import com.ezylang.evalex.data.types.NumberValue;
 import com.ezylang.evalex.functions.FunctionIfc;
@@ -142,7 +143,7 @@ public class Expression {
       result = configuration.getConstants().get(token.getValue());
     }
     if (result == null && getDataAccessor() != null) {
-      result = getDataAccessor().getData(token.getValue(), token, context);
+      result = getDataAccessor().getVariableData(token.getValue(), token, context);
     }
     if (result == null) {
       throw new EvaluationException(
@@ -172,16 +173,15 @@ public class Expression {
     EvaluationValue array = evaluateSubtree(startNode.getParameters().get(0), context);
     EvaluationValue index = evaluateSubtree(startNode.getParameters().get(1), context);
 
-    if (array.isArrayValue() && index.isNumberValue()) {
-      if (index.getNumberValue().intValue() < 0
-          || index.getNumberValue().intValue() >= array.getArrayValue().size()) {
+    if (array instanceof IndexedAccessor accessor && index.isNumberValue()) {
+      var result = accessor.getIndexedData(index.getNumberValue(), startNode.getToken(), context);
+      if (result == null)
         throw new EvaluationException(
             startNode.getToken(),
             String.format(
-                "Index %d out of bounds for array of length %d",
-                index.getNumberValue().intValue(), array.getArrayValue().size()));
-      }
-      return array.getArrayValue().get(index.getNumberValue().intValue());
+                "Index %s out of bounds for %s %s",
+                index.getNumberValue(), array.getClass().getSimpleName(), array.getValue()));
+      return result;
     }
     throw EvaluationException.ofUnsupportedDataTypeInOperation(startNode.getToken());
   }
@@ -192,20 +192,14 @@ public class Expression {
     Token nameToken = startNode.getParameters().get(1).getToken();
     String name = nameToken.getValue();
 
-    if (structure.isDataAccessorValue()) {
-      var result = structure.getDataAccessorValue().getData(name, nameToken, context);
+    if (structure instanceof DataAccessorIfc accessor) {
+      var result = accessor.getVariableData(name, nameToken, context);
       if (result == null)
         throw new EvaluationException(
-            nameToken, String.format("Field '%s' not found in structure", name));
+            nameToken,
+            String.format(
+                "Field '%s' not found in %s", name, structure.getClass().getSimpleName()));
       return result;
-    }
-
-    if (structure.isStructureValue()) {
-      if (!structure.getStructureValue().containsKey(name)) {
-        throw new EvaluationException(
-            nameToken, String.format("Field '%s' not found in structure", name));
-      }
-      return structure.getStructureValue().get(name);
     }
     throw EvaluationException.ofUnsupportedDataTypeInOperation(startNode.getToken());
   }

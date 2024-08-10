@@ -31,7 +31,7 @@ import java.util.Objects;
  * consists of a data type and data value. Depending on the type, the value will be stored in a
  * corresponding object type.
  */
-public abstract class EvaluationValue implements Comparable<EvaluationValue> {
+public interface EvaluationValue extends Comparable<EvaluationValue> {
 
   /**
    * Creates a new evaluation value by using the configured converter and configuration.
@@ -41,49 +41,45 @@ public abstract class EvaluationValue implements Comparable<EvaluationValue> {
    * @throws IllegalArgumentException if the data type can't be mapped.
    * @see ExpressionConfiguration#getEvaluationValueConverter()
    */
-  public static EvaluationValue of(Object value, ExpressionConfiguration configuration) {
+  static EvaluationValue of(Object value, ExpressionConfiguration configuration) {
     return configuration.getEvaluationValueConverter().convertObject(value, configuration);
   }
 
-  public abstract Object getValue();
+  Object getValue();
 
-  public boolean isNumberValue() {
+  default boolean isNumberValue() {
     return false;
   }
 
-  public boolean isStringValue() {
+  default boolean isStringValue() {
     return false;
   }
 
-  public boolean isBooleanValue() {
+  default boolean isBooleanValue() {
     return false;
   }
 
-  public boolean isDateTimeValue() {
+  default boolean isDateTimeValue() {
     return false;
   }
 
-  public boolean isDurationValue() {
+  default boolean isDurationValue() {
     return false;
   }
 
-  public boolean isArrayValue() {
+  default boolean isArrayValue() {
     return false;
   }
 
-  public boolean isStructureValue() {
+  default boolean isStructureValue() {
     return false;
   }
 
-  public boolean isDataAccessorValue() {
+  default boolean isExpressionNode() {
     return false;
   }
 
-  public boolean isExpressionNode() {
-    return false;
-  }
-
-  public boolean isNullValue() {
+  default boolean isNullValue() {
     return false;
   }
 
@@ -99,7 +95,7 @@ public abstract class EvaluationValue implements Comparable<EvaluationValue> {
    * @return The {@link BigDecimal} representation of the value, or {@link BigDecimal#ZERO} if
    *     conversion is not possible.
    */
-  public BigDecimal getNumberValue() {
+  default BigDecimal getNumberValue() {
     return BigDecimal.ZERO;
   }
 
@@ -114,7 +110,7 @@ public abstract class EvaluationValue implements Comparable<EvaluationValue> {
    *
    * @return The {@link String} representation of the value.
    */
-  public String getStringValue() {
+  default String getStringValue() {
     return Objects.toString(getValue());
   }
 
@@ -129,7 +125,7 @@ public abstract class EvaluationValue implements Comparable<EvaluationValue> {
    *
    * @return The {@link Boolean} representation of the value.
    */
-  public Boolean getBooleanValue() {
+  default Boolean getBooleanValue() {
     return false;
   }
 
@@ -147,7 +143,7 @@ public abstract class EvaluationValue implements Comparable<EvaluationValue> {
    *
    * @return The {@link Instant} representation of the value.
    */
-  public Instant getDateTimeValue() {
+  default Instant getDateTimeValue() {
     return Instant.EPOCH;
   }
 
@@ -164,7 +160,7 @@ public abstract class EvaluationValue implements Comparable<EvaluationValue> {
    *
    * @return The {@link Duration} representation of the value.
    */
-  public Duration getDurationValue() {
+  default Duration getDurationValue() {
     return Duration.ZERO;
   }
 
@@ -174,7 +170,7 @@ public abstract class EvaluationValue implements Comparable<EvaluationValue> {
    * @return The {@link List<EvaluationValue>} representation of the value or an empty list, if no
    *     conversion is possible.
    */
-  public List<EvaluationValue> getArrayValue() {
+  default List<EvaluationValue> getArrayValue() {
     return Collections.emptyList();
   }
 
@@ -184,11 +180,11 @@ public abstract class EvaluationValue implements Comparable<EvaluationValue> {
    * @return The {@link Map} representation of the value or an empty list, if no conversion is
    *     possible.
    */
-  public Map<String, EvaluationValue> getStructureValue() {
+  default Map<String, EvaluationValue> getStructureValue() {
     return Collections.emptyMap();
   }
 
-  public DataAccessorIfc getDataAccessorValue() {
+  default DataAccessorIfc getDataAccessorValue() {
     return null;
   }
 
@@ -197,12 +193,12 @@ public abstract class EvaluationValue implements Comparable<EvaluationValue> {
    *
    * @return The expression node, or null for any other data type.
    */
-  public ASTNode getExpressionNode() {
+  default ASTNode getExpressionNode() {
     return null;
   }
 
   @Override
-  public int compareTo(EvaluationValue toCompare) {
+  default int compareTo(EvaluationValue toCompare) {
     return getStringValue().compareTo(toCompare.getStringValue());
   }
 }

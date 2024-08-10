@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 @ToString()
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class BooleanValue extends EvaluationValue {
+public final class BooleanValue implements EvaluationValue {
 
   public static final BooleanValue TRUE = new BooleanValue(true);
   public static final BooleanValue FALSE = new BooleanValue(false);

@@ -61,4 +61,18 @@ class ExpressionEvaluatorStringTest extends BaseExpressionEvaluatorTest {
   void testInnerNumberConcatenationWithBraces() throws ParseException, EvaluationException {
     assertThat(evaluate("\"Start\"+(1+1)+\"End\"")).isEqualTo("Start2End");
   }
+
+  @Test
+  void testStringCharIndex() throws ParseException, EvaluationException {
+    assertThat(evaluate("\"Start\"[0]")).isEqualTo("S");
+  }
+
+  @Test
+  void testStringComplexCharIndex() throws ParseException, EvaluationException {
+    assertThat(
+            createExpression("a[0] + a[1] + a[2] + a[3] + a[5 - 1]")
+                .evaluate(builder -> builder.parameter("a", "Start"))
+                .getStringValue())
+        .isEqualTo("Start");
+  }
 }

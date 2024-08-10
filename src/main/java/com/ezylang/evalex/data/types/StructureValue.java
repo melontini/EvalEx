@@ -15,14 +15,19 @@
 */
 package com.ezylang.evalex.data.types;
 
+import com.ezylang.evalex.EvaluationContext;
+import com.ezylang.evalex.EvaluationException;
+import com.ezylang.evalex.data.DataAccessorIfc;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.parser.Token;
 import java.util.Map;
 import lombok.*;
+import org.jetbrains.annotations.Nullable;
 
 @ToString()
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class StructureValue extends EvaluationValue {
+public final class StructureValue implements EvaluationValue, DataAccessorIfc {
 
   private final Map<String, EvaluationValue> value;
 
@@ -44,5 +49,11 @@ public final class StructureValue extends EvaluationValue {
   @Override
   public Map<String, EvaluationValue> getStructureValue() {
     return value;
+  }
+
+  @Override
+  public @Nullable EvaluationValue getVariableData(
+      String variable, Token token, EvaluationContext context) throws EvaluationException {
+    return value.getOrDefault(variable, null);
   }
 }

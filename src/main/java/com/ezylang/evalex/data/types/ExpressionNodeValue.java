@@ -22,7 +22,7 @@ import lombok.*;
 @ToString()
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ExpressionNodeValue extends EvaluationValue {
+public final class ExpressionNodeValue implements EvaluationValue {
 
   private final ASTNode value;
 

@@ -26,7 +26,7 @@ import lombok.*;
 @ToString()
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class NumberValue extends EvaluationValue {
+public final class NumberValue implements EvaluationValue {
 
   private final BigDecimal value;
 

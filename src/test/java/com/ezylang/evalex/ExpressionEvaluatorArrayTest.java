@@ -196,7 +196,7 @@ class ExpressionEvaluatorArrayTest extends BaseExpressionEvaluatorTest {
               createExpression("a[1]").evaluate(builder -> builder.parameter("a", array));
             })
         .isInstanceOf(EvaluationException.class)
-        .hasMessage("Index 1 out of bounds for array of length 1");
+        .hasMessage("Index 1 out of bounds for ArrayValue [StringValue(value=Hello)]");
   }
 
   @Test
@@ -207,6 +207,6 @@ class ExpressionEvaluatorArrayTest extends BaseExpressionEvaluatorTest {
               createExpression("a[-1]").evaluate(builder -> builder.parameter("a", array));
             })
         .isInstanceOf(EvaluationException.class)
-        .hasMessage("Index -1 out of bounds for array of length 1");
+        .hasMessage("Index -1 out of bounds for ArrayValue [StringValue(value=Hello)]");
   }
 }

@@ -27,7 +27,7 @@ import lombok.ToString;
 @ToString()
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class NullValue extends EvaluationValue {
+public final class NullValue implements EvaluationValue {
 
   private static final NullValue INSTANCE = new NullValue();
 

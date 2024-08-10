@@ -65,7 +65,6 @@ public class DefaultEvaluationValueConverter implements EvaluationValueConverter
           new DurationConverter(),
           new ExpressionNodeConverter(),
           new ArrayConverter(),
-          new DataAccessorConverter(),
           new StructureConverter());
 
   @Override

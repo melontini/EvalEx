@@ -22,7 +22,7 @@ import lombok.*;
 @ToString()
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DateTimeValue extends EvaluationValue {
+public final class DateTimeValue implements EvaluationValue {
 
   private final Instant value;
 

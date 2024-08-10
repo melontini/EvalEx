@@ -15,14 +15,20 @@
 */
 package com.ezylang.evalex.data.types;
 
+import com.ezylang.evalex.EvaluationContext;
+import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.IndexedAccessor;
+import com.ezylang.evalex.parser.Token;
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.*;
+import org.jetbrains.annotations.Nullable;
 
 @ToString()
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ArrayValue extends EvaluationValue {
+public final class ArrayValue implements EvaluationValue, IndexedAccessor {
 
   private final List<EvaluationValue> value;
 
@@ -43,5 +49,15 @@ public final class ArrayValue extends EvaluationValue {
   @Override
   public List<EvaluationValue> getArrayValue() {
     return value;
+  }
+
+  @Override
+  public @Nullable EvaluationValue getIndexedData(
+      BigDecimal index, Token token, EvaluationContext context) throws EvaluationException {
+    int intIndex = index.intValue();
+    if (intIndex < 0 || intIndex >= value.size()) {
+      return null;
+    }
+    return value.get(intIndex);
   }
 }

@@ -42,9 +42,9 @@ class MapBasedDataAccessorTest {
     variables.put("string", string);
     variables.put("bool", bool);
 
-    assertThat(dataAccessor.getData("num", null, null)).isEqualTo(num);
-    assertThat(dataAccessor.getData("string", null, null)).isEqualTo(string);
-    assertThat(dataAccessor.getData("bool", null, null)).isEqualTo(bool);
+    assertThat(dataAccessor.getVariableData("num", null, null)).isEqualTo(num);
+    assertThat(dataAccessor.getVariableData("string", null, null)).isEqualTo(string);
+    assertThat(dataAccessor.getVariableData("bool", null, null)).isEqualTo(bool);
   }
 
   @Test
@@ -55,8 +55,8 @@ class MapBasedDataAccessorTest {
     EvaluationValue num = NumberValue.of(new BigDecimal("123"));
     variables.put("Hello", num);
 
-    assertThat(dataAccessor.getData("Hello", null, null)).isEqualTo(num);
-    assertThat(dataAccessor.getData("hello", null, null)).isEqualTo(num);
-    assertThat(dataAccessor.getData("HELLO", null, null)).isEqualTo(num);
+    assertThat(dataAccessor.getVariableData("Hello", null, null)).isEqualTo(num);
+    assertThat(dataAccessor.getVariableData("hello", null, null)).isEqualTo(num);
+    assertThat(dataAccessor.getVariableData("HELLO", null, null)).isEqualTo(num);
   }
 }

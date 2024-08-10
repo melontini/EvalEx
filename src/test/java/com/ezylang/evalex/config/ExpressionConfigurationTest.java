@@ -139,7 +139,7 @@ class ExpressionConfigurationTest {
                 () ->
                     new DataAccessorIfc() {
                       @Override
-                      public EvaluationValue getData(
+                      public EvaluationValue getVariableData(
                           String variable, Token token, EvaluationContext context) {
                         return StringValue.of(variable);
                       }

@@ -16,14 +16,11 @@
 package com.ezylang.evalex.functions.datetime;
 
 import com.ezylang.evalex.EvaluationContext;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.data.types.DateTimeValue;
 import com.ezylang.evalex.functions.AbstractFunction;
-import com.ezylang.evalex.parser.ASTNode;
 import com.ezylang.evalex.parser.Token;
 import java.time.Instant;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Produces a new DATE_TIME that represents the current date and time.
@@ -45,11 +42,5 @@ public class DateTimeNowFunction extends AbstractFunction {
   public EvaluationValue evaluate(
       EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
     return DateTimeValue.of(Instant.now());
-  }
-
-  @Override
-  public @Nullable EvaluationValue inlineFunction(
-      Expression expression, Token token, ASTNode... parameters) {
-    return null;
   }
 }

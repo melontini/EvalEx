@@ -34,13 +34,10 @@ public class InfixAndOperator extends AbstractOperator {
       EvaluationContext context, Token operatorToken, EvaluationValue... operands)
       throws EvaluationException {
     return BooleanValue.of(
-        context
-                .expression()
-                .evaluateSubtree(operands[0].getExpressionNode(), context)
-                .getBooleanValue()
+        context.expression().evaluateSubtree(operands[0].getSolvable(), context).getBooleanValue()
             && context
                 .expression()
-                .evaluateSubtree(operands[1].getExpressionNode(), context)
+                .evaluateSubtree(operands[1].getSolvable(), context)
                 .getBooleanValue());
   }
 }

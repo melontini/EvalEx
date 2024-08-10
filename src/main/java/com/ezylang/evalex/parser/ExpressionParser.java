@@ -18,12 +18,13 @@ package com.ezylang.evalex.parser;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.config.ExpressionConfiguration;
+import com.ezylang.evalex.data.DataAccessorIfc;
 import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.data.IndexedAccessor;
+import com.ezylang.evalex.data.types.SolvableValue;
 import com.ezylang.evalex.functions.FunctionIfc;
 import com.ezylang.evalex.operators.OperatorIfc;
-import java.util.Arrays;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 
 @Getter
 public final class ExpressionParser {
@@ -41,85 +42,124 @@ public final class ExpressionParser {
   public Expression parse(String expression) throws ParseException {
     return new Expression(
         expression,
-        converter.toAbstractSyntaxTree(tokenizer.parse(expression), expression),
+        this.toSolvable(converter.toAbstractSyntaxTree(tokenizer.parse(expression), expression)),
         configuration);
   }
 
-  public Expression parseAndInline(String expression) throws ParseException, EvaluationException {
-    Expression result = this.parse(expression);
-    return new Expression(
-        expression, this.inlineASTNode(result, result.getAbstractSyntaxTree()), configuration);
+  public Solvable toSolvable(ASTNode node) {
+    if (node instanceof InlinedASTNode inlined)
+      return context -> context.expression().tryRoundValue(inlined.value());
+
+    Token token = node.getToken();
+    Solvable value =
+        switch (token.getType()) {
+          case VARIABLE_OR_CONSTANT -> context -> {
+            var result = context.expression().getVariableOrConstant(token, context);
+            if (result.isSolvable()) return result.getSolvable().solve(context);
+            return result;
+          };
+          case PREFIX_OPERATOR, POSTFIX_OPERATOR -> {
+            OperatorIfc operator = token.getOperatorDefinition();
+            Solvable solvable = toSolvable(node.getParameters()[0]);
+            yield context -> operator.evaluate(context, token, solvable.solve(context));
+          }
+          case INFIX_OPERATOR -> infixOperatorToSolvable(node);
+          case ARRAY_INDEX -> arrayIndexToSolvable(node);
+          case STRUCTURE_SEPARATOR -> structureSeparatorToSolvable(node);
+          case FUNCTION -> functionToSolvable(node);
+          default -> throw new IllegalStateException("Unexpected evaluation token: " + token);
+        };
+    return context -> context.expression().tryRoundValue(value.solve(context));
   }
 
-  public Expression inlineExpression(Expression expression) throws EvaluationException {
-    return new Expression(
-        expression.getExpressionString(),
-        this.inlineASTNode(expression, expression.getAbstractSyntaxTree()),
-        expression.getConfiguration());
+  private Solvable infixOperatorToSolvable(ASTNode node) {
+    Token token = node.getToken();
+    OperatorIfc operator = token.getOperatorDefinition();
+
+    Solvable left;
+    Solvable right;
+    if (operator.isOperandLazy()) {
+      var first = SolvableValue.of(toSolvable(node.getParameters()[0]));
+      var second = SolvableValue.of(toSolvable(node.getParameters()[1]));
+      left = context -> first;
+      right = context -> second;
+    } else {
+      left = toSolvable(node.getParameters()[0]);
+      right = toSolvable(node.getParameters()[1]);
+    }
+    return context -> operator.evaluate(context, token, left.solve(context), right.solve(context));
   }
 
-  /**
-   * Optional operation which attempts to inline nodes with constant results.<br>
-   * This method attempts to inline constant variables, functions and operators.
-   *
-   * <p>If an operator cannot be inlined, it must implement {@link
-   * OperatorIfc#inlineOperator(Expression, Token, ASTNode...)} and return null. Same with
-   * functions, but {@link FunctionIfc#inlineFunction(Expression, Token, ASTNode...)}.
-   *
-   * @return New {@link InlinedASTNode} or {@link ASTNode} if inlining was unsuccessful.
-   */
-  public @NotNull ASTNode inlineASTNode(Expression owner, ASTNode node) {
-    if (node instanceof InlinedASTNode) return node;
-    var token = node.getToken();
+  private Solvable arrayIndexToSolvable(ASTNode node) {
+    Token token = node.getToken();
+
+    Solvable solvableArray = toSolvable(node.getParameters()[0]);
+    Solvable solvableIndex = toSolvable(node.getParameters()[1]);
+
+    return context -> {
+      var array = solvableArray.solve(context);
+      var index = solvableIndex.solve(context);
+
+      if (array instanceof IndexedAccessor accessor && index.isNumberValue()) {
+        var result = accessor.getIndexedData(index.getNumberValue(), token, context);
+        if (result == null)
+          throw new EvaluationException(
+              token,
+              String.format(
+                  "Index %s out of bounds for %s %s",
+                  index.getNumberValue(), array.getClass().getSimpleName(), array.getValue()));
+        return result;
+      }
+      throw EvaluationException.ofUnsupportedDataTypeInOperation(token);
+    };
+  }
+
+  private Solvable structureSeparatorToSolvable(ASTNode startNode) {
+    Solvable solvableStructure = toSolvable(startNode.getParameters()[0]);
+    Token nameToken = startNode.getParameters()[1].getToken();
+    String name = nameToken.getValue();
+
+    return context -> {
+      EvaluationValue structure = solvableStructure.solve(context);
+      if (structure instanceof DataAccessorIfc accessor) {
+        var result = accessor.getVariableData(name, nameToken, context);
+        if (result == null)
+          throw new EvaluationException(
+              nameToken,
+              String.format(
+                  "Field '%s' not found in %s", name, structure.getClass().getSimpleName()));
+        return result;
+      }
+      throw EvaluationException.ofUnsupportedDataTypeInOperation(startNode.getToken());
+    };
+  }
+
+  private Solvable functionToSolvable(ASTNode node) {
+    Token token = node.getToken();
+    FunctionIfc function = token.getFunctionDefinition();
+    Solvable[] solvables;
 
     if (node.getParameters().length == 0) {
-      if (token.getType() == Token.TokenType.VARIABLE_OR_CONSTANT) {
-        if (!owner.getConfiguration().isAllowOverwriteConstants()) {
-          EvaluationValue constant = owner.getConfiguration().getConstants().get(token.getValue());
-          if (constant != null) return InlinedASTNode.of(token, owner.tryRoundValue(constant));
-        }
-      } else if (token.getType() == Token.TokenType.FUNCTION
-          && token.getFunctionDefinition().forceInline()) {
-        try {
-          EvaluationValue function = token.getFunctionDefinition().inlineFunction(owner, token);
-          if (function != null) return InlinedASTNode.of(token, owner.tryRoundValue(function));
-        } catch (Exception e) {
-          return node;
+      solvables = new Solvable[0];
+    } else {
+      solvables = new Solvable[node.getParameters().length];
+      for (int i = 0; i < node.getParameters().length; i++) {
+        if (function.isParameterLazy(i)) {
+          var unwrapped = SolvableValue.of(toSolvable(node.getParameters()[i]));
+          solvables[i] = context -> unwrapped;
+        } else {
+          solvables[i] = toSolvable(node.getParameters()[i]);
         }
       }
-      return node;
     }
 
-    ASTNode[] parameters = node.getParameters();
-    for (int i = 0; i < node.getParameters().length; i++) {
-      parameters[i] = inlineASTNode(owner, parameters[i]);
-    }
-    boolean allMatch = Arrays.stream(parameters).allMatch(node1 -> node1 instanceof InlinedASTNode);
-
-    switch (token.getType()) {
-      case POSTFIX_OPERATOR, PREFIX_OPERATOR, INFIX_OPERATOR -> {
-        var operator = token.getOperatorDefinition();
-        if (!allMatch && !operator.forceInline()) return node;
-        try {
-          var result = operator.inlineOperator(owner, token, parameters.clone());
-          if (result != null)
-            return InlinedASTNode.of(token, owner.tryRoundValue(result), parameters);
-        } catch (Exception e) {
-          return node;
-        }
+    return context -> {
+      EvaluationValue[] parameters = new EvaluationValue[solvables.length];
+      for (int i = 0; i < solvables.length; i++) {
+        parameters[i] = solvables[i].solve(context);
       }
-      case FUNCTION -> {
-        var function = token.getFunctionDefinition();
-        if (!allMatch && !function.forceInline()) return node;
-        try {
-          var result = function.inlineFunction(owner, token, parameters.clone());
-          if (result != null)
-            return InlinedASTNode.of(token, owner.tryRoundValue(result), parameters);
-        } catch (Exception e) {
-          return node;
-        }
-      }
-    }
-    return node;
+      function.validatePreEvaluation(token, parameters);
+      return function.evaluate(context, token, parameters);
+    };
   }
 }

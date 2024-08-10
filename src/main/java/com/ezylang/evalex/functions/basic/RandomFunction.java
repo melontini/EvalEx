@@ -16,13 +16,10 @@
 package com.ezylang.evalex.functions.basic;
 
 import com.ezylang.evalex.EvaluationContext;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.functions.AbstractFunction;
-import com.ezylang.evalex.parser.ASTNode;
 import com.ezylang.evalex.parser.Token;
 import java.security.SecureRandom;
-import org.jetbrains.annotations.Nullable;
 
 /** Random function produces a random value between 0 and 1. */
 public class RandomFunction extends AbstractFunction {
@@ -34,11 +31,5 @@ public class RandomFunction extends AbstractFunction {
     SecureRandom secureRandom = new SecureRandom();
 
     return context.expression().convertDoubleValue(secureRandom.nextDouble());
-  }
-
-  @Override
-  public @Nullable EvaluationValue inlineFunction(
-      Expression expression, Token token, ASTNode... parameters) {
-    return null;
   }
 }

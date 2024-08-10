@@ -17,14 +17,9 @@ package com.ezylang.evalex.operators;
 
 import com.ezylang.evalex.EvaluationContext;
 import com.ezylang.evalex.EvaluationException;
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
-import com.ezylang.evalex.data.types.ExpressionNodeValue;
-import com.ezylang.evalex.parser.ASTNode;
-import com.ezylang.evalex.parser.InlinedASTNode;
 import com.ezylang.evalex.parser.Token;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Interface that is required for all operators in an operator dictionary for evaluation of
@@ -134,25 +129,4 @@ public interface OperatorIfc {
   EvaluationValue evaluate(
       EvaluationContext context, Token operatorToken, EvaluationValue... operands)
       throws EvaluationException;
-
-  default boolean forceInline() {
-    return false;
-  }
-
-  default @Nullable EvaluationValue inlineOperator(
-      Expression expression, Token token, ASTNode... parameters) throws EvaluationException {
-    EvaluationValue left =
-        this.isOperandLazy()
-            ? ExpressionNodeValue.of(parameters[0])
-            : ((InlinedASTNode) parameters[0]).value();
-    if (isPostfix() || isPrefix()) {
-      return this.evaluate(EvaluationContext.builder(expression).build(), token, left);
-    } else {
-      EvaluationValue right =
-          this.isOperandLazy()
-              ? ExpressionNodeValue.of(parameters[1])
-              : ((InlinedASTNode) parameters[1]).value();
-      return this.evaluate(EvaluationContext.builder(expression).build(), token, left, right);
-    }
-  }
 }

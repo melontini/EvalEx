@@ -15,7 +15,6 @@
 */
 package com.ezylang.evalex.config;
 
-import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.DataAccessorIfc;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.data.conversion.DefaultEvaluationValueConverter;
@@ -32,7 +31,6 @@ import com.ezylang.evalex.functions.trigonometric.*;
 import com.ezylang.evalex.operators.OperatorIfc;
 import com.ezylang.evalex.operators.arithmetic.*;
 import com.ezylang.evalex.operators.booleans.*;
-import com.ezylang.evalex.parser.ASTNode;
 import com.ezylang.evalex.parser.ExpressionParser;
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -123,8 +121,7 @@ public class ExpressionConfiguration {
   /**
    * Default constants will be added automatically to each expression and can be used in expression
    * evaluation. <br>
-   * It is assumed that constant will <b>never</b> change. {@link
-   * ExpressionParser#inlineASTNode(Expression, ASTNode)} relies on this assumption!
+   * It is assumed that constant will <b>never</b> change.
    */
   @Builder.Default
   private final Map<String, EvaluationValue> constants =

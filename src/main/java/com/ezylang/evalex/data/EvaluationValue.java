@@ -16,8 +16,8 @@
 package com.ezylang.evalex.data;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
-import com.ezylang.evalex.data.types.ExpressionNodeValue;
-import com.ezylang.evalex.parser.ASTNode;
+import com.ezylang.evalex.data.types.SolvableValue;
+import com.ezylang.evalex.parser.Solvable;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
@@ -77,7 +77,7 @@ public interface EvaluationValue extends Comparable<EvaluationValue> {
     return false;
   }
 
-  default boolean isExpressionNode() {
+  default boolean isSolvable() {
     return false;
   }
 
@@ -186,16 +186,12 @@ public interface EvaluationValue extends Comparable<EvaluationValue> {
     return Collections.emptyMap();
   }
 
-  default DataAccessorIfc getDataAccessorValue() {
-    return null;
-  }
-
   /**
-   * Gets the expression node, if this value is of type {@link ExpressionNodeValue}.
+   * Gets the {@link Solvable}, if this value is of type {@link SolvableValue}.
    *
-   * @return The expression node, or null for any other data type.
+   * @return The solvable, or null for any other data type.
    */
-  default ASTNode getExpressionNode() {
+  default Solvable getSolvable() {
     return null;
   }
 

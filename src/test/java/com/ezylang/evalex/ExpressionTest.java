@@ -22,13 +22,9 @@ import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.DataAccessorIfc;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.data.types.StringValue;
-import com.ezylang.evalex.parser.ASTNode;
-import com.ezylang.evalex.parser.ExpressionParser;
-import com.ezylang.evalex.parser.ParseException;
-import com.ezylang.evalex.parser.Token;
+import com.ezylang.evalex.parser.*;
 import java.math.MathContext;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
@@ -66,10 +62,8 @@ class ExpressionTest {
   @Test
   void testExpressionNode() throws ParseException, EvaluationException {
     Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("a*b");
-    ASTNode subExpression =
-        ExpressionConfiguration.defaultExpressionParser()
-            .parseAndInline("4+3")
-            .getAbstractSyntaxTree();
+    Solvable subExpression =
+        ExpressionConfiguration.defaultExpressionParser().parse("4+3").getSolvable();
 
     EvaluationValue result =
         expression.evaluate(builder -> builder.parameter("a", 2).parameter("b", subExpression));
@@ -176,44 +170,6 @@ class ExpressionTest {
             .parse("1");
     assertThat(limitedMathContextExpression.convertDoubleValue(1.6789).getNumberValue())
         .isEqualByComparingTo("1.68");
-  }
-
-  @Test
-  void testGetAllASTNodes() throws ParseException {
-    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("1+2/3");
-    List<ASTNode> nodes = expression.getAllASTNodes();
-    assertThat(nodes.get(0).getToken().getValue()).isEqualTo("+");
-    assertThat(nodes.get(1).getToken().getValue()).isEqualTo("1");
-    assertThat(nodes.get(2).getToken().getValue()).isEqualTo("/");
-    assertThat(nodes.get(3).getToken().getValue()).isEqualTo("2");
-    assertThat(nodes.get(4).getToken().getValue()).isEqualTo("3");
-  }
-
-  @Test
-  void testGetUsedVariables() throws ParseException {
-    Expression expression =
-        ExpressionConfiguration.defaultExpressionParser().parse("a/2*PI+MIN(e,b)");
-    assertThat(expression.getUsedVariables()).containsExactlyInAnyOrder("a", "b");
-  }
-
-  @Test
-  void testGetUsedVariablesLongNames() throws ParseException {
-    Expression expression =
-        ExpressionConfiguration.defaultExpressionParser().parse("var1/2*PI+MIN(var2,var3)");
-    assertThat(expression.getUsedVariables()).containsExactlyInAnyOrder("var1", "var2", "var3");
-  }
-
-  @Test
-  void testGetUsedVariablesNoVariables() throws ParseException {
-    Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("1/2");
-    assertThat(expression.getUsedVariables()).isEmpty();
-  }
-
-  @Test
-  void testGetUsedVariablesCaseSensitivity() throws ParseException {
-    Expression expression =
-        ExpressionConfiguration.defaultExpressionParser().parse("a+B*b-A/PI*(1/2)*pi+e-E+a");
-    assertThat(expression.getUsedVariables()).containsExactlyInAnyOrder("a", "b");
   }
 
   @Test

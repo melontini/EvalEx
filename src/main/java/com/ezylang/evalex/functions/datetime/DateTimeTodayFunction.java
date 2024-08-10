@@ -23,12 +23,10 @@ import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.data.types.DateTimeValue;
 import com.ezylang.evalex.functions.AbstractFunction;
 import com.ezylang.evalex.functions.FunctionParameter;
-import com.ezylang.evalex.parser.ASTNode;
 import com.ezylang.evalex.parser.Token;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Produces a new DATE_TIME that represents the current date, at midnight (00:00).
@@ -65,11 +63,5 @@ public class DateTimeTodayFunction extends AbstractFunction {
       return ZoneIdConverter.convert(functionToken, parameterValues[0].getStringValue());
     }
     return expression.getConfiguration().getZoneId();
-  }
-
-  @Override
-  public @Nullable EvaluationValue inlineFunction(
-      Expression expression, Token token, ASTNode... parameters) {
-    return null;
   }
 }

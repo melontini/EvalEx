@@ -22,7 +22,6 @@ import com.ezylang.evalex.parser.ASTNode;
 import com.ezylang.evalex.parser.ParseException;
 import com.ezylang.evalex.parser.Token;
 import com.ezylang.evalex.parser.Token.TokenType;
-import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.Test;
 
 class ExpressionEvaluationExceptionsTest {
@@ -34,9 +33,9 @@ class ExpressionEvaluationExceptionsTest {
     assertThatThrownBy(
             () -> {
               ASTNode node = ASTNode.of(new Token(1, "(", TokenType.BRACE_OPEN));
-              expression.evaluateSubtree(node, UnaryOperator.identity());
+              ExpressionConfiguration.defaultExpressionParser().toSolvable(node);
             })
-        .isInstanceOf(EvaluationException.class)
+        .isInstanceOf(IllegalStateException.class)
         .hasMessage(
             "Unexpected evaluation token: Token(startPosition=1, value=(, type=BRACE_OPEN)");
   }

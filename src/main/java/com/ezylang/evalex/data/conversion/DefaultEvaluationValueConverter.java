@@ -18,8 +18,7 @@ package com.ezylang.evalex.data.conversion;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.data.types.NullValue;
-import com.ezylang.evalex.parser.ASTNode;
-import com.ezylang.evalex.parser.InlinedASTNode;
+import com.ezylang.evalex.parser.Solvable;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
@@ -65,8 +64,7 @@ public class DefaultEvaluationValueConverter implements EvaluationValueConverter
   public static final BooleanConverter BOOLEAN_CONVERTER = new BooleanConverter();
   public static final DateTimeConverter DATE_TIME_CONVERTER = new DateTimeConverter();
   public static final DurationConverter DURATION_CONVERTER = new DurationConverter();
-  public static final ExpressionNodeConverter EXPRESSION_NODE_CONVERTER =
-      new ExpressionNodeConverter();
+  public static final SolvableConverter SOLVABLE_CONVERTER = new SolvableConverter();
   public static final ArrayConverter ARRAY_CONVERTER = new ArrayConverter();
   public static final StructureConverter STRUCTURE_CONVERTER = new StructureConverter();
 
@@ -77,7 +75,7 @@ public class DefaultEvaluationValueConverter implements EvaluationValueConverter
           BOOLEAN_CONVERTER,
           DATE_TIME_CONVERTER,
           DURATION_CONVERTER,
-          EXPRESSION_NODE_CONVERTER,
+          SOLVABLE_CONVERTER,
           ARRAY_CONVERTER,
           STRUCTURE_CONVERTER);
 
@@ -101,8 +99,7 @@ public class DefaultEvaluationValueConverter implements EvaluationValueConverter
 
     fastPath.put(Duration.class, DURATION_CONVERTER);
 
-    fastPath.put(ASTNode.class, EXPRESSION_NODE_CONVERTER);
-    fastPath.put(InlinedASTNode.class, EXPRESSION_NODE_CONVERTER);
+    fastPath.put(Solvable.class, SOLVABLE_CONVERTER);
 
     fastPath.put(List.class, ARRAY_CONVERTER);
     fastPath.put(Object[].class, ARRAY_CONVERTER);

@@ -98,8 +98,8 @@ public class SwitchFunction extends AbstractFunction {
   private EvaluationValue evaluateParameter(
       Expression expression, EvaluationValue parameter, EvaluationContext context)
       throws EvaluationException {
-    return parameter.isExpressionNode()
-        ? expression.evaluateSubtree(parameter.getExpressionNode(), context)
+    return parameter.isSolvable()
+        ? expression.evaluateSubtree(parameter.getSolvable(), context)
         : parameter;
   }
 }

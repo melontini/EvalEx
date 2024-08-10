@@ -37,9 +37,9 @@ public class IfFunction extends AbstractFunction {
       EvaluationContext context, Token functionToken, EvaluationValue... parameterValues)
       throws EvaluationException {
     if (Boolean.TRUE.equals(parameterValues[0].getBooleanValue())) {
-      return context.expression().evaluateSubtree(parameterValues[1].getExpressionNode(), context);
+      return context.expression().evaluateSubtree(parameterValues[1].getSolvable(), context);
     } else {
-      return context.expression().evaluateSubtree(parameterValues[2].getExpressionNode(), context);
+      return context.expression().evaluateSubtree(parameterValues[2].getSolvable(), context);
     }
   }
 }

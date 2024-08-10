@@ -18,14 +18,9 @@ package com.ezylang.evalex;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.DataAccessorIfc;
 import com.ezylang.evalex.data.EvaluationValue;
-import com.ezylang.evalex.data.IndexedAccessor;
-import com.ezylang.evalex.data.types.ExpressionNodeValue;
 import com.ezylang.evalex.data.types.NumberValue;
-import com.ezylang.evalex.functions.FunctionIfc;
-import com.ezylang.evalex.operators.OperatorIfc;
 import com.ezylang.evalex.parser.*;
 import java.math.BigDecimal;
-import java.util.*;
 import java.util.function.UnaryOperator;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +36,7 @@ public class Expression {
   private final ExpressionConfiguration configuration;
   private final String expressionString;
   private final @Nullable DataAccessorIfc dataAccessor;
-  private final ASTNode abstractSyntaxTree;
+  private final Solvable solvable;
 
   /**
    * Creates a new expression with a custom configuration. The expression is not parsed until it is
@@ -50,9 +45,9 @@ public class Expression {
    * @param expressionString A string holding an expression.
    */
   public Expression(
-      String expressionString, ASTNode abstractSyntaxTree, ExpressionConfiguration configuration) {
+      String expressionString, Solvable solvable, ExpressionConfiguration configuration) {
     this.expressionString = expressionString;
-    this.abstractSyntaxTree = abstractSyntaxTree;
+    this.solvable = solvable;
     this.configuration = configuration;
     this.dataAccessor = configuration.getDataAccessorSupplier().get();
   }
@@ -69,7 +64,7 @@ public class Expression {
    * @throws EvaluationException If there were problems while evaluating the expression.
    */
   public EvaluationValue evaluate(EvaluationContext context) throws EvaluationException {
-    EvaluationValue result = evaluateSubtree(getAbstractSyntaxTree(), context);
+    EvaluationValue result = evaluateSubtree(this.getSolvable(), context);
     if (result.isNumberValue()) {
       BigDecimal bigDecimal = result.getNumberValue();
       if (configuration.getDecimalPlacesResult()
@@ -88,42 +83,21 @@ public class Expression {
   }
 
   public EvaluationValue evaluateSubtree(
-      ASTNode startNode, UnaryOperator<EvaluationContext.EvaluationContextBuilder> builder)
+      Solvable solvable, UnaryOperator<EvaluationContext.EvaluationContextBuilder> builder)
       throws EvaluationException {
-    return this.evaluateSubtree(startNode, builder.apply(EvaluationContext.builder(this)).build());
+    return this.evaluateSubtree(solvable, builder.apply(EvaluationContext.builder(this)).build());
   }
 
   /**
    * Evaluates only a subtree of the abstract syntax tree.
    *
-   * @param startNode The {@link ASTNode} to start evaluation from.
+   * @param solvable The {@link Solvable} to start evaluation from.
    * @return The evaluation result value.
    * @throws EvaluationException If there were problems while evaluating the expression.
    */
-  public EvaluationValue evaluateSubtree(ASTNode startNode, EvaluationContext context)
+  public EvaluationValue evaluateSubtree(Solvable solvable, EvaluationContext context)
       throws EvaluationException {
-    if (startNode instanceof InlinedASTNode)
-      return tryRoundValue(((InlinedASTNode) startNode).value()); // All primitives go here.
-
-    Token token = startNode.getToken();
-    return tryRoundValue(
-        switch (token.getType()) {
-          case VARIABLE_OR_CONSTANT -> {
-            var result = getVariableOrConstant(token, context);
-            if (result.isExpressionNode()) {
-              yield evaluateSubtree(result.getExpressionNode(), context);
-            }
-            yield result;
-          }
-          case PREFIX_OPERATOR, POSTFIX_OPERATOR -> token
-              .getOperatorDefinition()
-              .evaluate(context, token, evaluateSubtree(startNode.getParameters()[0], context));
-          case INFIX_OPERATOR -> evaluateInfixOperator(startNode, token, context);
-          case ARRAY_INDEX -> evaluateArrayIndex(startNode, context);
-          case STRUCTURE_SEPARATOR -> evaluateStructureSeparator(startNode, context);
-          case FUNCTION -> evaluateFunction(startNode, token, context);
-          default -> throw new EvaluationException(token, "Unexpected evaluation token: " + token);
-        });
+    return solvable.solve(context);
   }
 
   public EvaluationValue tryRoundValue(EvaluationValue value) {
@@ -136,7 +110,7 @@ public class Expression {
     return value;
   }
 
-  private EvaluationValue getVariableOrConstant(Token token, EvaluationContext context)
+  public EvaluationValue getVariableOrConstant(Token token, EvaluationContext context)
       throws EvaluationException {
     EvaluationValue result = context.parameters().get(token.getValue());
     if (result == null) {
@@ -150,80 +124,6 @@ public class Expression {
           token, String.format("Variable or constant value for '%s' not found", token.getValue()));
     }
     return result;
-  }
-
-  private EvaluationValue evaluateFunction(
-      ASTNode startNode, Token token, EvaluationContext context) throws EvaluationException {
-    EvaluationValue[] parameters;
-
-    if (startNode.getParameters().length == 0) {
-      parameters = EvaluationValue.EMPTY;
-    } else {
-      parameters = new EvaluationValue[startNode.getParameters().length];
-      for (int i = 0; i < startNode.getParameters().length; i++) {
-        if (token.getFunctionDefinition().isParameterLazy(i)) {
-          parameters[i] = ExpressionNodeValue.of(startNode.getParameters()[i]);
-        } else {
-          parameters[i] = evaluateSubtree(startNode.getParameters()[i], context);
-        }
-      }
-    }
-
-    FunctionIfc function = token.getFunctionDefinition();
-    function.validatePreEvaluation(token, parameters);
-    return function.evaluate(context, token, parameters);
-  }
-
-  private EvaluationValue evaluateArrayIndex(ASTNode startNode, EvaluationContext context)
-      throws EvaluationException {
-    EvaluationValue array = evaluateSubtree(startNode.getParameters()[0], context);
-    EvaluationValue index = evaluateSubtree(startNode.getParameters()[1], context);
-
-    if (array instanceof IndexedAccessor accessor && index.isNumberValue()) {
-      var result = accessor.getIndexedData(index.getNumberValue(), startNode.getToken(), context);
-      if (result == null)
-        throw new EvaluationException(
-            startNode.getToken(),
-            String.format(
-                "Index %s out of bounds for %s %s",
-                index.getNumberValue(), array.getClass().getSimpleName(), array.getValue()));
-      return result;
-    }
-    throw EvaluationException.ofUnsupportedDataTypeInOperation(startNode.getToken());
-  }
-
-  private EvaluationValue evaluateStructureSeparator(ASTNode startNode, EvaluationContext context)
-      throws EvaluationException {
-    EvaluationValue structure = evaluateSubtree(startNode.getParameters()[0], context);
-    Token nameToken = startNode.getParameters()[1].getToken();
-    String name = nameToken.getValue();
-
-    if (structure instanceof DataAccessorIfc accessor) {
-      var result = accessor.getVariableData(name, nameToken, context);
-      if (result == null)
-        throw new EvaluationException(
-            nameToken,
-            String.format(
-                "Field '%s' not found in %s", name, structure.getClass().getSimpleName()));
-      return result;
-    }
-    throw EvaluationException.ofUnsupportedDataTypeInOperation(startNode.getToken());
-  }
-
-  private EvaluationValue evaluateInfixOperator(
-      ASTNode startNode, Token token, EvaluationContext context) throws EvaluationException {
-    EvaluationValue left;
-    EvaluationValue right;
-
-    OperatorIfc op = token.getOperatorDefinition();
-    if (op.isOperandLazy()) {
-      left = ExpressionNodeValue.of(startNode.getParameters()[0]);
-      right = ExpressionNodeValue.of(startNode.getParameters()[1]);
-    } else {
-      left = evaluateSubtree(startNode.getParameters()[0], context);
-      right = evaluateSubtree(startNode.getParameters()[1], context);
-    }
-    return op.evaluate(context, token, left, right);
   }
 
   /**
@@ -244,7 +144,7 @@ public class Expression {
    * @return The copied Expression instance.
    */
   public Expression copy() {
-    return new Expression(getExpressionString(), getAbstractSyntaxTree(), getConfiguration());
+    return new Expression(getExpressionString(), getSolvable(), getConfiguration());
   }
 
   /**
@@ -267,42 +167,5 @@ public class Expression {
    */
   public EvaluationValue convertValue(Object value) {
     return EvaluationValue.of(value, configuration);
-  }
-
-  /**
-   * Returns the list of all nodes of the abstract syntax tree.
-   *
-   * @return The list of all nodes in the parsed expression.
-   */
-  public List<ASTNode> getAllASTNodes() {
-    return getAllASTNodesForNode(getAbstractSyntaxTree());
-  }
-
-  private List<ASTNode> getAllASTNodesForNode(ASTNode node) {
-    List<ASTNode> nodes = new ArrayList<>();
-    nodes.add(node);
-    for (ASTNode child : node.getParameters()) {
-      nodes.addAll(getAllASTNodesForNode(child));
-    }
-    return nodes;
-  }
-
-  /**
-   * Returns all variables that are used i the expression, excluding the constants like e.g. <code>
-   * PI</code> or <code>TRUE</code> and <code>FALSE</code>.
-   *
-   * @return All used variables excluding constants.
-   */
-  public Set<String> getUsedVariables() {
-    Set<String> variables = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-
-    for (ASTNode node : getAllASTNodes()) {
-      if (node.getToken().getType() == Token.TokenType.VARIABLE_OR_CONSTANT
-          && !configuration.getConstants().containsKey(node.getToken().getValue())) {
-        variables.add(node.getToken().getValue());
-      }
-    }
-
-    return variables;
   }
 }

@@ -13,35 +13,12 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package com.ezylang.evalex.data.types;
+package com.ezylang.evalex.parser;
 
+import com.ezylang.evalex.EvaluationContext;
+import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.data.EvaluationValue;
-import com.ezylang.evalex.parser.ASTNode;
-import lombok.*;
 
-@ToString()
-@EqualsAndHashCode(callSuper = false)
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ExpressionNodeValue implements EvaluationValue {
-
-  private final ASTNode value;
-
-  public static ExpressionNodeValue of(@NonNull ASTNode node) {
-    return new ExpressionNodeValue(node);
-  }
-
-  @Override
-  public Object getValue() {
-    return value;
-  }
-
-  @Override
-  public boolean isExpressionNode() {
-    return true;
-  }
-
-  @Override
-  public ASTNode getExpressionNode() {
-    return value;
-  }
+public interface Solvable {
+  EvaluationValue solve(EvaluationContext context) throws EvaluationException;
 }

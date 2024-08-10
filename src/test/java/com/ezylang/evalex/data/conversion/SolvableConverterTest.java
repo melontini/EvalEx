@@ -19,29 +19,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
-import com.ezylang.evalex.data.types.ExpressionNodeValue;
-import com.ezylang.evalex.parser.ASTNode;
-import com.ezylang.evalex.parser.Token;
+import com.ezylang.evalex.data.types.SolvableValue;
+import com.ezylang.evalex.data.types.StringValue;
+import com.ezylang.evalex.parser.Solvable;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 
-class ExpressionNodeConverterTest {
+class SolvableConverterTest {
 
   private final ExpressionConfiguration defaultConfiguration =
       ExpressionConfiguration.defaultConfiguration();
 
-  private final ExpressionNodeConverter converter = new ExpressionNodeConverter();
+  private final SolvableConverter converter = new SolvableConverter();
 
-  private final ASTNode testNode =
-      ASTNode.of(new Token(1, "a", Token.TokenType.VARIABLE_OR_CONSTANT));
+  private final Solvable testNode = context -> StringValue.of("Hello!");
 
   @Test
   void testDuration() {
-
     EvaluationValue converted = converter.convert(testNode, defaultConfiguration);
 
-    assertThat(converted).isInstanceOf(ExpressionNodeValue.class);
-    assertThat(converted.getExpressionNode().toJSON()).isEqualTo(testNode.toJSON());
+    assertThat(converted).isInstanceOf(SolvableValue.class);
+    assertThat(converted.getSolvable()).isEqualTo(testNode);
   }
 
   @Test

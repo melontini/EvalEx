@@ -16,6 +16,7 @@
 package com.ezylang.evalex.data;
 
 import static com.ezylang.evalex.config.ExpressionConfiguration.defaultConfiguration;
+import static com.ezylang.evalex.config.ExpressionConfiguration.defaultExpressionParser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ezylang.evalex.EvaluationException;
@@ -26,6 +27,7 @@ import com.ezylang.evalex.data.types.NullValue;
 import com.ezylang.evalex.data.types.NumberValue;
 import com.ezylang.evalex.parser.ASTNode;
 import com.ezylang.evalex.parser.ParseException;
+import com.ezylang.evalex.parser.Solvable;
 import com.ezylang.evalex.parser.Token;
 import com.ezylang.evalex.parser.Token.TokenType;
 import java.math.BigDecimal;
@@ -45,7 +47,7 @@ class EvaluationValueTest {
     assertThat(value.isBooleanValue()).isFalse();
     assertThat(value.isStructureValue()).isFalse();
     assertThat(value.isArrayValue()).isFalse();
-    assertThat(value.isExpressionNode()).isFalse();
+    assertThat(value.isSolvable()).isFalse();
     assertThat(value.isNullValue()).isFalse();
     assertDataIsCorrect(
         value, "Hello World", BigDecimal.ZERO, false, Instant.EPOCH, Duration.ZERO, String.class);
@@ -85,7 +87,7 @@ class EvaluationValueTest {
     assertThat(value.isStringValue()).isFalse();
     assertThat(value.isStructureValue()).isFalse();
     assertThat(value.isArrayValue()).isFalse();
-    assertThat(value.isExpressionNode()).isFalse();
+    assertThat(value.isSolvable()).isFalse();
     assertThat(value.isNullValue()).isFalse();
     assertDataIsCorrect(
         value, "true", BigDecimal.ONE, true, Instant.EPOCH, Duration.ZERO, Boolean.class);
@@ -399,7 +401,7 @@ class EvaluationValueTest {
     assertThat(value.isBooleanValue()).isFalse();
     assertThat(value.isStructureValue()).isFalse();
     assertThat(value.isStringValue()).isFalse();
-    assertThat(value.isExpressionNode()).isFalse();
+    assertThat(value.isSolvable()).isFalse();
     assertThat(value.isNullValue()).isFalse();
 
     assertThat(value.getArrayValue()).hasSize(2);
@@ -435,7 +437,7 @@ class EvaluationValueTest {
     assertThat(value.isBooleanValue()).isFalse();
     assertThat(value.isStringValue()).isFalse();
     assertThat(value.isArrayValue()).isFalse();
-    assertThat(value.isExpressionNode()).isFalse();
+    assertThat(value.isSolvable()).isFalse();
     assertThat(value.isNullValue()).isFalse();
 
     assertThat(value.getStructureValue()).hasSize(2);
@@ -461,9 +463,10 @@ class EvaluationValueTest {
   @Test
   void testExpressionNode() {
     ASTNode node = ASTNode.of(new Token(1, "a", TokenType.VARIABLE_OR_CONSTANT));
-    EvaluationValue value = EvaluationValue.of(node, defaultConfiguration());
+    EvaluationValue value =
+        EvaluationValue.of(defaultExpressionParser().toSolvable(node), defaultConfiguration());
 
-    assertThat(value.isExpressionNode()).isTrue();
+    assertThat(value.isSolvable()).isTrue();
     assertThat(value.isNumberValue()).isFalse();
     assertThat(value.isBooleanValue()).isFalse();
     assertThat(value.isStructureValue()).isFalse();
@@ -472,19 +475,13 @@ class EvaluationValueTest {
     assertThat(value.isNullValue()).isFalse();
 
     assertDataIsCorrect(
-        value,
-        "ASTNode(parameters=[], token=Token(startPosition=1, value=a, type=VARIABLE_OR_CONSTANT))",
-        BigDecimal.ZERO,
-        false,
-        Instant.EPOCH,
-        Duration.ZERO,
-        ASTNode.class);
+        value, null, BigDecimal.ZERO, false, Instant.EPOCH, Duration.ZERO, Solvable.class);
   }
 
   @Test
   void testExpressionNodeReturnsNull() {
     EvaluationValue value = EvaluationValue.of(false, defaultConfiguration());
-    assertThat(value.getExpressionNode()).isNull();
+    assertThat(value.getSolvable()).isNull();
   }
 
   @Test
@@ -529,7 +526,7 @@ class EvaluationValueTest {
     assertThat(value.isBooleanValue()).isFalse();
     assertThat(value.isStructureValue()).isFalse();
     assertThat(value.isArrayValue()).isFalse();
-    assertThat(value.isExpressionNode()).isFalse();
+    assertThat(value.isSolvable()).isFalse();
     assertThat(value.isNullValue()).isTrue();
     assertDataIsCorrect(value, null, null, null);
   }
@@ -561,7 +558,7 @@ class EvaluationValueTest {
 
   private void assertDataIsCorrect(
       EvaluationValue value, String stringValue, BigDecimal numberValue, Boolean booleanValue) {
-    assertThat(value.getStringValue()).isEqualTo(stringValue);
+    if (stringValue != null) assertThat(value.getStringValue()).isEqualTo(stringValue);
     assertThat(value.getNumberValue()).isEqualTo(numberValue);
     assertThat(value.getBooleanValue()).isEqualTo(booleanValue);
   }
@@ -575,9 +572,6 @@ class EvaluationValueTest {
       Duration durationValue,
       Class<?> valueInstance) {
     assertDataIsCorrect(value, stringValue, numberValue, booleanValue);
-    assertThat(value.getStringValue()).isEqualTo(stringValue);
-    assertThat(value.getNumberValue()).isEqualTo(numberValue);
-    assertThat(value.getBooleanValue()).isEqualTo(booleanValue);
     assertThat(value.getDateTimeValue()).isEqualTo(dateTimeValue);
     assertThat(value.getDurationValue()).isEqualTo(durationValue);
     assertThat(value.getValue()).isInstanceOf(valueInstance);

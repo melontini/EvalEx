@@ -40,15 +40,14 @@ public abstract class BaseEvaluationTest {
   protected EvaluationValue evaluate(String expressionString)
       throws EvaluationException, ParseException {
     Expression expression =
-        TestConfigurationProvider.StandardParserWithAdditionalTestOperators.parseAndInline(
-            expressionString);
+        TestConfigurationProvider.StandardParserWithAdditionalTestOperators.parse(expressionString);
     return expression.evaluate(EvaluationContext.builder(expression).build());
   }
 
   private EvaluationValue evaluate(String expressionString, ExpressionConfiguration configuration)
       throws EvaluationException, ParseException {
     ExpressionParser parser = new ExpressionParser(configuration);
-    Expression expression = parser.parseAndInline(expressionString);
+    Expression expression = parser.parse(expressionString);
 
     return expression.evaluate(EvaluationContext.builder(expression).build());
   }

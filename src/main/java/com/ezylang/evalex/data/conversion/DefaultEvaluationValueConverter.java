@@ -18,8 +18,12 @@ package com.ezylang.evalex.data.conversion;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.data.types.NullValue;
-import java.util.Arrays;
-import java.util.List;
+import com.ezylang.evalex.parser.ASTNode;
+import com.ezylang.evalex.parser.InlinedASTNode;
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
 
 /**
  * The default implementation of the {@link EvaluationValueConverterIfc}, used in the standard
@@ -56,23 +60,64 @@ import java.util.List;
  */
 public class DefaultEvaluationValueConverter implements EvaluationValueConverterIfc {
 
+  public static final NumberConverter NUMBER_CONVERTER = new NumberConverter();
+  public static final StringConverter STRING_CONVERTER = new StringConverter();
+  public static final BooleanConverter BOOLEAN_CONVERTER = new BooleanConverter();
+  public static final DateTimeConverter DATE_TIME_CONVERTER = new DateTimeConverter();
+  public static final DurationConverter DURATION_CONVERTER = new DurationConverter();
+  public static final ExpressionNodeConverter EXPRESSION_NODE_CONVERTER =
+      new ExpressionNodeConverter();
+  public static final ArrayConverter ARRAY_CONVERTER = new ArrayConverter();
+  public static final StructureConverter STRUCTURE_CONVERTER = new StructureConverter();
+
   static final List<ConverterIfc> converters =
       Arrays.asList(
-          new NumberConverter(),
-          new StringConverter(),
-          new BooleanConverter(),
-          new DateTimeConverter(),
-          new DurationConverter(),
-          new ExpressionNodeConverter(),
-          new ArrayConverter(),
-          new StructureConverter());
+          NUMBER_CONVERTER,
+          STRING_CONVERTER,
+          BOOLEAN_CONVERTER,
+          DATE_TIME_CONVERTER,
+          DURATION_CONVERTER,
+          EXPRESSION_NODE_CONVERTER,
+          ARRAY_CONVERTER,
+          STRUCTURE_CONVERTER);
+
+  static final Map<Class<?>, ConverterIfc> FAST_PATH;
+
+  static {
+    IdentityHashMap<Class<?>, ConverterIfc> fastPath = new IdentityHashMap<>();
+    fastPath.put(BigDecimal.class, NUMBER_CONVERTER);
+    fastPath.put(Double.class, NUMBER_CONVERTER);
+    fastPath.put(Float.class, NUMBER_CONVERTER);
+    fastPath.put(Integer.class, NUMBER_CONVERTER);
+    fastPath.put(Long.class, NUMBER_CONVERTER);
+
+    fastPath.put(String.class, STRING_CONVERTER);
+    fastPath.put(Character.class, STRING_CONVERTER);
+
+    fastPath.put(Boolean.class, BOOLEAN_CONVERTER);
+
+    fastPath.put(Instant.class, DATE_TIME_CONVERTER);
+    fastPath.put(Date.class, DATE_TIME_CONVERTER);
+
+    fastPath.put(Duration.class, DURATION_CONVERTER);
+
+    fastPath.put(ASTNode.class, EXPRESSION_NODE_CONVERTER);
+    fastPath.put(InlinedASTNode.class, EXPRESSION_NODE_CONVERTER);
+
+    fastPath.put(List.class, ARRAY_CONVERTER);
+    fastPath.put(Object[].class, ARRAY_CONVERTER);
+
+    fastPath.put(Map.class, STRUCTURE_CONVERTER);
+    FAST_PATH = Collections.unmodifiableMap(fastPath);
+  }
 
   @Override
   public EvaluationValue convertObject(Object object, ExpressionConfiguration configuration) {
-
     if (object == null) return NullValue.of();
-
     if (object instanceof EvaluationValue value) return value;
+
+    var fastPath = FAST_PATH.get(object.getClass());
+    if (fastPath != null) return fastPath.convert(object, configuration);
 
     for (ConverterIfc converter : converters) {
       if (converter.canConvert(object)) {

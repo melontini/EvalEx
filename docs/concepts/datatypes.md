@@ -18,7 +18,7 @@ EvalEx supports the following data types:
 | DURATION        | java.time.Duration                |
 | ARRAY           | java.util.List                    |
 | STRUCTURE       | java.util.Map                     |
-| EXPRESSION_NODE | com.ezylang.evalex.parser.ASTNode |
+| EXPRESSION_NODE | com.melontini.evalex.parser.ASTNode |
 | BINARY[^1]      | java.lang.Object                  |
 | NULL            | null                              |
 

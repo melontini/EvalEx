@@ -44,6 +44,11 @@ public final class StringValue implements EvaluationValue, IndexedAccessor {
   }
 
   @Override
+  public String getName() {
+    return "string";
+  }
+
+  @Override
   public boolean isStringValue() {
     return true;
   }

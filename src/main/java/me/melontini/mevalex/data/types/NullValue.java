@@ -41,6 +41,11 @@ public final class NullValue implements EvaluationValue {
   }
 
   @Override
+  public String getName() {
+    return "null";
+  }
+
+  @Override
   public boolean isNullValue() {
     return true;
   }

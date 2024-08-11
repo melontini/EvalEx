@@ -101,7 +101,7 @@ class ExpressionEvaluatorStructureTest extends BaseExpressionEvaluatorTest {
                 createExpression("a.field1 + a.field2")
                     .evaluate(builder -> builder.parameter("a", testStructure)))
         .isInstanceOf(EvaluationException.class)
-        .hasMessage("Field 'field2' not found in StructureValue")
+        .hasMessage("Field 'field2' not found in structure")
         .extracting("startPosition")
         .isEqualTo(14);
   }

@@ -112,7 +112,7 @@ public final class ExpressionParser {
               token,
               String.format(
                   "Index %s out of bounds for %s %s",
-                  index.getNumberValue(), array.getClass().getSimpleName(), array.getValue()));
+                  index.getNumberValue(), array.getName(), array.getValue()));
         return result;
       }
       throw EvaluationException.ofUnsupportedDataTypeInOperation(token);
@@ -130,9 +130,7 @@ public final class ExpressionParser {
         var result = accessor.getVariableData(name, nameToken, context);
         if (result == null)
           throw new EvaluationException(
-              nameToken,
-              String.format(
-                  "Field '%s' not found in %s", name, structure.getClass().getSimpleName()));
+              nameToken, String.format("Field '%s' not found in %s", name, structure.getName()));
         return result;
       }
       throw EvaluationException.ofUnsupportedDataTypeInOperation(startNode.getToken());

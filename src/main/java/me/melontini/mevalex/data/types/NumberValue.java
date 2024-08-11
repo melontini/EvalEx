@@ -55,6 +55,11 @@ public final class NumberValue implements EvaluationValue {
   }
 
   @Override
+  public String getName() {
+    return "number";
+  }
+
+  @Override
   public boolean isNumberValue() {
     return true;
   }

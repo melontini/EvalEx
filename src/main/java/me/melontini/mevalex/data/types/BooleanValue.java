@@ -47,6 +47,11 @@ public final class BooleanValue implements EvaluationValue {
   }
 
   @Override
+  public String getName() {
+    return "boolean";
+  }
+
+  @Override
   public boolean isBooleanValue() {
     return true;
   }

@@ -42,6 +42,11 @@ public final class StructureValue implements EvaluationValue, DataAccessorIfc {
   }
 
   @Override
+  public String getName() {
+    return "structure";
+  }
+
+  @Override
   public boolean isStructureValue() {
     return true;
   }

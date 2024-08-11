@@ -36,6 +36,11 @@ public final class DurationValue implements EvaluationValue {
   }
 
   @Override
+  public String getName() {
+    return "duration";
+  }
+
+  @Override
   public boolean isDurationValue() {
     return true;
   }

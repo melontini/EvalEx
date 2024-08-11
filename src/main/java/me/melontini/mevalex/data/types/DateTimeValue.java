@@ -36,6 +36,11 @@ public final class DateTimeValue implements EvaluationValue {
   }
 
   @Override
+  public String getName() {
+    return "date_time";
+  }
+
+  @Override
   public boolean isDateTimeValue() {
     return true;
   }

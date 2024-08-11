@@ -49,6 +49,8 @@ public interface EvaluationValue extends Comparable<EvaluationValue> {
 
   Object getValue();
 
+  String getName();
+
   default boolean isNumberValue() {
     return false;
   }

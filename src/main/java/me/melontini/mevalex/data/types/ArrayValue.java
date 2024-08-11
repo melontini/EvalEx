@@ -42,6 +42,11 @@ public final class ArrayValue implements EvaluationValue, IndexedAccessor {
   }
 
   @Override
+  public String getName() {
+    return "array";
+  }
+
+  @Override
   public boolean isArrayValue() {
     return true;
   }

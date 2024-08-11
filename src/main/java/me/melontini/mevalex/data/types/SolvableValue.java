@@ -36,6 +36,11 @@ public class SolvableValue implements EvaluationValue {
   }
 
   @Override
+  public String getName() {
+    return "solvable";
+  }
+
+  @Override
   public boolean isSolvable() {
     return true;
   }

@@ -47,17 +47,22 @@ public final class ExpressionParser {
   }
 
   public Solvable toSolvable(ASTNode node) {
-    if (node instanceof InlinedASTNode inlined)
-      return context -> context.expression().tryRoundValue(inlined.value());
+    if (node instanceof InlinedASTNode inlined) return inlined;
 
     Token token = node.getToken();
     Solvable value =
         switch (token.getType()) {
-          case VARIABLE_OR_CONSTANT -> context -> {
-            var result = context.expression().getVariableOrConstant(token, context);
-            if (result.isSolvable()) return result.getSolvable().solve(context);
-            return result;
-          };
+          case VARIABLE_OR_CONSTANT -> {
+            if (!configuration.isAllowOverwriteConstants()) {
+              var result = configuration.getConstants().get(token.getValue());
+              if (result != null) yield context -> result;
+            }
+
+            yield context -> {
+              var result = context.expression().getVariableOrConstant(token, context);
+              return result.isSolvable() ? result.getSolvable().solve(context) : result;
+            };
+          }
           case PREFIX_OPERATOR, POSTFIX_OPERATOR -> {
             OperatorIfc operator = token.getOperatorDefinition();
             Solvable solvable = toSolvable(node.getParameters()[0]);
@@ -137,19 +142,35 @@ public final class ExpressionParser {
   private Solvable functionToSolvable(ASTNode node) {
     Token token = node.getToken();
     FunctionIfc function = token.getFunctionDefinition();
-    Solvable[] solvables;
 
     if (node.getParameters().length == 0) {
-      solvables = new Solvable[0];
-    } else {
-      solvables = new Solvable[node.getParameters().length];
-      for (int i = 0; i < node.getParameters().length; i++) {
-        if (function.isParameterLazy(i)) {
-          var unwrapped = SolvableValue.of(toSolvable(node.getParameters()[i]));
-          solvables[i] = context -> unwrapped;
-        } else {
-          solvables[i] = toSolvable(node.getParameters()[i]);
-        }
+      return context -> {
+        function.validatePreEvaluation(token, EvaluationValue.EMPTY);
+        return function.evaluate(context, token, EvaluationValue.EMPTY);
+      };
+    }
+
+    if (node.getParameters().length == 1) {
+      Solvable solvable;
+      if (function.isParameterLazy(0)) {
+        var unwrapped = SolvableValue.of(toSolvable(node.getParameters()[0]));
+        solvable = context -> unwrapped;
+      } else {
+        solvable = toSolvable(node.getParameters()[0]);
+      }
+      return context -> {
+        function.validatePreEvaluation(token, solvable.solve(context));
+        return function.evaluate(context, token, solvable.solve(context));
+      };
+    }
+
+    Solvable[] solvables = new Solvable[node.getParameters().length];
+    for (int i = 0; i < node.getParameters().length; i++) {
+      if (function.isParameterLazy(i)) {
+        var unwrapped = SolvableValue.of(toSolvable(node.getParameters()[i]));
+        solvables[i] = context -> unwrapped;
+      } else {
+        solvables[i] = toSolvable(node.getParameters()[i]);
       }
     }
 

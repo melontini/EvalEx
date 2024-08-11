@@ -19,6 +19,7 @@ import me.melontini.mevalex.EvaluationContext;
 import me.melontini.mevalex.EvaluationException;
 import me.melontini.mevalex.data.EvaluationValue;
 
+@FunctionalInterface
 public interface Solvable {
   EvaluationValue solve(EvaluationContext context) throws EvaluationException;
 }

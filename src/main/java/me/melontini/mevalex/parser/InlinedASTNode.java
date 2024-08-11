@@ -21,6 +21,8 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
+import me.melontini.mevalex.EvaluationContext;
+import me.melontini.mevalex.EvaluationException;
 import me.melontini.mevalex.data.EvaluationValue;
 
 @Getter
@@ -28,7 +30,7 @@ import me.melontini.mevalex.data.EvaluationValue;
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public final class InlinedASTNode extends ASTNode {
+public final class InlinedASTNode extends ASTNode implements Solvable {
 
   private final EvaluationValue value;
 
@@ -47,5 +49,10 @@ public final class InlinedASTNode extends ASTNode {
 
   static InlinedASTNode trusted(Token token, EvaluationValue constant, ASTNode... nodes) {
     return new InlinedASTNode(token, constant, nodes);
+  }
+
+  @Override
+  public EvaluationValue solve(EvaluationContext context) throws EvaluationException {
+    return context.expression().tryRoundValue(value());
   }
 }

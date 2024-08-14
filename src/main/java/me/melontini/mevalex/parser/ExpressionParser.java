@@ -106,19 +106,17 @@ public final class ExpressionParser {
       ASTNode parameter = parameters[i];
 
       if (function.isParameterLazy(i)) {
-        if (!canInline(parameter)) allMatch = false;
-        result[i] = SolvableValue.of(toSolvable(node));
+        if (!canInline(parameter)) return node;
+        result[i] = SolvableValue.of(toSolvable(parameter));
       } else {
-        parameters[i] = inline(parent, parameters[i]);
-        if (!(parameters[i] instanceof InlinedASTNode inlined)) {
-          allMatch = false;
-          continue;
-        }
-        result[i] = inlined.value();
+        parameters[i] = inline(parent, parameter);
+        if (!(parameters[i] instanceof InlinedASTNode inlined)) allMatch = false;
+        else result[i] = inlined.value();
       }
     }
     if (!allMatch) return node;
 
+    function.validatePreEvaluation(token, result);
     return InlinedASTNode.of(
         token,
         function.evaluate(EvaluationContext.builder(parent).build(), token, result),

@@ -43,14 +43,14 @@ public class ASTNode {
   public static final ASTNode[] EMPTY = new ASTNode[0];
 
   /** The children od the tree. */
-  ASTNode[] parameters;
+  protected ASTNode[] parameters;
 
   /** The token associated with this tree node. */
-  Token token;
+  protected Token token;
 
   protected ASTNode(Token token, ASTNode... parameters) {
     this.token = token;
-    this.parameters = parameters;
+    this.parameters = parameters.length == 0 ? EMPTY : parameters;
   }
 
   public static ASTNode of(Token token) {

@@ -64,4 +64,9 @@ public class DateTimeTodayFunction extends AbstractFunction {
     }
     return expression.getConfiguration().getZoneId();
   }
+
+  @Override
+  public boolean canInline() {
+    return false;
+  }
 }

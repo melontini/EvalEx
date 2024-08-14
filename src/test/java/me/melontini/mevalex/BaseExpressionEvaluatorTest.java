@@ -32,7 +32,7 @@ public abstract class BaseExpressionEvaluatorTest {
     return expression.evaluate(EvaluationContext.builder(expression).build()).getStringValue();
   }
 
-  Expression createExpression(String expressionString) throws ParseException {
+  Expression createExpression(String expressionString) throws ParseException, EvaluationException {
     return parser.parse(expressionString);
   }
 }

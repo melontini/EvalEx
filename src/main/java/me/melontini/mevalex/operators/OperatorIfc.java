@@ -129,4 +129,8 @@ public interface OperatorIfc {
   EvaluationValue evaluate(
       EvaluationContext context, Token operatorToken, EvaluationValue... operands)
       throws EvaluationException;
+
+  default boolean canInline() {
+    return true;
+  }
 }

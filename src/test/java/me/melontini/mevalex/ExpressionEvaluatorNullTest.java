@@ -76,7 +76,7 @@ class ExpressionEvaluatorNullTest extends BaseExpressionEvaluatorTest {
   }
 
   @Test
-  void testFailWithNoHandling() throws ParseException {
+  void testFailWithNoHandling() throws ParseException, EvaluationException {
     Expression expression1 = createExpression("a * 5");
     assertThatThrownBy(() -> expression1.evaluate(builder -> builder.parameter("a", null)))
         .isInstanceOf(EvaluationException.class)

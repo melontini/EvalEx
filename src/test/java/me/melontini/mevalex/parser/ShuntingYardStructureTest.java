@@ -40,7 +40,7 @@ class ShuntingYardStructureTest extends BaseParserTest {
   void testArrayCombination() throws ParseException {
     assertASTTreeIsEqualTo(
         "order[4].position[2].amount",
-        "{\"type\":\"STRUCTURE_SEPARATOR\",\"value\":\".\",\"children\":[{\"type\":\"ARRAY_INDEX\",\"value\":\"[\",\"children\":[{\"type\":\"STRUCTURE_SEPARATOR\",\"value\":\".\",\"children\":[{\"type\":\"ARRAY_INDEX\",\"value\":\"[\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"order\"},{\"type\":\"NUMBER_LITERAL\",\"value\":\"4\"}]},{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"position\"}]},{\"type\":\"NUMBER_LITERAL\",\"value\":\"2\"}]},{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"amount\"}]}");
+        "{\"type\":\"STRUCTURE_SEPARATOR\",\"value\":\".\",\"children\":[{\"type\":\"ARRAY_INDEX\",\"value\":\"[\",\"children\":[{\"type\":\"STRUCTURE_SEPARATOR\",\"value\":\".\",\"children\":[{\"type\":\"ARRAY_INDEX\",\"value\":\"[\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"order\"},{\"type\":\"NUMBER_LITERAL\",\"value\":\"4\",\"result\":\"4\"}]},{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"position\"}]},{\"type\":\"NUMBER_LITERAL\",\"value\":\"2\",\"result\":\"2\"}]},{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"amount\"}]}");
   }
 
   @Test

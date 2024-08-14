@@ -32,4 +32,9 @@ public class RandomFunction extends AbstractFunction {
 
     return context.expression().convertDoubleValue(secureRandom.nextDouble());
   }
+
+  @Override
+  public boolean canInline() {
+    return false;
+  }
 }

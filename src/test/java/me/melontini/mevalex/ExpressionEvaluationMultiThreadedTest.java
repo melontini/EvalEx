@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 
 class ExpressionEvaluationMultiThreadedTest {
   @Test
-  void testThreadLocal() throws InterruptedException, ParseException {
+  void testThreadLocal() throws InterruptedException, ParseException, EvaluationException {
 
     AtomicInteger errorCount = new AtomicInteger();
 

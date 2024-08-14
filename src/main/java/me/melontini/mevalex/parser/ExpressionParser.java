@@ -15,7 +15,10 @@
 */
 package me.melontini.mevalex.parser;
 
+import java.util.Arrays;
+import java.util.Objects;
 import lombok.Getter;
+import me.melontini.mevalex.EvaluationContext;
 import me.melontini.mevalex.EvaluationException;
 import me.melontini.mevalex.Expression;
 import me.melontini.mevalex.config.ExpressionConfiguration;
@@ -39,11 +42,172 @@ public final class ExpressionParser {
     this.converter = new ShuntingYardConverter(configuration);
   }
 
-  public Expression parse(String expression) throws ParseException {
-    return new Expression(
-        expression,
-        this.toSolvable(converter.toAbstractSyntaxTree(tokenizer.parse(expression), expression)),
-        configuration);
+  public Expression parse(String expression) throws ParseException, EvaluationException {
+    ASTNode root = converter.toAbstractSyntaxTree(tokenizer.parse(expression), expression);
+    var proxy = new Expression(expression, toSolvable(root), configuration);
+    return new Expression(expression, toSolvable(inline(proxy, root)), configuration);
+  }
+
+  public ASTNode inline(Expression parent, ASTNode node) throws EvaluationException {
+    if (node instanceof InlinedASTNode) return tryRound(parent, node);
+
+    // We declare the index not inlineable, but its parameters on the other hand...
+    var parameters = node.getParameters();
+    for (int i = 0; i < parameters.length; i++) {
+      switch (parameters[i].getToken().getType()) {
+        case ARRAY_INDEX, STRUCTURE_SEPARATOR -> parameters[i] = inline(parent, parameters[i]);
+      }
+    }
+
+    Token token = node.getToken();
+    return tryRound(
+        parent,
+        switch (token.getType()) {
+          case VARIABLE_OR_CONSTANT -> {
+            if (!configuration.isAllowOverwriteConstants()) {
+              var result = configuration.getConstants().get(token.getValue());
+              if (result != null) yield InlinedASTNode.of(token, result);
+            }
+            yield node;
+          }
+          case PREFIX_OPERATOR, POSTFIX_OPERATOR -> inlinePrePostfix(parent, token, node);
+          case INFIX_OPERATOR -> inlineInfix(parent, token, node);
+          case FUNCTION -> inlineFunction(parent, token, node);
+          case ARRAY_INDEX -> {
+            for (int i1 = 0; i1 < 2; i1++)
+              node.getParameters()[i1] = inline(parent, node.getParameters()[i1]);
+            yield node;
+          }
+          case STRUCTURE_SEPARATOR -> {
+            node.getParameters()[0] = inline(parent, node.getParameters()[0]);
+            yield node;
+          }
+          default -> throw new IllegalStateException("Unexpected evaluation token: " + token);
+        });
+  }
+
+  private ASTNode tryRound(Expression parent, ASTNode node) {
+    if (!(node instanceof InlinedASTNode inlined)) return node;
+
+    var result = parent.tryRoundValue(inlined.value());
+    if (Objects.equals(result.getValue(), inlined.value().getValue())) return inlined;
+    return InlinedASTNode.of(node.getToken(), result, node.getParameters());
+  }
+
+  private ASTNode inlineFunction(Expression parent, Token token, ASTNode node)
+      throws EvaluationException {
+    var function = token.getFunctionDefinition();
+    if (!function.canInline()) return node;
+    var parameters = node.getParameters();
+
+    EvaluationValue[] result = new EvaluationValue[parameters.length];
+    boolean allMatch = true;
+    for (int i = 0; i < parameters.length; i++) {
+      ASTNode parameter = parameters[i];
+
+      if (function.isParameterLazy(i)) {
+        if (!canInline(parameter)) allMatch = false;
+        result[i] = SolvableValue.of(toSolvable(node));
+      } else {
+        parameters[i] = inline(parent, parameters[i]);
+        if (!(parameters[i] instanceof InlinedASTNode inlined)) {
+          allMatch = false;
+          continue;
+        }
+        result[i] = inlined.value();
+      }
+    }
+    if (!allMatch) return node;
+
+    return InlinedASTNode.of(
+        token,
+        function.evaluate(EvaluationContext.builder(parent).build(), token, result),
+        parameters);
+  }
+
+  private ASTNode inlineInfix(Expression parent, Token token, ASTNode node)
+      throws EvaluationException {
+    var operator = token.getOperatorDefinition();
+    var parameters = node.getParameters();
+
+    if (!operator.isOperandLazy()) {
+      boolean allMatch = true;
+      for (int i = 0; i < 2; i++) {
+        if (!((parameters[i] = inline(parent, parameters[i])) instanceof InlinedASTNode))
+          allMatch = false;
+      }
+      if (!allMatch) return node;
+
+      if (operator.canInline()) {
+        return InlinedASTNode.of(
+            token,
+            operator.evaluate(
+                EvaluationContext.builder(parent).build(),
+                token,
+                Arrays.stream(parameters)
+                    .map(node1 -> ((InlinedASTNode) node1).value())
+                    .toArray(EvaluationValue[]::new)),
+            parameters);
+      }
+      return node;
+    } else {
+      if (!operator.canInline()) return node;
+
+      SolvableValue[] lazy = new SolvableValue[parameters.length];
+      for (int i = 0; i < parameters.length; i++) {
+        ASTNode parameter = parameters[i];
+        if (!canInline(parameter)) return node;
+        lazy[i] = SolvableValue.of(toSolvable(parameter));
+      }
+      return InlinedASTNode.of(
+          token,
+          operator.evaluate(EvaluationContext.builder(parent).build(), token, lazy),
+          parameters);
+    }
+  }
+
+  /**
+   * When working with lazy operand we cannot immediately inline the operand as it can throw an
+   * {@link EvaluationException}.
+   *
+   * @return If the node can be safely inlined.
+   */
+  private boolean canInline(ASTNode node) {
+    if (node instanceof InlinedASTNode) return true;
+
+    Token token = node.getToken();
+    return switch (token.getType()) {
+      case VARIABLE_OR_CONSTANT -> !configuration.isAllowOverwriteConstants()
+          && configuration.getConstants().containsKey(token.getValue());
+      case PREFIX_OPERATOR, POSTFIX_OPERATOR, INFIX_OPERATOR -> {
+        if (!token.getOperatorDefinition().canInline()) yield false;
+        for (ASTNode parameter : node.getParameters()) {
+          if (!canInline(parameter)) yield false;
+        }
+        yield true;
+      }
+      case FUNCTION -> {
+        if (!token.getFunctionDefinition().canInline()) yield false;
+        for (ASTNode parameter : node.getParameters()) {
+          if (!canInline(parameter)) yield false;
+        }
+        yield true;
+      }
+      default -> false;
+    };
+  }
+
+  private ASTNode inlinePrePostfix(Expression parent, Token token, ASTNode node)
+      throws EvaluationException {
+    var operator = token.getOperatorDefinition();
+    node.getParameters()[0] = inline(parent, node.getParameters()[0]);
+    if (node.getParameters()[0] instanceof InlinedASTNode inlined && operator.canInline()) {
+      return InlinedASTNode.of(
+          token,
+          operator.evaluate(EvaluationContext.builder(parent).build(), token, inlined.value()),
+          node.getParameters());
+    }
+    return node;
   }
 
   public Solvable toSolvable(ASTNode node) {

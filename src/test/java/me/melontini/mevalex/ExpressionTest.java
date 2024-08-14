@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 class ExpressionTest {
 
   @Test
-  void testExpressionDefaults() throws ParseException {
+  void testExpressionDefaults() throws ParseException, EvaluationException {
     Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("a+b");
 
     assertThat(expression.getExpressionString()).isEqualTo("a+b");
@@ -51,7 +51,7 @@ class ExpressionTest {
   }
 
   @Test
-  void testValidateOK() throws ParseException {
+  void testValidateOK() throws ParseException, EvaluationException {
     ExpressionConfiguration.defaultExpressionParser().parse("1+1");
   }
 
@@ -131,7 +131,8 @@ class ExpressionTest {
 
   @SuppressWarnings("Convert2Lambda")
   @Test
-  void testDefaultExpressionOwnsOwnConfigurationEntries() throws ParseException {
+  void testDefaultExpressionOwnsOwnConfigurationEntries()
+      throws ParseException, EvaluationException {
     Supplier<ExpressionConfiguration> configuration =
         () ->
             ExpressionConfiguration.builder()
@@ -158,7 +159,7 @@ class ExpressionTest {
   }
 
   @Test
-  void testDoubleConverterDefaultMathContext() throws ParseException {
+  void testDoubleConverterDefaultMathContext() throws ParseException, EvaluationException {
     Expression defaultMathContextExpression =
         ExpressionConfiguration.defaultExpressionParser().parse("1");
     assertThat(defaultMathContextExpression.convertDoubleValue(1.67987654321).getNumberValue())
@@ -166,7 +167,7 @@ class ExpressionTest {
   }
 
   @Test
-  void testDoubleConverterLimitedMathContext() throws ParseException {
+  void testDoubleConverterLimitedMathContext() throws ParseException, EvaluationException {
     Expression limitedMathContextExpression =
         new ExpressionParser(
                 ExpressionConfiguration.builder().mathContext(new MathContext(3)).build())

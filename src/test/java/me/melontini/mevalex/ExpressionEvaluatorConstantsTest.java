@@ -92,7 +92,7 @@ class ExpressionEvaluatorConstantsTest extends BaseExpressionEvaluatorTest {
   }
 
   @Test
-  void testOverwriteConstantsNotAllowed() throws ParseException {
+  void testOverwriteConstantsNotAllowed() throws ParseException, EvaluationException {
     Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("e");
     assertThatThrownBy(() -> expression.evaluate(builder -> builder.parameter("e", 9)))
         .isInstanceOf(UnsupportedOperationException.class)

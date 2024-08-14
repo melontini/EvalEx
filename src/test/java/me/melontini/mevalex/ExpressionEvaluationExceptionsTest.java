@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 class ExpressionEvaluationExceptionsTest {
 
   @Test
-  void testUnexpectedToken() throws ParseException {
+  void testUnexpectedToken() throws ParseException, EvaluationException {
     Expression expression = ExpressionConfiguration.defaultExpressionParser().parse("1");
 
     assertThatThrownBy(

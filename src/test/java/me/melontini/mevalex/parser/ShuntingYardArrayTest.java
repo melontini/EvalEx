@@ -23,7 +23,7 @@ class ShuntingYardArrayTest extends BaseParserTest {
   void testSimpleArray() throws ParseException {
     assertASTTreeIsEqualTo(
         "a[0]",
-        "{\"type\":\"ARRAY_INDEX\",\"value\":\"[\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"a\"},{\"type\":\"NUMBER_LITERAL\",\"value\":\"0\"}]}");
+        "{\"type\":\"ARRAY_INDEX\",\"value\":\"[\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"a\"},{\"type\":\"NUMBER_LITERAL\",\"value\":\"0\",\"result\":\"0\"}]}");
   }
 
   @Test
@@ -37,13 +37,13 @@ class ShuntingYardArrayTest extends BaseParserTest {
   void testArrayNested() throws ParseException {
     assertASTTreeIsEqualTo(
         "a[b[1]]",
-        "{\"type\":\"ARRAY_INDEX\",\"value\":\"[\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"a\"},{\"type\":\"ARRAY_INDEX\",\"value\":\"[\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"b\"},{\"type\":\"NUMBER_LITERAL\",\"value\":\"1\"}]}]}");
+        "{\"type\":\"ARRAY_INDEX\",\"value\":\"[\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"a\"},{\"type\":\"ARRAY_INDEX\",\"value\":\"[\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"b\"},{\"type\":\"NUMBER_LITERAL\",\"value\":\"1\",\"result\":\"1\"}]}]}");
   }
 
   @Test
   void testComplex() throws ParseException {
     assertASTTreeIsEqualTo(
         "a[b[100*(a+b)]-c[2+d[x+y]]]",
-        "{\"type\":\"ARRAY_INDEX\",\"value\":\"[\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"a\"},{\"type\":\"INFIX_OPERATOR\",\"value\":\"-\",\"children\":[{\"type\":\"ARRAY_INDEX\",\"value\":\"[\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"b\"},{\"type\":\"INFIX_OPERATOR\",\"value\":\"*\",\"children\":[{\"type\":\"NUMBER_LITERAL\",\"value\":\"100\"},{\"type\":\"INFIX_OPERATOR\",\"value\":\"+\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"a\"},{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"b\"}]}]}]},{\"type\":\"ARRAY_INDEX\",\"value\":\"[\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"c\"},{\"type\":\"INFIX_OPERATOR\",\"value\":\"+\",\"children\":[{\"type\":\"NUMBER_LITERAL\",\"value\":\"2\"},{\"type\":\"ARRAY_INDEX\",\"value\":\"[\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"d\"},{\"type\":\"INFIX_OPERATOR\",\"value\":\"+\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"x\"},{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"y\"}]}]}]}]}]}]}");
+        "{\"type\":\"ARRAY_INDEX\",\"value\":\"[\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"a\"},{\"type\":\"INFIX_OPERATOR\",\"value\":\"-\",\"children\":[{\"type\":\"ARRAY_INDEX\",\"value\":\"[\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"b\"},{\"type\":\"INFIX_OPERATOR\",\"value\":\"*\",\"children\":[{\"type\":\"NUMBER_LITERAL\",\"value\":\"100\",\"result\":\"100\"},{\"type\":\"INFIX_OPERATOR\",\"value\":\"+\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"a\"},{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"b\"}]}]}]},{\"type\":\"ARRAY_INDEX\",\"value\":\"[\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"c\"},{\"type\":\"INFIX_OPERATOR\",\"value\":\"+\",\"children\":[{\"type\":\"NUMBER_LITERAL\",\"value\":\"2\",\"result\":\"2\"},{\"type\":\"ARRAY_INDEX\",\"value\":\"[\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"d\"},{\"type\":\"INFIX_OPERATOR\",\"value\":\"+\",\"children\":[{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"x\"},{\"type\":\"VARIABLE_OR_CONSTANT\",\"value\":\"y\"}]}]}]}]}]}]}");
   }
 }

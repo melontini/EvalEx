@@ -43,4 +43,9 @@ public class DateTimeNowFunction extends AbstractFunction {
       EvaluationContext context, Token functionToken, EvaluationValue... parameterValues) {
     return DateTimeValue.of(Instant.now());
   }
+
+  @Override
+  public boolean canInline() {
+    return false;
+  }
 }

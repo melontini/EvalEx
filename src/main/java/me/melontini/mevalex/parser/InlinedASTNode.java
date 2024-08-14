@@ -15,6 +15,8 @@
 */
 package me.melontini.mevalex.parser;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -47,8 +49,18 @@ public final class InlinedASTNode extends ASTNode implements Solvable {
     return new InlinedASTNode(token, constant, nodes);
   }
 
-  static InlinedASTNode trusted(Token token, EvaluationValue constant, ASTNode... nodes) {
-    return new InlinedASTNode(token, constant, nodes);
+  public String toJSON() {
+    if (parameters.length == 0) {
+      return String.format(
+          "{" + "\"type\":\"%s\",\"value\":\"%s\",\"result\":\"%s\"}",
+          token.getType(), token.getValue(), value.getStringValue());
+    } else {
+      String childrenJson =
+          Arrays.stream(parameters).map(ASTNode::toJSON).collect(Collectors.joining(","));
+      return String.format(
+          "{" + "\"type\":\"%s\",\"value\":\"%s\",\"result\":\"%s\",\"children\":[%s]}",
+          token.getType(), token.getValue(), value.getStringValue(), childrenJson);
+    }
   }
 
   @Override

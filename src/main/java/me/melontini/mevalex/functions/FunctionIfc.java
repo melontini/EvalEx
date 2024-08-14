@@ -88,4 +88,8 @@ public interface FunctionIfc {
     int numOfParameters = getFunctionParameterDefinitions().size();
     return hasVarArgs() ? numOfParameters - 1 : numOfParameters;
   }
+
+  default boolean canInline() {
+    return true;
+  }
 }

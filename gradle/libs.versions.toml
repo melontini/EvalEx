@@ -12,5 +12,5 @@ jabel = { module = "com.pkware.jabel:jabel-javac-plugin", version = "1.0.1-1" }
 jetbrains-annotations = { module = "org.jetbrains:annotations", version = "24.1.0"}
 
 [plugins]
-lombok = { id = "io.freefair.lombok", version = "8.6"}
+lombok = { id = "io.freefair.lombok", version = "8.10"}
 spotless = { id = "com.diffplug.spotless", version = "6.25.0" }

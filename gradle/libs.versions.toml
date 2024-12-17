@@ -4,7 +4,7 @@
 [versions]
 
 [libraries]
-junit-bom = { module = "org.junit:junit-bom", version = "5.11.3" }
+junit-bom = { module = "org.junit:junit-bom", version = "5.11.4" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version = "5.11.3" }
 assertj-core = { module = "org.assertj:assertj-core", version = "3.26.3" }
 mockito-core = { module = "org.mockito:mockito-core", version = "5.14.2" }
